@@ -1,0 +1,21 @@
+import Link from "next/link";
+import type { DisplayCategory } from "@/lib/a3lam/catalog";
+
+type CategoryCardProps = {
+  category: DisplayCategory;
+};
+
+export function CategoryCard({ category }: CategoryCardProps) {
+  return (
+    <Link className={`category-card category-${category.tone}`} href={`#category-${category.id}`}>
+      <span className="category-number">{category.count}</span>
+      <span className="category-icon" aria-hidden="true">
+        {category.icon}
+      </span>
+      <span className="category-label">{category.label}</span>
+      <span className="category-arrow" aria-hidden="true">
+        ↗
+      </span>
+    </Link>
+  );
+}

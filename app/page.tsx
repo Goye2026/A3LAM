@@ -1,108 +1,137 @@
+import { CategoryCard } from "@/components/a3lam/CategoryCard";
+import { PersonCard } from "@/components/a3lam/PersonCard";
+import { SearchDiscovery } from "@/components/a3lam/SearchDiscovery";
+import { SiteHeader } from "@/components/a3lam/SiteHeader";
+import { displayCategories, displayPeople } from "@/lib/a3lam/catalog";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
-import {
-  Button,
-  FoundationLink,
-  Heading,
-  Surface,
-  Text,
-} from "@/components/foundation/Primitives";
 
-export default function FoundationPage() {
+const stats = [
+  { value: "01", labelKey: "statsPeople" },
+  { value: "07", labelKey: "statsCategories" },
+  { value: "∞", labelKey: "statsCountries" },
+] as const;
+
+export default function HomePage() {
   const copy = getMessages(defaultLocale);
-  const foundationSamples = [
-    { label: copy.sampleArabicLabel, value: copy.sampleArabicValue },
-    { label: copy.sampleMixedLabel, value: copy.sampleMixedValue },
-    { label: copy.sampleNumbersLabel, value: copy.sampleNumbersValue },
-  ] as const;
 
   return (
-    <main className="shell">
-      <header className="site-header" aria-label={copy.brandName}>
-        <div className="brand-lockup">
-          <span className="brand-mark" aria-hidden="true">
-            أ
-          </span>
-          <div>
-            <p className="eyebrow">{copy.brandEyebrow}</p>
-            <p className="brand-name">{copy.brandName}</p>
-          </div>
-        </div>
-        <span className="status-chip" role="status">
-          {copy.phaseStatus}
-        </span>
-      </header>
+    <main id="top" className="a3lam-page">
+      <div className="a3lam-shell">
+        <SiteHeader copy={copy} />
 
-      <section className="hero" aria-labelledby="page-title">
-        <div className="hero-copy">
-          <p className="eyebrow">{copy.heroEyebrow}</p>
-          <Heading level={1} id="page-title">
-            {copy.heroTitle}
-          </Heading>
-          <Text className="hero-lede">{copy.heroLede}</Text>
-          <div className="action-row">
-            <Button className="button button-primary" type="button">
-              {copy.primaryAction}
-            </Button>
-            <FoundationLink className="button button-secondary" href="#tokens">
-              {copy.secondaryAction}
-            </FoundationLink>
+        <section className="a3lam-hero" aria-labelledby="hero-title">
+          <div className="hero-visual" aria-hidden="true">
+            <div className="hero-orbit hero-orbit-one" />
+            <div className="hero-orbit hero-orbit-two" />
+            <div className="hero-seal">
+              <span>أ</span>
+              <small>A3LAM</small>
+            </div>
+            <span className="hero-coordinate coordinate-one">16° N</span>
+            <span className="hero-coordinate coordinate-two">YEMEN / 01</span>
           </div>
-        </div>
-        <Surface className="hero-note" aria-label={copy.scopeKicker}>
-          <span className="note-kicker">{copy.scopeKicker}</span>
-          <strong>{copy.scopeTitle}</strong>
-          <span>{copy.scopeDescription}</span>
-        </Surface>
-      </section>
+          <div className="hero-content">
+            <p className="eyebrow">{copy.heroEyebrow}</p>
+            <h1 id="hero-title">{copy.heroTitle}</h1>
+            <p className="hero-lede">{copy.heroLede}</p>
+            <div className="hero-actions">
+              <a className="button button-primary" href="#featured">
+                {copy.heroCta}
+                <span aria-hidden="true">↗</span>
+              </a>
+              <a className="button button-quiet" href="#about">
+                {copy.heroSecondary}
+              </a>
+            </div>
+            <div className="hero-note-line">
+              <span className="note-dot" aria-hidden="true" />
+              <span>{copy.scopeDescription}</span>
+            </div>
+          </div>
+        </section>
 
-      <section className="sample-grid" aria-labelledby="samples-title">
-        <div className="section-heading">
-          <p className="eyebrow">{copy.samplesEyebrow}</p>
-          <Heading level={2} id="samples-title">
-            {copy.samplesTitle}
-          </Heading>
-        </div>
-        <div className="sample-cards">
-          {foundationSamples.map((sample) => (
-            <Surface className="sample-card" key={sample.label}>
-              <p className="sample-label">{sample.label}</p>
-              <p className="sample-value">{sample.value}</p>
-            </Surface>
+        <section className="stats-strip" aria-label={copy.phaseStatus}>
+          {stats.map((stat) => (
+            <div className="stat-item" key={stat.value}>
+              <strong>{stat.value}</strong>
+              <span>{copy[stat.labelKey]}</span>
+            </div>
           ))}
-        </div>
-      </section>
+          <div className="stat-source">
+            <span className="stat-source-line" aria-hidden="true" />
+            <span>{copy.demoDataNote}</span>
+          </div>
+        </section>
 
-      <section className="token-panel" id="tokens" aria-labelledby="tokens-title">
-        <div className="section-heading">
-          <p className="eyebrow">{copy.tokensEyebrow}</p>
-          <Heading level={2} id="tokens-title">
-            {copy.tokensTitle}
-          </Heading>
-        </div>
-        <div className="token-list">
-          <div className="token-row">
-            <span className="swatch swatch-ink" aria-hidden="true" />
-            <span>{copy.tokenInk}</span>
-            <code>--color-ink</code>
-          </div>
-          <div className="token-row">
-            <span className="swatch swatch-brand" aria-hidden="true" />
-            <span>{copy.tokenBrand}</span>
-            <code>--color-brand</code>
-          </div>
-          <div className="token-row">
-            <span className="swatch swatch-accent" aria-hidden="true" />
-            <span>{copy.tokenAccent}</span>
-            <code>--color-accent</code>
-          </div>
-        </div>
-      </section>
+        <SearchDiscovery copy={copy} />
 
-      <footer className="site-footer">
-        <span>{copy.footerRtl}</span>
-        <span>{copy.footerNote}</span>
-      </footer>
+        <section className="section-block" id="featured" aria-labelledby="featured-title">
+          <div className="section-header-row">
+            <div>
+              <p className="eyebrow">{copy.featuredEyebrow}</p>
+              <h2 id="featured-title">{copy.featuredTitle}</h2>
+            </div>
+            <a className="text-link" href="#categories">
+              {copy.viewAll} <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+          <p className="section-description">{copy.featuredDescription}</p>
+          <div className="people-grid">
+            {displayPeople.map((person) => (
+              <PersonCard key={person.id} person={person} copy={copy} />
+            ))}
+          </div>
+        </section>
+
+        <section className="section-block categories-section" id="categories" aria-labelledby="categories-title">
+          <div className="section-header-row">
+            <div>
+              <p className="eyebrow">{copy.categoriesEyebrow}</p>
+              <h2 id="categories-title">{copy.categoriesTitle}</h2>
+            </div>
+            <span className="section-index" aria-hidden="true">02 / 03</span>
+          </div>
+          <p className="section-description">{copy.categoriesDescription}</p>
+          <div className="category-grid">
+            {displayCategories.map((category) => (
+              <CategoryCard key={category.id} category={category} />
+            ))}
+          </div>
+        </section>
+
+        <section className="editorial-band" id="about" aria-labelledby="cta-title">
+          <div className="editorial-mark" aria-hidden="true">“</div>
+          <div>
+            <p className="eyebrow">{copy.ctaEyebrow}</p>
+            <h2 id="cta-title">{copy.ctaTitle}</h2>
+            <p>{copy.ctaDescription}</p>
+          </div>
+          <a className="button button-light" href="#search">
+            {copy.ctaAction}
+            <span aria-hidden="true">↗</span>
+          </a>
+        </section>
+
+        <footer className="a3lam-footer">
+          <div className="footer-brand">
+            <span className="footer-mark" aria-hidden="true">أ</span>
+            <div>
+              <strong>{copy.siteName}</strong>
+              <p>{copy.footerTagline}</p>
+            </div>
+          </div>
+          <div className="footer-links" aria-label={copy.siteName}>
+            <a href="#featured">{copy.footerExplore}</a>
+            <a href="#about">{copy.footerContribute}</a>
+            <a href="#top">{copy.footerAbout}</a>
+          </div>
+          <div className="footer-meta">
+            <span>{copy.footerRights}</span>
+            <span>{copy.footerNote}</span>
+          </div>
+        </footer>
+      </div>
     </main>
   );
 }
