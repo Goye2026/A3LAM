@@ -40,6 +40,10 @@ export type FoundationMessages = {
   searchHint: string;
   searchResults: string;
   searchEmpty: string;
+  searchLoading: string;
+  searchError: string;
+  searchFilterLabel: string;
+  searchAllCategories: string;
   closeSearch: string;
   heroCta: string;
   heroSecondary: string;
@@ -52,6 +56,7 @@ export type FoundationMessages = {
   viewAll: string;
   profileStatus: string;
   profileStatusNote: string;
+  publishedProfileStatus: string;
   samplePersonOneName: string;
   samplePersonOneRole: string;
   samplePersonOneMeta: string;
@@ -91,6 +96,10 @@ export type FoundationMessages = {
   educationLabel: string;
   sourcesLabel: string;
   notPublished: string;
+  notFoundEyebrow: string;
+  notFoundTitle: string;
+  notFoundDescription: string;
+  notFoundAction: string;
 };
 
 const ar: FoundationMessages = {
@@ -133,7 +142,11 @@ const ar: FoundationMessages = {
   searchAction: "بحث",
   searchHint: "جرّب اسمًا أو مجالًا لاكتشاف ملفات موثقة",
   searchResults: "نتائج البحث",
-  searchEmpty: "لم نعثر على تطابق في عينات العرض الحالية.",
+  searchEmpty: "لم نعثر على تطابق في السجلات المنشورة الحالية.",
+  searchLoading: "جارٍ البحث في السجلات المنشورة...",
+  searchError: "تعذر تنفيذ البحث الآن. حاول مرة أخرى.",
+  searchFilterLabel: "التصنيف",
+  searchAllCategories: "كل التصنيفات",
   closeSearch: "إغلاق البحث",
   heroCta: "اكتشف الشخصيات",
   heroSecondary: "كيف نتحقق؟",
@@ -146,6 +159,7 @@ const ar: FoundationMessages = {
   viewAll: "عرض الدليل",
   profileStatus: "نموذج عرض",
   profileStatusNote: "بيانات تجريبية لتوضيح الواجهة — ليست ملفًا منشورًا.",
+  publishedProfileStatus: "ملف منشور",
   samplePersonOneName: "نموذج شخصية أولى",
   samplePersonOneRole: "الإعلام والصحافة",
   samplePersonOneMeta: "اليمن · ملف قيد المراجعة",
@@ -185,6 +199,10 @@ const ar: FoundationMessages = {
   educationLabel: "التعليم والخبرة",
   sourcesLabel: "المصادر والتحقق",
   notPublished: "غير منشور بعد",
+  notFoundEyebrow: "404 / أعلام",
+  notFoundTitle: "هذه الصفحة غير موجودة",
+  notFoundDescription: "لم نتمكن من العثور على الملف أو المسار المطلوب.",
+  notFoundAction: "العودة إلى الرئيسية",
 };
 
 const en: FoundationMessages = {
@@ -227,7 +245,11 @@ const en: FoundationMessages = {
   searchAction: "Search",
   searchHint: "Try a name or field to discover reviewed profiles",
   searchResults: "Search results",
-  searchEmpty: "No match in the current display samples.",
+  searchEmpty: "No match in the current published records.",
+  searchLoading: "Searching published records...",
+  searchError: "Search is unavailable right now. Try again.",
+  searchFilterLabel: "Category",
+  searchAllCategories: "All categories",
   closeSearch: "Close search",
   heroCta: "Explore people",
   heroSecondary: "How we verify",
@@ -240,6 +262,7 @@ const en: FoundationMessages = {
   viewAll: "View directory",
   profileStatus: "Display sample",
   profileStatusNote: "Demo data to explain the interface — not a published profile.",
+  publishedProfileStatus: "Published profile",
   samplePersonOneName: "Sample profile one",
   samplePersonOneRole: "Media & Journalism",
   samplePersonOneMeta: "Yemen · under review",
@@ -279,6 +302,10 @@ const en: FoundationMessages = {
   educationLabel: "Education & experience",
   sourcesLabel: "Sources & verification",
   notPublished: "Not published yet",
+  notFoundEyebrow: "404 / A3LAM",
+  notFoundTitle: "This page does not exist",
+  notFoundDescription: "We could not find the requested profile or route.",
+  notFoundAction: "Return home",
 };
 
 export const messages: Record<Locale, FoundationMessages> = { ar, en };

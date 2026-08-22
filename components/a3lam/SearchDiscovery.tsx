@@ -1,34 +1,63 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
-import { displayPeople } from "@/lib/a3lam/catalog";
+import type { FormEvent } from "react";
+import { useEffect, useState } from "react";
+import type { Category, Person } from "@/lib/domain/a3lam";
+import { personService } from "@/lib/services/personService";
 import type { FoundationMessages } from "@/lib/i18n/messages";
 import { Input } from "@/components/foundation/Primitives";
 import { PersonCard } from "./PersonCard";
 
 type SearchDiscoveryProps = {
   copy: FoundationMessages;
+  categories: Category[];
 };
 
-export function SearchDiscovery({ copy }: SearchDiscoveryProps) {
+type SearchState = "idle" | "loading" | "success" | "error";
+
+type SubmittedFilters = {
+  query: string;
+  categoryId: string;
+};
+
+export function SearchDiscovery({ copy, categories }: SearchDiscoveryProps) {
   const [query, setQuery] = useState("");
-  const [submittedQuery, setSubmittedQuery] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [submittedFilters, setSubmittedFilters] = useState<SubmittedFilters>({ query: "", categoryId: "" });
+  const [results, setResults] = useState<Person[]>([]);
+  const [searchState, setSearchState] = useState<SearchState>("idle");
+  const [requestId, setRequestId] = useState(0);
 
-  const results = useMemo(() => {
-    const normalized = submittedQuery.trim().toLocaleLowerCase("ar");
-    if (!normalized) return [];
+  useEffect(() => {
+    if (!submittedFilters.query.trim() && !submittedFilters.categoryId) return;
 
-    return displayPeople.filter((person) =>
-      [person.name, person.role, person.meta, ...person.tags]
-        .join(" ")
-        .toLocaleLowerCase("ar")
-        .includes(normalized),
-    );
-  }, [submittedQuery]);
+    const timer = window.setTimeout(() => {
+      try {
+        setResults(personService.searchPublishedPeople({
+          query: submittedFilters.query,
+          categoryId: submittedFilters.categoryId || undefined,
+        }));
+        setSearchState("success");
+      } catch {
+        setResults([]);
+        setSearchState("error");
+      }
+    }, 120);
+
+    return () => window.clearTimeout(timer);
+  }, [submittedFilters, requestId]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSubmittedQuery(query);
+    if (!query.trim() && !categoryId) {
+      setSubmittedFilters({ query: "", categoryId: "" });
+      setResults([]);
+      setSearchState("idle");
+      return;
+    }
+    setSearchState("loading");
+    setSubmittedFilters({ query, categoryId });
+    setRequestId((current) => current + 1);
   }
 
   return (
@@ -49,20 +78,51 @@ export function SearchDiscovery({ copy }: SearchDiscoveryProps) {
           type="search"
           autoComplete="off"
         />
+        <label className="sr-only" htmlFor="a3lam-category">
+          {copy.searchFilterLabel}
+        </label>
+        <select
+          id="a3lam-category"
+          className="search-category"
+          value={categoryId}
+          onChange={(event) => setCategoryId(event.target.value)}
+        >
+          <option value="">{copy.searchAllCategories}</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
         <button className="search-submit" type="submit">
           <span aria-hidden="true">⌕</span>
           {copy.searchAction}
         </button>
       </form>
       <div className="search-result-region" aria-live="polite" aria-atomic="true">
-        {submittedQuery ? (
+        {searchState === "loading" ? <p className="search-empty" role="status">{copy.searchLoading}</p> : null}
+        {searchState === "error" ? <p className="search-empty" role="alert">{copy.searchError}</p> : null}
+        {searchState === "success" ? (
           results.length > 0 ? (
             <div className="search-results">
               <p className="search-results-label">
                 {copy.searchResults} · {results.length}
               </p>
               {results.map((person) => (
-                <PersonCard key={person.id} person={person} copy={copy} />
+                <PersonCard
+                  key={person.id}
+                  person={{
+                    id: person.id,
+                    name: person.nameArabic,
+                    role: person.occupations[0] ?? "",
+                    meta: copy.publishedProfileStatus,
+                    initials: person.nameArabic.slice(0, 2),
+                    tone: "teal",
+                    tags: person.occupations,
+                    status: person.status,
+                  }}
+                  copy={copy}
+                />
               ))}
             </div>
           ) : (

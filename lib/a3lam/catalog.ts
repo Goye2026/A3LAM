@@ -1,3 +1,6 @@
+import { personService } from "@/lib/services/personService";
+import type { ContentStatus } from "@/lib/domain/a3lam";
+
 export type DisplayPerson = {
   id: string;
   name: string;
@@ -6,6 +9,7 @@ export type DisplayPerson = {
   initials: string;
   tone: "teal" | "sand" | "ink";
   tags: string[];
+  status: ContentStatus;
 };
 
 export type DisplayCategory = {
@@ -16,46 +20,57 @@ export type DisplayCategory = {
   tone: "teal" | "sand" | "ink";
 };
 
-export const displayPeople: DisplayPerson[] = [
-  {
-    id: "sample-profile-one",
-    name: "نموذج شخصية أولى",
-    role: "الإعلام والصحافة",
-    meta: "اليمن · ملف قيد المراجعة",
-    initials: "ش١",
-    tone: "teal",
-    tags: ["إعلام", "صحافة"],
-  },
-  {
-    id: "sample-profile-two",
-    name: "نموذج شخصية ثانية",
-    role: "الأكاديميا والبحث",
-    meta: "اليمن · ملف قيد المراجعة",
-    initials: "ش٢",
-    tone: "sand",
-    tags: ["بحث", "أكاديميا"],
-  },
-  {
-    id: "sample-profile-three",
-    name: "نموذج شخصية ثالثة",
-    role: "الثقافة والفنون",
-    meta: "اليمن · ملف قيد المراجعة",
-    initials: "ش٣",
-    tone: "ink",
-    tags: ["ثقافة", "فنون"],
-  },
-];
+const categoryVisuals: Record<string, Pick<DisplayCategory, "icon" | "tone">> = {
+  media: { icon: "↗", tone: "teal" },
+  academia: { icon: "⌁", tone: "sand" },
+  culture: { icon: "✦", tone: "ink" },
+  business: { icon: "◌", tone: "teal" },
+  society: { icon: "＋", tone: "sand" },
+  science: { icon: "⌬", tone: "ink" },
+  sports: { icon: "◈", tone: "sand" },
+};
 
-export const displayCategories: DisplayCategory[] = [
-  { id: "media", label: "الإعلام والصحافة", count: "01", icon: "↗", tone: "teal" },
-  { id: "academia", label: "الأكاديميا والبحث", count: "02", icon: "⌁", tone: "sand" },
-  { id: "culture", label: "الثقافة والفنون", count: "03", icon: "✦", tone: "ink" },
-  { id: "business", label: "الأعمال والاقتصاد", count: "04", icon: "◌", tone: "teal" },
-  { id: "society", label: "المجتمع والتأثير", count: "05", icon: "＋", tone: "sand" },
-  { id: "science", label: "العلوم والتقنية", count: "06", icon: "⌬", tone: "ink" },
-  { id: "sports", label: "الرياضة", count: "07", icon: "◈", tone: "sand" },
-];
+const peopleVisuals: Record<string, Pick<DisplayPerson, "initials" | "tone">> = {
+  "sample-profile-one": { initials: "ش١", tone: "teal" },
+  "sample-profile-two": { initials: "ش٢", tone: "sand" },
+  "sample-profile-three": { initials: "ش٣", tone: "ink" },
+};
+
+function statusMeta(status: ContentStatus) {
+  switch (status) {
+    case "draft":
+      return "مسودة غير منشورة";
+    case "review":
+      return "قيد المراجعة";
+    case "archived":
+      return "مؤرشف وغير منشور";
+    case "published":
+      return "منشور";
+  }
+}
+
+export const displayCategories: DisplayCategory[] = personService.listCategories().map((category, index) => ({
+  id: category.id,
+  label: category.name,
+  count: String(index + 1).padStart(2, "0"),
+  ...categoryVisuals[category.id],
+}));
+
+export const displayPeople: DisplayPerson[] = personService.listDisplayPeople().map((person) => {
+  const category = personService.listCategories().find((item) => item.id === person.categoryIds[0]);
+  const visuals = peopleVisuals[person.id] ?? { initials: "ش", tone: "teal" as const };
+  return {
+    id: person.id,
+    name: person.nameArabic,
+    role: category?.name ?? person.occupations[0] ?? "غير مصنف",
+    meta: `اليمن · ${statusMeta(person.status)}`,
+    initials: visuals.initials,
+    tone: visuals.tone,
+    tags: person.occupations,
+    status: person.status,
+  };
+});
 
 export function findDisplayPerson(id: string) {
-  return displayPeople.find((person) => person.id === id) ?? displayPeople[0];
+  return displayPeople.find((person) => person.id === id) ?? null;
 }

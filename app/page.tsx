@@ -3,6 +3,7 @@ import { PersonCard } from "@/components/a3lam/PersonCard";
 import { SearchDiscovery } from "@/components/a3lam/SearchDiscovery";
 import { SiteHeader } from "@/components/a3lam/SiteHeader";
 import { displayCategories, displayPeople } from "@/lib/a3lam/catalog";
+import { personService } from "@/lib/services/personService";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 
@@ -64,7 +65,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <SearchDiscovery copy={copy} />
+        <SearchDiscovery copy={copy} categories={personService.listCategories()} />
 
         <section className="section-block" id="featured" aria-labelledby="featured-title">
           <div className="section-header-row">

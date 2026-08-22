@@ -534,6 +534,20 @@ a {
   color: rgb(244 244 239 / 0.62);
 }
 
+.search-category {
+  min-height: 3.5rem;
+  border: 1px solid rgb(244 244 239 / 0.24);
+  border-radius: var(--radius-sm);
+  background: rgb(244 244 239 / 0.1);
+  color: var(--color-paper);
+  padding-inline: var(--space-3);
+}
+
+.search-category option {
+  background: var(--color-brand-deep);
+  color: var(--color-paper);
+}
+
 .search-submit {
   display: inline-flex;
   min-width: 6.5rem;
@@ -761,6 +775,12 @@ a {
 .person-card-link span {
   font-family: var(--font-latin);
   font-size: 1rem;
+}
+
+.person-card-link-disabled {
+  cursor: default;
+  color: var(--color-ink-muted);
+  font-weight: 500;
 }
 
 .categories-section {
