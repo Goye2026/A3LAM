@@ -48,11 +48,14 @@ export type FoundationMessages = {
   heroCta: string;
   heroSecondary: string;
   statsPeople: string;
+  statsPublishedPeople: string;
   statsCategories: string;
   statsCountries: string;
   featuredEyebrow: string;
   featuredTitle: string;
   featuredDescription: string;
+  featuredEmpty: string;
+  dataUnavailable: string;
   viewAll: string;
   profileStatus: string;
   profileStatusNote: string;
@@ -88,6 +91,7 @@ export type FoundationMessages = {
   footerRights: string;
   demoLabel: string;
   demoDataNote: string;
+  publishedDataNote: string;
   profileView: string;
   personPageTitle: string;
   personPageLede: string;
@@ -150,12 +154,15 @@ const ar: FoundationMessages = {
   closeSearch: "إغلاق البحث",
   heroCta: "اكتشف الشخصيات",
   heroSecondary: "كيف نتحقق؟",
-  statsPeople: "سوق الإطلاق",
-  statsCategories: "مجالات أولية",
+  statsPeople: "السجلات المنشورة",
+  statsPublishedPeople: "السجلات المنشورة",
+  statsCategories: "مجالات منشورة",
   statsCountries: "توسع عربي لاحق",
   featuredEyebrow: "ملفات مختارة",
   featuredTitle: "وجوهٌ تستحق أن تُعرف",
-  featuredDescription: "نماذج عرض محايدة توضّح كيف ستظهر الملفات بعد اعتماد مصادرها ومراجعتها تحريريًا.",
+  featuredDescription: "تظهر هنا الملفات المنشورة بعد اجتياز التحقق التحريري وربط المعلومات بمصادرها.",
+  featuredEmpty: "لا توجد ملفات منشورة في الكتالوج الحالي بعد.",
+  dataUnavailable: "تعذر الوصول إلى الكتالوج المنشور الآن.",
   viewAll: "عرض الدليل",
   profileStatus: "نموذج عرض",
   profileStatusNote: "بيانات تجريبية لتوضيح الواجهة — ليست ملفًا منشورًا.",
@@ -191,6 +198,7 @@ const ar: FoundationMessages = {
   footerRights: "جميع الحقوق محفوظة",
   demoLabel: "عرض تجريبي",
   demoDataNote: "لا تمثل هذه النماذج ملفات أشخاص منشورة.",
+  publishedDataNote: "تُعرض هنا السجلات المنشورة فقط بعد التحقق وربط المصادر.",
   profileView: "عرض الملف",
   personPageTitle: "صفحة نموذجية لملف شخصية",
   personPageLede: "هذه صفحة عرض محايدة توضّح بنية الملف العام قبل ربطها ببيانات منشورة ومصادر معتمدة.",
@@ -253,12 +261,15 @@ const en: FoundationMessages = {
   closeSearch: "Close search",
   heroCta: "Explore people",
   heroSecondary: "How we verify",
-  statsPeople: "launch market",
-  statsCategories: "initial fields",
+  statsPeople: "published records",
+  statsPublishedPeople: "published records",
+  statsCategories: "published fields",
   statsCountries: "future Arab expansion",
   featuredEyebrow: "Selected profiles",
   featuredTitle: "People worth knowing",
-  featuredDescription: "Neutral display samples showing how profiles will appear after sourcing and editorial review.",
+  featuredDescription: "Published profiles appear here after editorial review and source attribution.",
+  featuredEmpty: "No published profiles are available in the current catalog yet.",
+  dataUnavailable: "The published catalog is unavailable right now.",
   viewAll: "View directory",
   profileStatus: "Display sample",
   profileStatusNote: "Demo data to explain the interface — not a published profile.",
@@ -294,6 +305,7 @@ const en: FoundationMessages = {
   footerRights: "All rights reserved",
   demoLabel: "Display sample",
   demoDataNote: "These samples are not published person profiles.",
+  publishedDataNote: "Only published records with verified source links appear here.",
   profileView: "View profile",
   personPageTitle: "Sample person profile page",
   personPageLede: "A neutral profile surface showing the public structure before it connects to published data and approved sources.",

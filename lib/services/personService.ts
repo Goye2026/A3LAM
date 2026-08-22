@@ -1,24 +1,32 @@
-import { localRepository } from "@/lib/data/localRepository";
+import { databaseRepository } from "@/lib/data/databaseRepository";
 import type { PersonSearchQuery } from "@/lib/data/repository";
 
 export const personService = {
-  listCategories() {
-    return localRepository.listCategories();
+  async listCategories() {
+    return databaseRepository.listCategories();
   },
 
-  listPublishedPeople() {
-    return localRepository.listPublishedPeople();
+  async listPublishedPeople() {
+    return databaseRepository.listPublishedPeople();
   },
 
-  listDisplayPeople() {
-    return localRepository.listDisplayPeople();
+  async listDisplayPeople() {
+    return databaseRepository.listDisplayPeople();
   },
 
-  searchPublishedPeople(query: PersonSearchQuery) {
-    return localRepository.searchPublishedPeople(query);
+  async searchPublishedPeople(query: PersonSearchQuery) {
+    return databaseRepository.searchPublishedPeople(query);
   },
 
-  getPublishedPersonBySlug(slug: string) {
-    return localRepository.getPublishedPersonBySlug(slug);
+  async getPublishedPersonBySlug(slug: string) {
+    return databaseRepository.getPublishedPersonBySlug(slug);
+  },
+
+  async createPersonRecord(record: Parameters<typeof databaseRepository.createPersonRecord>[0]) {
+    return databaseRepository.createPersonRecord(record);
+  },
+
+  async updatePerson(id: string, patch: Parameters<typeof databaseRepository.updatePerson>[1]) {
+    return databaseRepository.updatePerson(id, patch);
   },
 };

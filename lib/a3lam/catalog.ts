@@ -1,5 +1,4 @@
-import { personService } from "@/lib/services/personService";
-import type { ContentStatus } from "@/lib/domain/a3lam";
+import type { Category, ContentStatus, Person } from "@/lib/domain/a3lam";
 
 export type DisplayPerson = {
   id: string;
@@ -49,28 +48,33 @@ function statusMeta(status: ContentStatus) {
   }
 }
 
-export const displayCategories: DisplayCategory[] = personService.listCategories().map((category, index) => ({
-  id: category.id,
-  label: category.name,
-  count: String(index + 1).padStart(2, "0"),
-  ...categoryVisuals[category.id],
-}));
+export function toDisplayCategories(categories: Category[]): DisplayCategory[] {
+  return categories.map((category, index) => ({
+    id: category.id,
+    label: category.name,
+    count: String(index + 1).padStart(2, "0"),
+    ...(categoryVisuals[category.id] ?? { icon: "•", tone: "teal" as const }),
+  }));
+}
 
-export const displayPeople: DisplayPerson[] = personService.listDisplayPeople().map((person) => {
-  const category = personService.listCategories().find((item) => item.id === person.categoryIds[0]);
-  const visuals = peopleVisuals[person.id] ?? { initials: "ش", tone: "teal" as const };
-  return {
-    id: person.id,
-    name: person.nameArabic,
-    role: category?.name ?? person.occupations[0] ?? "غير مصنف",
-    meta: `اليمن · ${statusMeta(person.status)}`,
-    initials: visuals.initials,
-    tone: visuals.tone,
-    tags: person.occupations,
-    status: person.status,
-  };
-});
+export function toDisplayPeople(people: Person[], categories: Category[]): DisplayPerson[] {
+  const categoriesById = new Map(categories.map((category) => [category.id, category]));
+  return people.map((person) => {
+    const category = categoriesById.get(person.categoryIds[0]);
+    const visuals = peopleVisuals[person.id] ?? { initials: person.nameArabic.slice(0, 2), tone: "teal" as const };
+    return {
+      id: person.id,
+      name: person.nameArabic,
+      role: category?.name ?? person.occupations[0] ?? "غير مصنف",
+      meta: statusMeta(person.status),
+      initials: visuals.initials,
+      tone: visuals.tone,
+      tags: person.occupations,
+      status: person.status,
+    };
+  });
+}
 
-export function findDisplayPerson(id: string) {
-  return displayPeople.find((person) => person.id === id) ?? null;
+export function findDisplayPerson(people: DisplayPerson[], id: string) {
+  return people.find((person) => person.id === id) ?? null;
 }

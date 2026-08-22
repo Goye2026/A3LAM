@@ -4,10 +4,12 @@ import type { SearchQuery } from "@/lib/domain/search";
 export type PersonSearchQuery = SearchQuery;
 
 export type PersonRepository = {
-  listCategories(): Category[];
-  listPublishedPeople(): Person[];
-  getPersonBySlug(slug: string): PersonRecord | null;
-  getPublishedPersonBySlug(slug: string): PersonRecord | null;
-  searchPublishedPeople(query: PersonSearchQuery): Person[];
-  listDisplayPeople(): Person[];
+  listCategories(): Promise<Category[]>;
+  listPublishedPeople(): Promise<Person[]>;
+  getPersonBySlug(slug: string): Promise<PersonRecord | null>;
+  getPublishedPersonBySlug(slug: string): Promise<PersonRecord | null>;
+  searchPublishedPeople(query: PersonSearchQuery): Promise<Person[]>;
+  listDisplayPeople(): Promise<Person[]>;
+  createPersonRecord(record: PersonRecord): Promise<PersonRecord>;
+  updatePerson(id: string, patch: Partial<Person>): Promise<PersonRecord | null>;
 };

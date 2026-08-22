@@ -4,6 +4,7 @@ import {
   type PersonRecord,
   validateCategory,
   validatePerson,
+  validateSource,
 } from "@/lib/domain/a3lam";
 import { searchPeople } from "@/lib/domain/search";
 import type { PersonRepository, PersonSearchQuery } from "./repository";
@@ -109,29 +110,53 @@ function isPublished(person: Person) {
 }
 
 export const localRepository: PersonRepository = {
-  listCategories() {
+  async listCategories() {
     return categories.filter((category) => category.status === "published");
   },
 
-  listPublishedPeople() {
+  async listPublishedPeople() {
     return displayPeople.filter(isPublished);
   },
 
-  getPersonBySlug(slug: string) {
+  async getPersonBySlug(slug: string) {
     return records.find((item) => item.person.slug === slug) ?? null;
   },
 
-  getPublishedPersonBySlug(slug: string) {
-    const record = this.getPersonBySlug(slug);
+  async getPublishedPersonBySlug(slug: string) {
+    const record = await this.getPersonBySlug(slug);
     if (!record || !isPublished(record.person)) return null;
     return record;
   },
 
-  searchPublishedPeople(query: PersonSearchQuery) {
-    return searchPeople(this.listPublishedPeople(), query);
+  async searchPublishedPeople(query: PersonSearchQuery) {
+    return searchPeople(await this.listPublishedPeople(), query);
   },
 
-  listDisplayPeople() {
+  async listDisplayPeople() {
     return displayPeople;
+  },
+
+  async createPersonRecord(record: PersonRecord) {
+    const categoryIds = new Set(categories.map((category) => category.id));
+    const issues = [
+      ...record.categories.flatMap(validateCategory),
+      ...record.sources.flatMap(validateSource),
+      ...validatePerson(record.person, { knownCategoryIds: categoryIds, knownSourceIds: new Set(record.sources.map((source) => source.id)) }),
+    ];
+    if (issues.length > 0) throw new Error(`Invalid local record: ${issues.map((item) => `${item.path}: ${item.message}`).join("; ")}`);
+    records.push(record);
+    displayPeople.push(record.person);
+    return record;
+  },
+
+  async updatePerson(id: string, patch: Partial<Person>) {
+    const index = records.findIndex((record) => record.person.id === id);
+    if (index === -1) return null;
+    const updatedPerson = { ...records[index].person, ...patch, updatedAt: new Date().toISOString() };
+    const updatedRecord = { ...records[index], person: updatedPerson };
+    records[index] = updatedRecord;
+    const displayIndex = displayPeople.findIndex((person) => person.id === id);
+    if (displayIndex !== -1) displayPeople[displayIndex] = updatedPerson;
+    return updatedRecord;
   },
 };

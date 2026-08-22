@@ -2,19 +2,36 @@ import { CategoryCard } from "@/components/a3lam/CategoryCard";
 import { PersonCard } from "@/components/a3lam/PersonCard";
 import { SearchDiscovery } from "@/components/a3lam/SearchDiscovery";
 import { SiteHeader } from "@/components/a3lam/SiteHeader";
-import { displayCategories, displayPeople } from "@/lib/a3lam/catalog";
-import { personService } from "@/lib/services/personService";
+import { toDisplayCategories, toDisplayPeople } from "@/lib/a3lam/catalog";
+import type { Category, Person } from "@/lib/domain/a3lam";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
+import { personService } from "@/lib/services/personService";
 
-const stats = [
-  { value: "01", labelKey: "statsPeople" },
-  { value: "07", labelKey: "statsCategories" },
-  { value: "∞", labelKey: "statsCountries" },
-] as const;
+export const dynamic = "force-dynamic";
 
-export default function HomePage() {
+export default async function HomePage() {
   const copy = getMessages(defaultLocale);
+  let categories: Category[] = [];
+  let people: Person[] = [];
+  let dataUnavailable = false;
+
+  try {
+    [categories, people] = await Promise.all([
+      personService.listCategories(),
+      personService.listPublishedPeople(),
+    ]);
+  } catch {
+    dataUnavailable = true;
+  }
+
+  const displayCategories = toDisplayCategories(categories);
+  const displayPeople = toDisplayPeople(people, categories);
+  const stats = [
+    { value: String(people.length).padStart(2, "0"), label: copy.statsPeople },
+    { value: String(categories.length).padStart(2, "0"), label: copy.statsCategories },
+    { value: "∞", label: copy.statsCountries },
+  ];
 
   return (
     <main id="top" className="a3lam-page">
@@ -54,18 +71,18 @@ export default function HomePage() {
 
         <section className="stats-strip" aria-label={copy.phaseStatus}>
           {stats.map((stat) => (
-            <div className="stat-item" key={stat.value}>
+            <div className="stat-item" key={stat.label}>
               <strong>{stat.value}</strong>
-              <span>{copy[stat.labelKey]}</span>
+              <span>{stat.label}</span>
             </div>
           ))}
           <div className="stat-source">
             <span className="stat-source-line" aria-hidden="true" />
-            <span>{copy.demoDataNote}</span>
+            <span>{dataUnavailable ? copy.dataUnavailable : copy.publishedDataNote}</span>
           </div>
         </section>
 
-        <SearchDiscovery copy={copy} categories={personService.listCategories()} />
+        <SearchDiscovery copy={copy} categories={categories} />
 
         <section className="section-block" id="featured" aria-labelledby="featured-title">
           <div className="section-header-row">
@@ -78,11 +95,17 @@ export default function HomePage() {
             </a>
           </div>
           <p className="section-description">{copy.featuredDescription}</p>
-          <div className="people-grid">
-            {displayPeople.map((person) => (
-              <PersonCard key={person.id} person={person} copy={copy} />
-            ))}
-          </div>
+          {displayPeople.length > 0 ? (
+            <div className="people-grid">
+              {displayPeople.map((person) => (
+                <PersonCard key={person.id} person={person} copy={copy} />
+              ))}
+            </div>
+          ) : (
+            <p className="empty-state" role={dataUnavailable ? "alert" : "status"}>
+              {dataUnavailable ? copy.dataUnavailable : copy.featuredEmpty}
+            </p>
+          )}
         </section>
 
         <section className="section-block categories-section" id="categories" aria-labelledby="categories-title">
@@ -94,11 +117,17 @@ export default function HomePage() {
             <span className="section-index" aria-hidden="true">02 / 03</span>
           </div>
           <p className="section-description">{copy.categoriesDescription}</p>
-          <div className="category-grid">
-            {displayCategories.map((category) => (
-              <CategoryCard key={category.id} category={category} />
-            ))}
-          </div>
+          {displayCategories.length > 0 ? (
+            <div className="category-grid">
+              {displayCategories.map((category) => (
+                <CategoryCard key={category.id} category={category} />
+              ))}
+            </div>
+          ) : (
+            <p className="empty-state" role={dataUnavailable ? "alert" : "status"}>
+              {dataUnavailable ? copy.dataUnavailable : copy.featuredEmpty}
+            </p>
+          )}
         </section>
 
         <section className="editorial-band" id="about" aria-labelledby="cta-title">

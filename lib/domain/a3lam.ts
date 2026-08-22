@@ -30,6 +30,7 @@ export type Source = {
   title: string;
   publisher: string;
   url: string;
+  publicationDate: string | null;
   accessedAt: string;
   type: SourceType;
   reliability: "high" | "medium" | "low";
@@ -88,6 +89,11 @@ export type PersonRecord = {
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
+function isValidDateTime(value: string) {
+  const datePart = value.slice(0, 10);
+  return isValidDate(datePart) && !Number.isNaN(new Date(value).getTime());
+}
+
 function issue(path: string, message: string): ValidationIssue {
   return { path, message };
 }
@@ -136,6 +142,7 @@ export function validateSource(source: Source): ValidationIssue[] {
   } catch {
     issues.push(issue("url", "Source URL is invalid"));
   }
+  if (source.publicationDate && !isValidDate(source.publicationDate)) issues.push(issue("publicationDate", "Publication date must be a valid ISO date"));
   if (!isValidDate(source.accessedAt)) issues.push(issue("accessedAt", "Access date must be a valid ISO date"));
   if (!SOURCE_TYPES.includes(source.type)) issues.push(issue("type", "Source type is invalid"));
   if (!["high", "medium", "low"].includes(source.reliability)) issues.push(issue("reliability", "Source reliability is invalid"));
@@ -155,8 +162,8 @@ export function validatePerson(
   if (!isNonEmpty(person.shortBio)) issues.push(issue("shortBio", "Short biography is required"));
   if (!isNonEmpty(person.biography)) issues.push(issue("biography", "Biography is required"));
   if (!CONTENT_STATUSES.includes(person.status)) issues.push(issue("status", "Person status is invalid"));
-  if (!isValidDate(person.createdAt)) issues.push(issue("createdAt", "createdAt must be a valid ISO date"));
-  if (!isValidDate(person.updatedAt)) issues.push(issue("updatedAt", "updatedAt must be a valid ISO date"));
+  if (!isValidDateTime(person.createdAt)) issues.push(issue("createdAt", "createdAt must be a valid ISO timestamp"));
+  if (!isValidDateTime(person.updatedAt)) issues.push(issue("updatedAt", "updatedAt must be a valid ISO timestamp"));
   if (person.birthDate && !isValidDate(person.birthDate)) issues.push(issue("birthDate", "birthDate must be a valid ISO date"));
   if (person.deathDate && !isValidDate(person.deathDate)) issues.push(issue("deathDate", "deathDate must be a valid ISO date"));
   if (person.birthDate && person.deathDate && person.birthDate > person.deathDate) issues.push(issue("deathDate", "deathDate cannot precede birthDate"));

@@ -1,10 +1,10 @@
-# A3LAM — Phase 04 Data Foundation
+# A3LAM — Phase 05 Production Data Foundation
 
-A3LAM (أعلام) is an Arabic-first biographical knowledge platform. The approved Phase 03 editorial interface remains the public presentation layer, while Phase 04 adds a structured domain and content boundary underneath it.
+A3LAM (أعلام) is an Arabic-first biographical knowledge platform. The approved Phase 03 editorial interface remains the public presentation layer, while Phase 04 domain contracts and Phase 05 add a persistent, source-aware data foundation underneath it.
 
 ## Current phase
 
-The repository is currently at **Phase 04 — Data Foundation & Real Content Architecture**. Phase 02 and Phase 03 commits remain in history and were not rewritten. **Phase 05 has not started.**
+The repository is currently at **Phase 05 — Production Data Foundation**. Phase 02, Phase 03, and Phase 04 commits remain in history and were not rewritten. **Phase 06 has not started.**
 
 ## Locked toolchain
 
@@ -19,76 +19,105 @@ The repository is currently at **Phase 04 — Data Foundation & Real Content Arc
 
 The lockfile is authoritative. Local development and CI use `pnpm install --frozen-lockfile`.
 
-## Domain model
+## Database technology
 
-The normalized domain types live in `lib/domain/a3lam.ts`. The core entities are `Person`, `Category`, `Source`, `TimelineEvent`, and `Education`. A `PersonRecord` composes one person with its related categories, timeline events, education records, and sources without placing all information into one large object or UI component.
+Phase 05 uses **PostgreSQL 16+ with Drizzle ORM and postgres.js**. PostgreSQL provides mature relational constraints, foreign keys, transactions, indexes, and a deployment-friendly path. Drizzle provides typed schema and query construction without introducing a second ORM, while postgres.js is the single database driver.
 
-Every person and category has an explicit `ContentStatus`: `draft`, `review`, `published`, or `archived`. A public profile is eligible only when the person, related categories, and related sources are published and the person has at least one source reference. Draft, review, archived, and nonexistent slugs are rejected by the public profile lookup and resolve through the existing not-found boundary.
+The server-only database client lives in `lib/db/client.ts`. It reads `DATABASE_URL` and `DATABASE_MAX_CONNECTIONS` from the environment. No database credential or secret is committed to the repository.
 
-Validation is deterministic and lives alongside the domain types. It checks required names, slug format, ISO dates, status values, category relationships, source URLs and dates, source references, and person ownership of timeline and education records. Invalid records do not silently become published content.
+## Schema and domain mapping
 
-## Data lifecycle and boundary
+The domain contracts remain in `lib/domain/a3lam.ts`. The typed Drizzle schema in `lib/db/schema.ts` maps them to normalized PostgreSQL tables:
 
-The current Phase 04 storage implementation is a deliberately small in-memory local repository in `lib/data/localRepository.ts`. It is appropriate for the current repository because there is no production database, no authenticated editorial workflow, and no approved real-person dataset yet. It keeps the application runnable locally without introducing a database dependency or an external paid service.
+| Domain concept | PostgreSQL tables |
+|---|---|
+| Person | `people` |
+| Category | `categories` |
+| Person ↔ Category | `person_categories` |
+| Occupation | `person_occupations` |
+| Source provenance | `sources`, `person_sources` |
+| Timeline | `timeline_events`, `timeline_event_sources` |
+| Education | `education`, `education_sources` |
 
-The repository is accessed through `lib/services/personService.ts`, which provides the service boundary consumed by routes and interactive UI. The intended direction is:
+Person and category slugs are unique. Lifecycle statuses use database `CHECK` constraints and preserve `draft`, `review`, `published`, and `archived`. Foreign keys protect relationship integrity, while indexes support status, slug, normalized search fields, occupation, timeline, and education lookups.
 
-```text
-Next.js UI / route
-        ↓
-personService
-        ↓
-PersonRepository
-        ↓
-localRepository (current local storage)
+## Migration strategy
+
+Migration files live in `drizzle/migrations`. `scripts/db-migrate.mjs` creates `schema_migrations`, applies sorted SQL files exactly once, and wraps each migration in a transaction. The database can therefore be recreated from a clean PostgreSQL database using the migration directory without manual SQL steps.
+
+## Local database setup
+
+Copy `.env.example` to `.env.local` and set a PostgreSQL connection string. The committed example uses a local development database only:
+
+```bash
+cp .env.example .env.local
+pnpm db:migrate
 ```
 
-The repository can later be replaced by a relational database adapter and migrations without moving data access into React components. No migration or production seed data is included in this phase.
+The current sandbox validation used PostgreSQL 16.15 at `127.0.0.1:5432`. A deployment environment must provide its own secret `DATABASE_URL`; credentials must never be committed.
 
-## Real-content boundary
+## Development seed
 
-The initial local records are explicitly identified display samples. They use generic sample labels, carry non-published statuses, have no factual biographies, and have no sources or contact information. They are never returned by public published queries. The project does not scrape, bulk-import, copy, or publish biographies from external websites.
+`pnpm db:seed` is deliberately protected by `A3LAM_ALLOW_SYNTHETIC_SEED=true`. It inserts only unmistakably synthetic development records covering `draft`, `review`, `published`, and `archived`, plus one synthetic source, timeline event, and education record for the published fixture. The records are not real people, historical figures, or production content.
 
-Published factual content requires source references. The `Source` model records title, publisher, URL, access date, type, reliability, and content status so later editorial workflows can trace claims without treating AI output as evidence.
+The seed is idempotent for the fixture identifiers and must not be used as a production content import. Public queries still require the person, related categories, and related sources to be published, with at least one source reference.
 
-## Search architecture
+## Repository and service architecture
 
-`lib/domain/search.ts` provides a lightweight, deterministic search abstraction that can later be replaced by a dedicated index. It supports Arabic normalization, diacritic removal, common Arabic letter normalization, exact name matching, partial name matching, slug matching, category filtering, and occupation filtering. The public repository searches published people only.
-
-`SearchDiscovery` keeps the approved Phase 03 visual surface and now calls `personService`. It exposes explicit idle, loading, success, empty, and error states with accessible live feedback. The current local dataset has no published people, so searches correctly return the no-results state rather than exposing demo records.
-
-## Categories and profile route
-
-Categories are defined in the repository and adapted for the existing visual cards through `lib/a3lam/catalog.ts`; they are not owned solely by presentation components. The `/person/[slug]` route calls the service layer and renders only a published `PersonRecord`. The approved profile visual structure is preserved for future published records, while non-published and nonexistent slugs are not exposed.
-
-## Repository structure
+The dependency direction is:
 
 ```text
-app/                         App Router pages, route boundary, global styles
-components/a3lam/           Approved A3LAM UI components and search surface
-lib/domain/                  Person/category/source types, validation, search
-lib/data/                    Repository contract and local repository
-lib/services/                Service boundary used by UI and routes
-lib/a3lam/                   Presentation adapters backed by the service
-lib/i18n/                    Arabic-first localization and fallback behavior
-tests/                       Foundation and Phase 04 domain/search tests
-docs/phase04-data-foundation.md  Phase 04 architecture record
+Next.js UI / route / API
+            ↓
+     personService
+            ↓
+   PersonRepository
+            ↓
+ databaseRepository
+            ↓
+ PostgreSQL via Drizzle/postgres.js
 ```
 
-## Local development
+`lib/data/databaseRepository.ts` replaces the Phase 04 in-memory public data path. It hydrates normalized rows into the existing `PersonRecord` shape, implements create/read/update operations, validates records before insertion or publication, and keeps SQL/database access outside React components. `lib/data/localRepository.ts` remains only as a lightweight Phase 04 contract test fixture; it is no longer the production service source.
+
+## Publication security
+
+The public service exposes only records with `status = 'published'`. It additionally validates the hydrated record so unpublished categories or sources, missing source references, invalid relationships, and malformed records are rejected. The profile route `/person/[slug]` uses the published lookup and sends draft, review, archived, and unknown slugs to the not-found boundary. The search API returns a deliberately limited public response and never includes biography, source, or unpublished metadata.
+
+## Search behavior
+
+Search remains replaceable through `lib/domain/search.ts`, but Phase 05 executes it against PostgreSQL-backed data. It supports Arabic normalization, exact and partial name matching, slug matching, category filtering, occupation filtering, no-match behavior, and published-only filtering. Search requests are handled by `app/api/search/route.ts`; the client discovery component calls that route instead of importing server database code.
+
+## Routes and UI scope
+
+The Phase 03 visual system is preserved. Phase 05 makes only the integration changes needed to load categories and published people asynchronously and to expose persistent search and profile data. The public routes remain `/`, `/api/health`, `/api/search`, and `/person/[slug]`. No admin dashboard, CMS, authentication, user accounts, comments, payments, analytics, or editorial UI is included.
+
+## Testing commands
+
+Unit and foundation tests do not require a database:
+
+```bash
+pnpm typecheck
+pnpm lint
+pnpm test
+```
+
+The integration suite uses a real PostgreSQL instance and requires `DATABASE_URL`:
+
+```bash
+DATABASE_URL=postgres://a3lam:a3lam@127.0.0.1:5432/a3lam pnpm test:integration
+```
+
+That command runs migrations, applies the explicitly enabled synthetic seed, and executes persistence, relationships, lifecycle, publication security, profile lookup, and database-backed search tests. The full build gate is:
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm dev
-```
-
-The required validation sequence is:
-
-```bash
 pnpm typecheck
 pnpm lint
 pnpm test
 pnpm build
 ```
 
-The project remains local-first and does not require a database, paid external service, authentication, admin dashboard, CMS, user accounts, payments, or analytics in Phase 04.
+## Real-content policy
+
+No real biographical claims, historical personalities, contact details, or invented sources are included. Future production content requires explicit source provenance and editorial review. AI output is not treated as a source and cannot publish factual content automatically.

@@ -25,6 +25,7 @@ const source: Source = {
   title: "صفحة المؤسسة الرسمية",
   publisher: "مؤسسة اختبارية",
   url: "https://example.com/profile",
+  publicationDate: null,
   accessedAt: "2026-08-22",
   type: "official",
   reliability: "high",
@@ -93,16 +94,16 @@ describe("Phase 04 domain validation", () => {
 });
 
 describe("Phase 04 repository lifecycle", () => {
-  it("distinguishes lifecycle states internally and excludes them from public lookup", () => {
-    expect(localRepository.getPersonBySlug("sample-profile-one")?.person.status).toBe("draft");
-    expect(localRepository.getPersonBySlug("sample-profile-two")?.person.status).toBe("review");
-    expect(localRepository.getPersonBySlug("sample-profile-three")?.person.status).toBe("archived");
-    expect(localRepository.getPersonBySlug("does-not-exist")).toBeNull();
-    expect(localRepository.listPublishedPeople()).toEqual([]);
-    expect(localRepository.getPublishedPersonBySlug("sample-profile-one")).toBeNull();
-    expect(localRepository.getPublishedPersonBySlug("sample-profile-two")).toBeNull();
-    expect(localRepository.getPublishedPersonBySlug("sample-profile-three")).toBeNull();
-    expect(localRepository.getPublishedPersonBySlug("does-not-exist")).toBeNull();
+  it("distinguishes lifecycle states internally and excludes them from public lookup", async () => {
+    expect((await localRepository.getPersonBySlug("sample-profile-one"))?.person.status).toBe("draft");
+    expect((await localRepository.getPersonBySlug("sample-profile-two"))?.person.status).toBe("review");
+    expect((await localRepository.getPersonBySlug("sample-profile-three"))?.person.status).toBe("archived");
+    expect(await localRepository.getPersonBySlug("does-not-exist")).toBeNull();
+    expect(await localRepository.listPublishedPeople()).toEqual([]);
+    expect(await localRepository.getPublishedPersonBySlug("sample-profile-one")).toBeNull();
+    expect(await localRepository.getPublishedPersonBySlug("sample-profile-two")).toBeNull();
+    expect(await localRepository.getPublishedPersonBySlug("sample-profile-three")).toBeNull();
+    expect(await localRepository.getPublishedPersonBySlug("does-not-exist")).toBeNull();
   });
 });
 

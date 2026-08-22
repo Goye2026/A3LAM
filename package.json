@@ -11,11 +11,16 @@
     "typecheck": "tsc --noEmit",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
     "test": "vitest run",
+    "test:integration": "pnpm db:migrate && pnpm db:seed && vitest run --config vitest.integration.config.ts",
+    "db:migrate": "node scripts/db-migrate.mjs",
+    "db:seed": "A3LAM_ALLOW_SYNTHETIC_SEED=true node scripts/db-seed.mjs",
     "test:watch": "vitest",
     "format": "prettier --check ."
   },
   "dependencies": {
+    "drizzle-orm": "^0.45.2",
     "next": "16.3.1",
+    "postgres": "^3.4.9",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },

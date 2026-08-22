@@ -12,7 +12,7 @@ type PersonPageProps = {
 
 export async function generateMetadata({ params }: PersonPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const record = personService.getPublishedPersonBySlug(slug);
+  const record = await personService.getPublishedPersonBySlug(slug);
   if (!record) {
     return {
       title: "404",
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: PersonPageProps): Promise<Met
 
 export default async function PersonPage({ params }: PersonPageProps) {
   const { slug } = await params;
-  const record = personService.getPublishedPersonBySlug(slug);
+  const record = await personService.getPublishedPersonBySlug(slug);
   if (!record) notFound();
 
   const copy = getMessages(defaultLocale);

@@ -8,7 +8,6 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["tests/**/*.test.ts"],
-    exclude: ["tests/database.integration.test.ts"],
+    include: ["tests/database.integration.test.ts"],
   },
 });

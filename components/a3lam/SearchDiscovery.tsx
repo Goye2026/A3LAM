@@ -2,8 +2,7 @@
 
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
-import type { Category, Person } from "@/lib/domain/a3lam";
-import { personService } from "@/lib/services/personService";
+import type { Category } from "@/lib/domain/a3lam";
 import type { FoundationMessages } from "@/lib/i18n/messages";
 import { Input } from "@/components/foundation/Primitives";
 import { PersonCard } from "./PersonCard";
@@ -11,6 +10,18 @@ import { PersonCard } from "./PersonCard";
 type SearchDiscoveryProps = {
   copy: FoundationMessages;
   categories: Category[];
+};
+
+type PublicSearchResult = {
+  id: string;
+  slug: string;
+  name: string;
+  nameArabic: string;
+  shortBio: string;
+  categoryIds: string[];
+  occupations: string[];
+  image: string | null;
+  status: "published";
 };
 
 type SearchState = "idle" | "loading" | "success" | "error";
@@ -24,27 +35,36 @@ export function SearchDiscovery({ copy, categories }: SearchDiscoveryProps) {
   const [query, setQuery] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [submittedFilters, setSubmittedFilters] = useState<SubmittedFilters>({ query: "", categoryId: "" });
-  const [results, setResults] = useState<Person[]>([]);
+  const [results, setResults] = useState<PublicSearchResult[]>([]);
   const [searchState, setSearchState] = useState<SearchState>("idle");
   const [requestId, setRequestId] = useState(0);
 
   useEffect(() => {
     if (!submittedFilters.query.trim() && !submittedFilters.categoryId) return;
 
-    const timer = window.setTimeout(() => {
+    const controller = new AbortController();
+    const params = new URLSearchParams();
+    if (submittedFilters.query.trim()) params.set("q", submittedFilters.query.trim());
+    if (submittedFilters.categoryId) params.set("category", submittedFilters.categoryId);
+
+    void (async () => {
       try {
-        setResults(personService.searchPublishedPeople({
-          query: submittedFilters.query,
-          categoryId: submittedFilters.categoryId || undefined,
-        }));
+        const response = await fetch(`/api/search?${params.toString()}`, {
+          signal: controller.signal,
+          cache: "no-store",
+        });
+        if (!response.ok) throw new Error("search request failed");
+        const payload = (await response.json()) as { items?: PublicSearchResult[] };
+        setResults(payload.items ?? []);
         setSearchState("success");
-      } catch {
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
         setResults([]);
         setSearchState("error");
       }
-    }, 120);
+    })();
 
-    return () => window.clearTimeout(timer);
+    return () => controller.abort();
   }, [submittedFilters, requestId]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
