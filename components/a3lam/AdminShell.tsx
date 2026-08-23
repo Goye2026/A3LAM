@@ -22,6 +22,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           <nav className="admin-nav" aria-label={copy.adminTitle}>
             <Link href="/admin">{copy.adminDashboard}</Link>
             <Link href="/admin/people">{copy.adminPeople}</Link>
+            <Link href="/admin/categories">{copy.adminCategories}</Link>
             <Link href="/admin/people/new">{copy.adminAddPerson}</Link>
           </nav>
           <div className="admin-sidebar-footer">

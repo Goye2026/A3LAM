@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Category, ContentStatus, PersonRecord, SourceType } from "@/lib/domain/a3lam";
 import type { AdminPersonInput } from "@/lib/admin/types";
@@ -114,7 +115,7 @@ export function AdminPersonForm({ copy, categories, record, personId }: { copy: 
 
       <section className="admin-form-section" aria-labelledby="admin-categories-title">
         <div className="admin-section-heading"><h2 id="admin-categories-title">{copy.adminCategories}</h2></div>
-        <div className="admin-check-grid">{categories.map((category) => <label className="admin-check" key={category.id}><input type="checkbox" checked={form.categoryIds.includes(category.id)} onChange={(event) => update("categoryIds", event.target.checked ? [...form.categoryIds, category.id] : form.categoryIds.filter((id) => id !== category.id))} /><span>{category.name}</span></label>)}</div>
+        {categories.length > 0 ? <div className="admin-check-grid">{categories.map((category) => <label className="admin-check" key={category.id}><input type="checkbox" checked={form.categoryIds.includes(category.id)} onChange={(event) => update("categoryIds", event.target.checked ? [...form.categoryIds, category.id] : form.categoryIds.filter((id) => id !== category.id))} /><span>{category.name}</span></label>)}</div> : <p className="admin-empty">{copy.adminNoCategories} <Link href="/admin/categories">{copy.adminManageCategories}</Link></p>}
       </section>
 
       <section className="admin-form-section" aria-labelledby="admin-sources-title">

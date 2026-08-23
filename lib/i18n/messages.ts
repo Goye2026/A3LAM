@@ -197,6 +197,17 @@ export type FoundationMessages = {
   adminOccupations: string;
   adminOccupationsHint: string;
   adminCategories: string;
+  adminCategoryCreateTitle: string;
+  adminCategoryEditTitle: string;
+  adminCategoryName: string;
+  adminCategoryDescription: string;
+  adminCategoryPublicNote: string;
+  adminCreateCategory: string;
+  adminUpdateCategory: string;
+  adminCategorySaved: string;
+  adminNoCategories: string;
+  adminManageCategories: string;
+  adminNotFound: string;
   adminSources: string;
   adminAddSource: string;
   adminSourceTitle: string;
@@ -441,6 +452,17 @@ const ar: FoundationMessages = {
   adminOccupations: "المهن، مفصولة بفواصل",
   adminOccupationsHint: "اكتب كل مهنة في سطر أو افصل بينها بفواصل.",
   adminCategories: "التصنيفات",
+  adminCategoryCreateTitle: "إضافة تصنيف",
+  adminCategoryEditTitle: "تعديل التصنيف",
+  adminCategoryName: "اسم التصنيف",
+  adminCategoryDescription: "وصف التصنيف",
+  adminCategoryPublicNote: "يُحفظ التصنيف الجديد كمنشور ليظهر في الموقع العام ونماذج الشخصيات.",
+  adminCreateCategory: "إنشاء التصنيف",
+  adminUpdateCategory: "حفظ التعديل",
+  adminCategorySaved: "تم حفظ التصنيف.",
+  adminNoCategories: "لا توجد تصنيفات بعد.",
+  adminManageCategories: "إدارة التصنيفات",
+  adminNotFound: "السجل المطلوب غير موجود.",
   adminSources: "المصادر",
   adminAddSource: "إضافة مصدر",
   adminSourceTitle: "عنوان المصدر",
@@ -685,6 +707,17 @@ const en: FoundationMessages = {
   adminOccupations: "Occupations, comma-separated",
   adminOccupationsHint: "Enter one occupation per line or separate them with commas.",
   adminCategories: "Categories",
+  adminCategoryCreateTitle: "Add category",
+  adminCategoryEditTitle: "Edit category",
+  adminCategoryName: "Category name",
+  adminCategoryDescription: "Category description",
+  adminCategoryPublicNote: "New categories are saved as published so they appear on the public site and person forms.",
+  adminCreateCategory: "Create category",
+  adminUpdateCategory: "Save changes",
+  adminCategorySaved: "Category saved.",
+  adminNoCategories: "No categories yet.",
+  adminManageCategories: "Manage categories",
+  adminNotFound: "The requested record was not found.",
   adminSources: "Sources",
   adminAddSource: "Add source",
   adminSourceTitle: "Source title",

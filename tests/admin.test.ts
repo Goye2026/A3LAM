@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createAdminSession, isAdminAccessConfigured, isAdminRequest, isValidAdminSession } from "@/lib/admin/auth";
-import { buildPersonRecord, parseAdminPersonInput } from "@/lib/admin/records";
+import { buildPersonRecord, parseAdminCategoryInput, parseAdminPersonInput } from "@/lib/admin/records";
 import type { Category } from "@/lib/domain/a3lam";
 
 const token = "phase-11-local-admin-token-012345678901234567890";
@@ -24,6 +24,17 @@ describe("Phase 11 admin authentication", () => {
   it("stays unavailable when no token is configured", () => {
     expect(isAdminAccessConfigured()).toBe(false);
     expect(isValidAdminSession(null)).toBe(false);
+  });
+});
+
+describe("Phase 11 admin category input", () => {
+  it("normalizes a valid category payload for publication", () => {
+    expect(parseAdminCategoryInput({ name: "  الإعلام  ", description: "وصف", slug: "media" })).toEqual({ name: "الإعلام", description: "وصف", slug: "media", status: "published" });
+  });
+
+  it("rejects invalid category names and slugs", () => {
+    expect(() => parseAdminCategoryInput({ name: "", description: "وصف", slug: "media" })).toThrow(/name/);
+    expect(() => parseAdminCategoryInput({ name: "الإعلام", description: "وصف", slug: "Media" })).toThrow(/slug/);
   });
 });
 

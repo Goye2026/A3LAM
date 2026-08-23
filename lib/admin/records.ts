@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Category, ContentStatus, PersonRecord, Source, SourceType } from "@/lib/domain/a3lam";
-import type { AdminEducationInput, AdminPersonInput, AdminSourceInput, AdminTimelineInput } from "@/lib/admin/types";
+import type { AdminCategoryInput, AdminEducationInput, AdminPersonInput, AdminSourceInput, AdminTimelineInput } from "@/lib/admin/types";
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -57,6 +57,20 @@ function safeUrl(value: unknown, field: string) {
   }
   if (!['http:', 'https:'].includes(url.protocol)) throw new AdminInputError(`${field} must use http or https`);
   return url.toString();
+}
+
+export function parseAdminCategoryInput(value: unknown, status: ContentStatus = "published"): AdminCategoryInput {
+  if (!value || typeof value !== "object") throw new AdminInputError("The submitted category payload is invalid");
+  const item = value as Record<string, unknown>;
+  const slug = text(item.slug, "slug", { required: true, max: 120 });
+  if (!SLUG_PATTERN.test(slug)) throw new AdminInputError("slug must contain lowercase latin characters and hyphens only");
+  if (!["draft", "review", "published", "archived"].includes(status)) throw new AdminInputError("status is invalid");
+  return {
+    name: text(item.name, "name", { required: true, max: 300 }),
+    description: text(item.description, "description", { required: true, max: 5000 }),
+    slug,
+    status,
+  };
 }
 
 export function parseAdminStatus(value: unknown): ContentStatus {

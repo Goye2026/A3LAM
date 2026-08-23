@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { getDb } from "@/lib/db/client";
@@ -18,7 +19,7 @@ import {
 } from "@/lib/domain/a3lam";
 import type { ContentStatus } from "@/lib/domain/a3lam";
 import { normalizeArabic } from "@/lib/domain/search";
-import type { AdminDashboardData, AdminPeoplePage, AdminPersonEditorData, AdminPersonListItem } from "@/lib/admin/types";
+import type { AdminCategoryInput, AdminDashboardData, AdminPeoplePage, AdminPersonEditorData, AdminPersonListItem } from "@/lib/admin/types";
 
 export const ADMIN_PAGE_SIZE = 20;
 
@@ -191,6 +192,14 @@ function categoryFromRow(row: CategoryRow): Category {
   };
 }
 
+function assertCategory(category: Category) {
+  if (validateCategory(category).length > 0) {
+    const error = new Error("The submitted category is invalid");
+    error.name = "AdminValidationError";
+    throw error;
+  }
+}
+
 function listItem(row: PersonRow, categories: string[]): AdminPersonListItem {
   return {
     id: row.id,
@@ -272,6 +281,30 @@ export const adminRepository = {
     const db = getDb();
     const rows = await db.select().from(schema.categories).orderBy(asc(schema.categories.name));
     return rows.map(categoryFromRow);
+  },
+
+  async getCategory(id: string) {
+    const db = getDb();
+    const rows = await db.select().from(schema.categories).where(eq(schema.categories.id, id)).limit(1);
+    return rows[0] ? categoryFromRow(rows[0]) : null;
+  },
+
+  async createCategory(input: AdminCategoryInput) {
+    const category: Category = { id: randomUUID(), slug: input.slug, name: input.name, description: input.description, status: input.status };
+    assertCategory(category);
+    const db = getDb();
+    await db.insert(schema.categories).values({ id: category.id, slug: category.slug, name: category.name, description: category.description, status: category.status });
+    return category;
+  },
+
+  async updateCategory(id: string, input: AdminCategoryInput) {
+    const current = await this.getCategory(id);
+    if (!current) return null;
+    const category: Category = { id, slug: input.slug, name: input.name, description: input.description, status: current.status };
+    assertCategory(category);
+    const db = getDb();
+    await db.update(schema.categories).set({ slug: category.slug, name: category.name, description: category.description, updatedAt: new Date() }).where(eq(schema.categories.id, id));
+    return category;
   },
 
   async getPersonStatus(id: string) {

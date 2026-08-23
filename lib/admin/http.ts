@@ -10,7 +10,7 @@ export function requireAdmin(request: Request) {
 }
 
 export function adminErrorResponse(error: unknown) {
-  if (error instanceof Error && error.name === "AdminInputError") {
+  if (error instanceof Error && (error.name === "AdminInputError" || error.name === "AdminValidationError")) {
     return NextResponse.json({ error: safeErrors.INVALID_INPUT.code, message: safeErrors.INVALID_INPUT.publicMessage }, { status: safeErrors.INVALID_INPUT.status });
   }
   if (error instanceof Error && error.name === "AdminConflictError") {

@@ -28,6 +28,13 @@ export type AdminEducationInput = {
   sourceIds: string[];
 };
 
+export type AdminCategoryInput = {
+  name: string;
+  description: string;
+  slug: string;
+  status: ContentStatus;
+};
+
 export type AdminPersonInput = {
   name: string;
   nameArabic: string;
