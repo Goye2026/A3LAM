@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BiographyContent } from "@/components/a3lam/BiographyContent";
 import { PersonCard } from "@/components/a3lam/PersonCard";
+import { PersonPortrait } from "@/components/a3lam/PersonPortrait";
 import { SiteFooter } from "@/components/a3lam/SiteFooter";
 import { SiteHeader } from "@/components/a3lam/SiteHeader";
 import { toDisplayPeople } from "@/lib/a3lam/catalog";
-import type { Person } from "@/lib/domain/a3lam";
+import type { Person, SourceType } from "@/lib/domain/a3lam";
 import { personService } from "@/lib/services/personService";
 import { absoluteUrl } from "@/lib/seo/site";
 import { defaultLocale } from "@/lib/i18n/config";
-import { getMessages } from "@/lib/i18n/messages";
+import { getMessages, type FoundationMessages } from "@/lib/i18n/messages";
 
 type PersonPageProps = {
   params: Promise<{ slug: string }>;
@@ -50,6 +52,19 @@ function serializeJsonLd(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
+function sourceTypeLabel(type: SourceType, copy: FoundationMessages) {
+  const labels: Record<SourceType, string> = {
+    official: copy.sourceOfficial,
+    institution: copy.sourceInstitution,
+    government: copy.sourceGovernment,
+    media: copy.sourceMedia,
+    professional: copy.sourceProfessional,
+    academic: copy.sourceAcademic,
+    secondary: copy.sourceSecondary,
+  };
+  return labels[type];
+}
+
 function relatedPeopleFor(person: Person, people: Person[]) {
   return people
     .filter((candidate) => candidate.id !== person.id && candidate.categoryIds.some((id) => person.categoryIds.includes(id)))
@@ -63,6 +78,7 @@ export default async function PersonPage({ params }: PersonPageProps) {
 
   const copy = getMessages(defaultLocale);
   const { person, categories, timeline, education, sources } = record;
+  const orderedTimeline = [...timeline].sort((left, right) => left.date.localeCompare(right.date));
   let relatedPeople: Person[] = [];
   try {
     relatedPeople = relatedPeopleFor(person, await personService.listPublishedPeople());
@@ -82,11 +98,13 @@ export default async function PersonPage({ params }: PersonPageProps) {
     ...(person.occupations[0] ? { jobTitle: person.occupations[0] } : {}),
   };
   const facts = [
-    { label: copy.profileOccupation, value: person.occupations.join(" · ") || "—" },
-    { label: copy.profileCategories, value: categories.map((category) => category.name).join(" · ") || "—" },
-    { label: copy.sourcesLabel, value: String(sources.length) },
+    person.birthDate ? { label: copy.profileBirth, value: `${formatDate(person.birthDate)}${person.birthPlace ? ` · ${person.birthPlace}` : ""}` } : null,
+    person.deathDate ? { label: copy.profileDeath, value: `${formatDate(person.deathDate)}${person.deathPlace ? ` · ${person.deathPlace}` : ""}` } : null,
+    person.occupations.length > 0 ? { label: copy.profileOccupation, value: person.occupations.join(" · ") } : null,
+    categories.length > 0 ? { label: copy.profileCategories, value: categories.map((category) => category.name).join(" · ") } : null,
+    sources.length > 0 ? { label: copy.sourcesLabel, value: String(sources.length) } : null,
     { label: copy.profileLastUpdated, value: formatDate(person.updatedAt) },
-  ];
+  ].filter((fact): fact is { label: string; value: string } => fact !== null);
 
   return (
     <main className="a3lam-page">
@@ -103,9 +121,13 @@ export default async function PersonPage({ params }: PersonPageProps) {
           </nav>
 
           <section className="profile-hero" aria-labelledby="profile-title">
-            <div className="profile-avatar avatar-teal" aria-hidden="true">
-              {initials}
-            </div>
+            <PersonPortrait
+              className="profile-avatar"
+              src={person.image}
+              alt={person.nameArabic}
+              initials={initials}
+              tone="teal"
+            />
             <div className="profile-heading">
               <span className="status-badge status-published">{copy.publishedProfileStatus}</span>
               <h1 id="profile-title">{person.nameArabic}</h1>
@@ -130,7 +152,7 @@ export default async function PersonPage({ params }: PersonPageProps) {
               <section className="profile-section" aria-labelledby="overview-title">
                 <p className="eyebrow">{copy.profileOverview}</p>
                 <h2 id="overview-title">{person.shortBio}</h2>
-                {person.biography ? <p className="profile-biography">{person.biography}</p> : <p className="empty-state">{copy.profileNoBiography}</p>}
+                {person.biography ? <BiographyContent value={person.biography} /> : <p className="empty-state">{copy.profileNoBiography}</p>}
               </section>
 
               <section className="profile-section" aria-labelledby="facts-title">
@@ -146,7 +168,7 @@ export default async function PersonPage({ params }: PersonPageProps) {
                 </dl>
               </section>
 
-              <section className="profile-section" aria-labelledby="education-title">
+              <section className={`profile-section${education.length === 0 ? " profile-section-empty" : ""}`} aria-labelledby="education-title">
                 <div className="section-header-row">
                   <div>
                     <p className="eyebrow">{copy.educationLabel}</p>
@@ -155,44 +177,44 @@ export default async function PersonPage({ params }: PersonPageProps) {
                   <span className="section-index">{String(education.length).padStart(2, "0")}</span>
                 </div>
                 {education.length > 0 ? (
-                  <div className="education-list">
+                  <ul className="education-list">
                     {education.map((item) => (
-                      <article className="education-item" key={item.id}>
+                      <li className="education-item" key={item.id}>
                         <span className="timeline-marker" aria-hidden="true" />
                         <div>
                           <h3>{item.institution}</h3>
                           <p className="education-field">{item.field} · {item.dateRange}</p>
                           {item.description ? <p>{item.description}</p> : null}
                         </div>
-                      </article>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 ) : (
                   <p className="empty-state">{copy.profileNoEducation}</p>
                 )}
               </section>
 
-              <section className="profile-section" aria-labelledby="timeline-title">
+              <section className={`profile-section${orderedTimeline.length === 0 ? " profile-section-empty" : ""}`} aria-labelledby="timeline-title">
                 <div className="section-header-row">
                   <div>
                     <p className="eyebrow">{copy.timelineLabel}</p>
                     <h2 id="timeline-title">{copy.timelineLabel}</h2>
                   </div>
-                  <span className="section-index">{String(timeline.length).padStart(2, "0")}</span>
+                  <span className="section-index">{String(orderedTimeline.length).padStart(2, "0")}</span>
                 </div>
-                {timeline.length > 0 ? (
-                  <div className="timeline-list">
-                    {timeline.map((event) => (
-                      <article className="timeline-item" key={event.id}>
-                        <div className="timeline-date">{event.date}</div>
+                {orderedTimeline.length > 0 ? (
+                  <ol className="timeline-list">
+                    {orderedTimeline.map((event) => (
+                      <li className="timeline-item" key={event.id}>
+                        <time className="timeline-date" dateTime={event.date}>{event.date}</time>
                         <div className="timeline-content">
                           <span className="timeline-marker" aria-hidden="true" />
                           <h3>{event.title}</h3>
                           <p>{event.description}</p>
                         </div>
-                      </article>
+                      </li>
                     ))}
-                  </div>
+                  </ol>
                 ) : (
                   <p className="empty-state">{copy.profileNoTimeline}</p>
                 )}
@@ -207,20 +229,20 @@ export default async function PersonPage({ params }: PersonPageProps) {
                   <span className="section-index">{String(sources.length).padStart(2, "0")}</span>
                 </div>
                 {sources.length > 0 ? (
-                  <div className="source-list">
+                  <ol className="source-list">
                     {sources.map((source) => (
-                      <article className="source-item" key={source.id}>
+                      <li className="source-item" key={source.id}>
                         <div>
-                          <p className="source-type">{source.type}</p>
+                          <p className="source-type">{sourceTypeLabel(source.type, copy)}</p>
                           <h3>{source.title}</h3>
                           <p>{source.publisher}{source.publicationDate ? ` · ${source.publicationDate}` : ""}</p>
                         </div>
-                        <a href={source.url} target="_blank" rel="noreferrer" aria-label={`${copy.profileSourceAccess}: ${source.title}`}>
+                        <a href={source.url} target="_blank" rel="noopener noreferrer" aria-label={`${copy.profileSourceAccess}: ${source.title}`}>
                           {copy.profileSourceAccess} <span aria-hidden="true">↗</span>
                         </a>
-                      </article>
+                      </li>
                     ))}
-                  </div>
+                  </ol>
                 ) : (
                   <p className="empty-state">{copy.profileNoSources}</p>
                 )}

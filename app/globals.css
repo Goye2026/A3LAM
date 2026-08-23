@@ -680,7 +680,8 @@ a {
   transform: translateY(-0.15rem);
 }
 
-.person-avatar {
+.person-avatar,
+.person-card-avatar {
   display: grid;
   width: 4.5rem;
   height: auto;
@@ -704,6 +705,17 @@ a {
 
 .avatar-ink {
   background: var(--color-ink);
+}
+
+.person-portrait-image {
+  overflow: hidden;
+}
+
+.person-portrait-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .person-card-body {
@@ -1075,7 +1087,8 @@ a {
     flex-direction: column;
   }
 
-  .person-avatar {
+  .person-avatar,
+  .person-card-avatar {
     width: 100%;
     min-height: 7rem;
     height: auto;
@@ -1200,7 +1213,8 @@ a {
     grid-template-columns: 3.5rem minmax(0, 1fr);
   }
 
-  .person-avatar {
+  .person-avatar,
+  .person-card-avatar {
     width: 3.5rem;
     height: 4.5rem;
     font-size: 1rem;
@@ -1272,6 +1286,8 @@ a {
   width: 7rem;
   height: 8.5rem;
   place-items: center;
+  overflow: hidden;
+  flex: 0 0 auto;
   border-radius: var(--radius-md);
   color: var(--color-paper);
   font-size: 2rem;
@@ -1565,12 +1581,50 @@ a {
   border-block-start: 1px solid var(--color-border);
 }
 
-.profile-biography {
-  max-width: 44rem;
+.profile-section-empty {
+  padding-block: var(--space-5);
+}
+
+.profile-section-empty .section-header-row {
+  margin-block-end: var(--space-2);
+}
+
+.profile-biography,
+.biography-content {
+  max-width: 46rem;
   margin-block: var(--space-6) 0;
   color: var(--color-ink-soft);
   font-size: 1.05rem;
-  line-height: 2;
+  line-height: 2.05;
+}
+
+.biography-content p {
+  margin: 0;
+}
+
+.biography-content p + p,
+.biography-content h3,
+.biography-content ul {
+  margin-block-start: var(--space-5);
+}
+
+.biography-content h3 {
+  color: var(--color-ink);
+  font-size: 1.25rem;
+  line-height: 1.45;
+}
+
+.biography-content ul {
+  padding-inline-start: 1.5rem;
+}
+
+.biography-content li + li {
+  margin-block-start: var(--space-2);
+}
+
+.biography-content strong {
+  color: var(--color-ink);
+  font-weight: 700;
 }
 
 .facts-grid {
@@ -1604,6 +1658,8 @@ a {
   display: grid;
   gap: var(--space-4);
   margin-block-start: var(--space-8);
+  padding: 0;
+  list-style: none;
 }
 
 .education-item,
@@ -1651,6 +1707,7 @@ a {
 .timeline-date {
   padding-block-start: 0.15rem;
   direction: ltr;
+  white-space: nowrap;
 }
 
 .timeline-content {
@@ -1681,6 +1738,7 @@ a {
 
 .source-item a {
   display: inline-flex;
+  max-width: 100%;
   align-items: center;
   gap: var(--space-2);
   color: var(--color-brand);

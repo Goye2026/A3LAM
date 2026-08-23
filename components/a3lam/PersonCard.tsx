@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { DisplayPerson } from "@/lib/a3lam/catalog";
 import type { FoundationMessages } from "@/lib/i18n/messages";
+import { PersonPortrait } from "./PersonPortrait";
 
 type PersonCardProps = {
   person: DisplayPerson;
@@ -10,9 +11,13 @@ type PersonCardProps = {
 export function PersonCard({ person, copy }: PersonCardProps) {
   return (
     <article className="person-card">
-      <div className={`person-avatar avatar-${person.tone}`} aria-hidden="true">
-        {person.initials}
-      </div>
+      <PersonPortrait
+        className="person-card-avatar"
+        src={person.image}
+        alt={person.name}
+        initials={person.initials}
+        tone={person.tone}
+      />
       <div className="person-card-body">
         <div className="person-card-topline">
           <span className="sample-pill">{person.status === "published" ? copy.publishedProfileStatus : copy.demoLabel}</span>

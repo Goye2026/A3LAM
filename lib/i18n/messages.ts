@@ -109,6 +109,8 @@ export type FoundationMessages = {
   profileOverview: string;
   profileFacts: string;
   profileOccupation: string;
+  profileBirth: string;
+  profileDeath: string;
   profileCategories: string;
   profileRecordId: string;
   profileLastUpdated: string;
@@ -125,6 +127,13 @@ export type FoundationMessages = {
   timelineLabel: string;
   educationLabel: string;
   sourcesLabel: string;
+  sourceOfficial: string;
+  sourceInstitution: string;
+  sourceGovernment: string;
+  sourceMedia: string;
+  sourceProfessional: string;
+  sourceAcademic: string;
+  sourceSecondary: string;
   notPublished: string;
   notFoundEyebrow: string;
   notFoundTitle: string;
@@ -252,6 +261,8 @@ const ar: FoundationMessages = {
   profileOverview: "نبذة عامة",
   profileFacts: "حقائق الملف",
   profileOccupation: "المهنة والمجال",
+  profileBirth: "الميلاد",
+  profileDeath: "الوفاة",
   profileCategories: "التصنيفات",
   profileRecordId: "معرّف داخلي",
   profileLastUpdated: "آخر تحديث",
@@ -268,6 +279,13 @@ const ar: FoundationMessages = {
   timelineLabel: "المسار الزمني",
   educationLabel: "التعليم والخبرة",
   sourcesLabel: "المصادر والتحقق",
+  sourceOfficial: "رسمي",
+  sourceInstitution: "مؤسسة",
+  sourceGovernment: "حكومي",
+  sourceMedia: "إعلامي",
+  sourceProfessional: "مهني",
+  sourceAcademic: "أكاديمي",
+  sourceSecondary: "مصدر ثانوي",
   notPublished: "غير منشور بعد",
   notFoundEyebrow: "404 / أعلام",
   notFoundTitle: "هذه الصفحة غير موجودة",
@@ -395,6 +413,8 @@ const en: FoundationMessages = {
   profileOverview: "Overview",
   profileFacts: "Profile facts",
   profileOccupation: "Occupation and field",
+  profileBirth: "Born",
+  profileDeath: "Died",
   profileCategories: "Categories",
   profileRecordId: "Internal record ID",
   profileLastUpdated: "Last updated",
@@ -411,6 +431,13 @@ const en: FoundationMessages = {
   timelineLabel: "Timeline",
   educationLabel: "Education & experience",
   sourcesLabel: "Sources & verification",
+  sourceOfficial: "Official",
+  sourceInstitution: "Institution",
+  sourceGovernment: "Government",
+  sourceMedia: "Media",
+  sourceProfessional: "Professional",
+  sourceAcademic: "Academic",
+  sourceSecondary: "Secondary",
   notPublished: "Not published yet",
   notFoundEyebrow: "404 / A3LAM",
   notFoundTitle: "This page does not exist",

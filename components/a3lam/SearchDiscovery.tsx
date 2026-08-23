@@ -148,6 +148,7 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
                     role: person.occupations[0] ?? "",
                     meta: person.shortBio,
                     initials: person.nameArabic.slice(0, 2),
+                    image: person.image,
                     tone: "teal",
                     tags: [],
                     status: person.status,

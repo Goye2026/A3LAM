@@ -7,6 +7,7 @@ export type DisplayPerson = {
   role: string;
   meta: string;
   initials: string;
+  image: string | null;
   tone: "teal" | "sand" | "ink";
   tags: string[];
   status: ContentStatus;
@@ -74,6 +75,7 @@ export function toDisplayPeople(people: Person[], categories: Category[]): Displ
       role: category?.name ?? person.occupations[0] ?? "غير مصنف",
       meta: statusMeta(person.status),
       initials: visuals.initials,
+      image: person.image,
       tone: visuals.tone,
       tags: person.occupations,
       status: person.status,
