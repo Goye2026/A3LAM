@@ -136,6 +136,10 @@ export type FoundationMessages = {
   contactDescription: string;
   privacyTitle: string;
   privacyDescription: string;
+  infoPageNextEyebrow: string;
+  infoPageNextTitle: string;
+  infoPageNextDescription: string;
+  infoPageNextAction: string;
 };
 
 const ar: FoundationMessages = {
@@ -275,6 +279,10 @@ const ar: FoundationMessages = {
   contactDescription: "للاستفسارات التحريرية أو اقتراح مصدر، استخدم قنوات التواصل التي ستُعلن عند إطلاقها. هذه الصفحة لا تستقبل بيانات حساسة حاليًا.",
   privacyTitle: "الخصوصية",
   privacyDescription: "نحافظ على مبدأ تقليل البيانات، ولا نعرض معلومات شخصية حساسة أو وسائل اتصال خاصة. ستُوثّق سياسة الخصوصية التفصيلية قبل الإطلاق العام.",
+  infoPageNextEyebrow: "الخطوة التالية",
+  infoPageNextTitle: "ابدأ من الملفات المنشورة",
+  infoPageNextDescription: "تصفح السجلات المتاحة أو انتقل بين المجالات لاكتشاف المعرفة المرتبطة بالمصادر.",
+  infoPageNextAction: "استكشف الشخصيات",
 };
 
 const en: FoundationMessages = {
@@ -414,6 +422,10 @@ const en: FoundationMessages = {
   contactDescription: "For editorial questions or source suggestions, use the channels announced at launch. This page does not currently collect sensitive information.",
   privacyTitle: "Privacy",
   privacyDescription: "We follow data minimization and do not expose sensitive personal information or private contact methods. A detailed privacy policy will be published before public launch.",
+  infoPageNextEyebrow: "Next step",
+  infoPageNextTitle: "Start with published profiles",
+  infoPageNextDescription: "Browse available records or move through the fields to discover source-linked knowledge.",
+  infoPageNextAction: "Explore people",
 };
 
 export const messages: Record<Locale, FoundationMessages> = { ar, en };

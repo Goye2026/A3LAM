@@ -1,13 +1,12 @@
 import { InfoPage } from "@/components/a3lam/InfoPage";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
+import { pageMetadata } from "@/lib/seo/site";
 
-export const metadata = {
-  title: "الخصوصية",
-  description: "مبادئ الخصوصية وتقليل البيانات في منصة أعلام.",
-};
+const copy = getMessages(defaultLocale);
+
+export const metadata = pageMetadata(copy.privacyTitle, copy.privacyDescription, "/privacy");
 
 export default function PrivacyPage() {
-  const copy = getMessages(defaultLocale);
-  return <InfoPage copy={copy} title={copy.privacyTitle} description={copy.privacyDescription} />;
+  return <InfoPage copy={copy} title={copy.privacyTitle} description={copy.privacyDescription} active="privacy" />;
 }

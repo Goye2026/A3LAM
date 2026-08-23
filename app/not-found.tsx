@@ -15,9 +15,17 @@ export default function NotFound() {
           <p className="eyebrow">{copy.notFoundEyebrow}</p>
           <h1 id="not-found-title">{copy.notFoundTitle}</h1>
           <p className="hero-lede">{copy.notFoundDescription}</p>
-          <Link className="button button-primary" href="/">
-            {copy.notFoundAction}
-          </Link>
+          <div className="state-actions">
+            <Link className="button button-primary" href="/">
+              {copy.notFoundAction}
+            </Link>
+            <Link className="button button-quiet" href="/search">
+              {copy.navSearch}
+            </Link>
+            <Link className="button button-quiet" href="/categories">
+              {copy.navCategories}
+            </Link>
+          </div>
         </div>
         <SiteFooter copy={copy} />
       </div>

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { siteUrl } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
+  metadataBase: siteUrl,
   title: {
     default: "أعلام — موسوعة الشخصيات العربية",
     template: "%s | أعلام",
@@ -9,6 +11,10 @@ export const metadata: Metadata = {
   description:
     "أعلام منصة عربية لاكتشاف الشخصيات المؤثرة وفهم أثرها عبر ملفات منظمة ومصادر واضحة.",
   applicationName: "أعلام",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
   keywords: ["أعلام", "الشخصيات العربية", "موسوعة عربية", "اليمن"],
   openGraph: {
     type: "website",

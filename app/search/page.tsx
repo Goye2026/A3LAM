@@ -7,15 +7,14 @@ import type { Category } from "@/lib/domain/a3lam";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 import { personService } from "@/lib/services/personService";
+import { pageMetadata } from "@/lib/seo/site";
 
 export const dynamic = "force-dynamic";
 
 export function generateMetadata(): Metadata {
   const copy = getMessages(defaultLocale);
   return {
-    title: copy.searchPageTitle,
-    description: copy.searchPageDescription,
-    alternates: { canonical: "/search" },
+    ...pageMetadata(copy.searchPageTitle, copy.searchPageDescription, "/search"),
     robots: { index: false, follow: true },
   };
 }

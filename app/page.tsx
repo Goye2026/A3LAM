@@ -32,7 +32,7 @@ export default async function HomePage() {
   const stats = [
     { value: String(people.length).padStart(2, "0"), label: copy.statsPeople },
     { value: String(categories.length).padStart(2, "0"), label: copy.statsCategories },
-    { value: "∞", label: copy.statsCountries },
+    { value: "—", label: copy.statsCountries },
   ];
 
   return (
@@ -56,7 +56,7 @@ export default async function HomePage() {
             <h1 id="hero-title">{copy.heroTitle}</h1>
             <p className="hero-lede">{copy.heroLede}</p>
             <div className="hero-actions">
-              <a className="button button-primary" href="#featured">
+              <a className="button button-primary" href="/search">
                 {copy.heroCta}
                 <span aria-hidden="true">↗</span>
               </a>

@@ -1,7 +1,11 @@
 import Link from "next/link";
 import type { FoundationMessages } from "@/lib/i18n/messages";
 
-type HeaderSection = "home" | "people" | "categories" | "about" | "search";
+type HeaderSection = "home" | "people" | "categories" | "about" | "search" | "contact" | "privacy";
+
+function isAboutSection(active: HeaderSection | undefined) {
+  return active === "about" || active === "contact" || active === "privacy";
+}
 
 type SiteHeaderProps = {
   copy: FoundationMessages;
@@ -31,10 +35,10 @@ export function SiteHeader({ copy, active = "home" }: SiteHeaderProps) {
       <nav className="a3lam-nav" aria-label={copy.siteName}>
         {links.map((link) => (
           <Link
-            className={`a3lam-nav-link${active === link.key ? " is-active" : ""}`}
+            className={`a3lam-nav-link${(active === link.key || (link.key === "about" && isAboutSection(active))) ? " is-active" : ""}`}
             href={link.href}
             key={link.key}
-            aria-current={active === link.key ? "page" : undefined}
+            aria-current={active === link.key || (link.key === "about" && isAboutSection(active)) ? "page" : undefined}
           >
             {link.label}
           </Link>

@@ -1,13 +1,12 @@
 import { InfoPage } from "@/components/a3lam/InfoPage";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
+import { pageMetadata } from "@/lib/seo/site";
 
-export const metadata = {
-  title: "عن أعلام",
-  description: "تعرف على رؤية أعلام ومبدأ بناء المعرفة العربية بمصادر واضحة.",
-};
+const copy = getMessages(defaultLocale);
+
+export const metadata = pageMetadata(copy.aboutTitle, copy.aboutDescription, "/about");
 
 export default function AboutPage() {
-  const copy = getMessages(defaultLocale);
   return <InfoPage copy={copy} title={copy.aboutTitle} description={copy.aboutDescription} />;
 }

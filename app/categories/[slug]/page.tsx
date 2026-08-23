@@ -9,6 +9,7 @@ import type { Category, Person } from "@/lib/domain/a3lam";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 import { personService } from "@/lib/services/personService";
+import { pageMetadata } from "@/lib/seo/site";
 
 type CategoryPageProps = {
   params: Promise<{ slug: string }>;
@@ -23,11 +24,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     return { title: "404", robots: { index: false, follow: false } };
   }
 
-  return {
-    title: category.name,
-    description: category.description,
-    alternates: { canonical: `/categories/${category.slug}` },
-  };
+  return pageMetadata(category.name, category.description, `/categories/${category.slug}`);
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {

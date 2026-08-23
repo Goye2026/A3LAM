@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/a3lam/SiteHeader";
 import { toDisplayPeople } from "@/lib/a3lam/catalog";
 import type { Person } from "@/lib/domain/a3lam";
 import { personService } from "@/lib/services/personService";
+import { absoluteUrl } from "@/lib/seo/site";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 
@@ -45,6 +46,10 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat("ar", { dateStyle: "medium" }).format(new Date(value));
 }
 
+function serializeJsonLd(value: unknown) {
+  return JSON.stringify(value).replace(/</g, "\\u003c");
+}
+
 function relatedPeopleFor(person: Person, people: Person[]) {
   return people
     .filter((candidate) => candidate.id !== person.id && candidate.categoryIds.some((id) => person.categoryIds.includes(id)))
@@ -68,6 +73,14 @@ export default async function PersonPage({ params }: PersonPageProps) {
   const role = categories.map((category) => category.name).join(" · ") || person.occupations.join(" · ");
   const initials = person.nameArabic.slice(0, 2);
   const relatedDisplayPeople = toDisplayPeople(relatedPeople, categories);
+  const personJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: person.nameArabic,
+    description: person.shortBio,
+    url: absoluteUrl(`/person/${person.slug}`),
+    ...(person.occupations[0] ? { jobTitle: person.occupations[0] } : {}),
+  };
   const facts = [
     { label: copy.profileOccupation, value: person.occupations.join(" · ") || "—" },
     { label: copy.profileCategories, value: categories.map((category) => category.name).join(" · ") || "—" },
@@ -77,6 +90,7 @@ export default async function PersonPage({ params }: PersonPageProps) {
 
   return (
     <main className="a3lam-page">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(personJsonLd) }} />
       <div className="a3lam-shell">
         <SiteHeader copy={copy} active="people" />
         <div className="profile-page">
@@ -245,6 +259,22 @@ export default async function PersonPage({ params }: PersonPageProps) {
               </div>
             </section>
           ) : null}
+
+          <section className="profile-discovery" aria-labelledby="profile-discovery-title">
+            <div>
+              <p className="eyebrow">{copy.infoPageNextEyebrow}</p>
+              <h2 id="profile-discovery-title">{copy.infoPageNextTitle}</h2>
+            </div>
+            <div className="profile-discovery-actions">
+              <Link className="button button-primary" href="/search">
+                {copy.infoPageNextAction}
+                <span aria-hidden="true">↗</span>
+              </Link>
+              <Link className="button button-quiet" href="/categories">
+                {copy.navCategories}
+              </Link>
+            </div>
+          </section>
 
           <Link className="back-link profile-back-link" href="/search">
             <span aria-hidden="true">↙</span>
