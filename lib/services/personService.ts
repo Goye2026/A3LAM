@@ -6,6 +6,15 @@ export const personService = {
     return databaseRepository.listCategories();
   },
 
+  async getCategoryBySlug(slug: string) {
+    const categories = await databaseRepository.listCategories();
+    return categories.find((category) => category.slug === slug) ?? null;
+  },
+
+  async listPublishedPeopleByCategoryId(categoryId: string) {
+    return databaseRepository.searchPublishedPeople({ categoryId });
+  },
+
   async listPublishedPeople() {
     return databaseRepository.listPublishedPeople();
   },

@@ -14,6 +14,7 @@ export type DisplayPerson = {
 
 export type DisplayCategory = {
   id: string;
+  slug: string;
   label: string;
   description: string;
   count: string;
@@ -53,6 +54,7 @@ function statusMeta(status: ContentStatus) {
 export function toDisplayCategories(categories: Category[]): DisplayCategory[] {
   return categories.map((category, index) => ({
     id: category.id,
+    slug: category.slug,
     label: category.name,
     description: category.description,
     count: String(index + 1).padStart(2, "0"),

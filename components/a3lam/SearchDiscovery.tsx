@@ -69,6 +69,14 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
     return () => controller.abort();
   }, [submittedFilters, requestId]);
 
+  function handleClear() {
+    setQuery("");
+    setCategoryId("");
+    setSubmittedFilters({ query: "", categoryId: "" });
+    setResults([]);
+    setSearchState("idle");
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!query.trim() && !categoryId) {
@@ -149,7 +157,13 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
               ))}
             </div>
           ) : (
-            <p className="search-empty">{copy.searchEmpty}</p>
+            <div className="search-empty-block">
+              <p className="search-empty">{copy.searchEmpty}</p>
+              <p className="search-empty-hint">{copy.searchNoResultsHint}</p>
+              <button className="search-reset" type="button" onClick={handleClear}>
+                {copy.clearSearch}
+              </button>
+            </div>
           )
         ) : null}
       </div>

@@ -48,6 +48,7 @@ export type FoundationMessages = {
   searchPageTitle: string;
   searchPageDescription: string;
   searchPageBack: string;
+  searchNoResultsHint: string;
   clearSearch: string;
   closeSearch: string;
   heroCta: string;
@@ -79,6 +80,7 @@ export type FoundationMessages = {
   categoriesDescription: string;
   categoriesPageTitle: string;
   categoriesPageDescription: string;
+  categoryPeopleTitle: string;
   categoryResults: string;
   categoryNoPeople: string;
   categoryMedia: string;
@@ -185,6 +187,7 @@ const ar: FoundationMessages = {
   searchPageTitle: "اكتشف في أعلام",
   searchPageDescription: "ابحث في السجلات المنشورة، ثم تابع إلى الملف المرتبط بمصادره.",
   searchPageBack: "العودة إلى الاستكشاف",
+  searchNoResultsHint: "جرّب اسمًا أقصر، أو اختر مجالًا مختلفًا من التصنيفات.",
   clearSearch: "مسح البحث",
   closeSearch: "إغلاق البحث",
   heroCta: "اكتشف الشخصيات",
@@ -216,6 +219,7 @@ const ar: FoundationMessages = {
   categoriesDescription: "تنقل بين المجالات لاكتشاف الأشخاص والأفكار والإنجازات ضمن سياقها المهني والثقافي.",
   categoriesPageTitle: "التصنيفات والمجالات",
   categoriesPageDescription: "مدخل منظم إلى مجالات المعرفة التي تنتمي إليها الملفات المنشورة في أعلام.",
+  categoryPeopleTitle: "أشخاص هذا المجال",
   categoryResults: "ملفات منشورة",
   categoryNoPeople: "لا توجد ملفات منشورة في هذا المجال بعد.",
   categoryMedia: "الإعلام والصحافة",
@@ -322,6 +326,7 @@ const en: FoundationMessages = {
   searchPageTitle: "Explore A3LAM",
   searchPageDescription: "Search published records and continue to profiles with clear source attribution.",
   searchPageBack: "Back to discovery",
+  searchNoResultsHint: "Try a shorter name or choose a different field from the categories.",
   clearSearch: "Clear search",
   closeSearch: "Close search",
   heroCta: "Explore people",
@@ -353,6 +358,7 @@ const en: FoundationMessages = {
   categoriesDescription: "Move through fields to discover people, ideas, and achievements in their professional and cultural context.",
   categoriesPageTitle: "Categories and fields",
   categoriesPageDescription: "A structured entry point to the knowledge fields represented by published A3LAM profiles.",
+  categoryPeopleTitle: "People in this field",
   categoryResults: "published profiles",
   categoryNoPeople: "No published profiles are available in this field yet.",
   categoryMedia: "Media & Journalism",

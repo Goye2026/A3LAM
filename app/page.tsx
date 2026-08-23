@@ -1,4 +1,5 @@
 import { CategoryCard } from "@/components/a3lam/CategoryCard";
+import Link from "next/link";
 import { PersonCard } from "@/components/a3lam/PersonCard";
 import { SearchDiscovery } from "@/components/a3lam/SearchDiscovery";
 import { SiteFooter } from "@/components/a3lam/SiteFooter";
@@ -91,9 +92,9 @@ export default async function HomePage() {
               <p className="eyebrow">{copy.featuredEyebrow}</p>
               <h2 id="featured-title">{copy.featuredTitle}</h2>
             </div>
-            <a className="text-link" href="#categories">
+            <Link className="text-link" href="/categories">
               {copy.viewAll} <span aria-hidden="true">↗</span>
-            </a>
+            </Link>
           </div>
           <p className="section-description">{copy.featuredDescription}</p>
           {displayPeople.length > 0 ? (

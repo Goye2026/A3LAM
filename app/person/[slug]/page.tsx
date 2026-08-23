@@ -99,7 +99,7 @@ export default async function PersonPage({ params }: PersonPageProps) {
               <p className="profile-meta">{person.shortBio}</p>
               <div className="profile-category-links" aria-label={copy.profileRelatedCategories}>
                 {categories.map((category) => (
-                  <Link key={category.id} href={`/search?category=${encodeURIComponent(category.id)}`}>
+                  <Link key={category.id} href={`/categories/${category.slug}`}>
                     {category.name}
                   </Link>
                 ))}
