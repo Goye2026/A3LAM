@@ -255,6 +255,24 @@ export const databaseRepository: PersonRepository = {
     return getPersonBySlug(getDb(), slug, true);
   },
 
+  async hasPublishedPersonSlug(slug: string) {
+    const rows = await getDb()
+      .select({ slug: schema.people.slug })
+      .from(schema.people)
+      .where(and(eq(schema.people.slug, slug), eq(schema.people.status, "published")))
+      .limit(1);
+    return rows.length > 0;
+  },
+
+  async hasPublishedCategorySlug(slug: string) {
+    const rows = await getDb()
+      .select({ slug: schema.categories.slug })
+      .from(schema.categories)
+      .where(and(eq(schema.categories.slug, slug), eq(schema.categories.status, "published")))
+      .limit(1);
+    return rows.length > 0;
+  },
+
   async searchPublishedPeople(query: PersonSearchQuery) {
     const records = await searchPublishedPeople(getDb(), query);
     return records.filter((record) => validatePublishedRecord(record).length === 0).map((record) => record.person);

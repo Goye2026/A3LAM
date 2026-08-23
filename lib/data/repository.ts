@@ -8,6 +8,8 @@ export type PersonRepository = {
   listPublishedPeople(): Promise<Person[]>;
   getPersonBySlug(slug: string): Promise<PersonRecord | null>;
   getPublishedPersonBySlug(slug: string): Promise<PersonRecord | null>;
+  hasPublishedPersonSlug(slug: string): Promise<boolean>;
+  hasPublishedCategorySlug(slug: string): Promise<boolean>;
   searchPublishedPeople(query: PersonSearchQuery): Promise<Person[]>;
   listDisplayPeople(): Promise<Person[]>;
   createPersonRecord(record: PersonRecord): Promise<PersonRecord>;

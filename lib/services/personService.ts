@@ -31,6 +31,14 @@ export const personService = {
     return databaseRepository.getPublishedPersonBySlug(slug);
   },
 
+  async hasPublishedPersonSlug(slug: string) {
+    return databaseRepository.hasPublishedPersonSlug(slug);
+  },
+
+  async hasPublishedCategorySlug(slug: string) {
+    return databaseRepository.hasPublishedCategorySlug(slug);
+  },
+
   async createPersonRecord(record: Parameters<typeof databaseRepository.createPersonRecord>[0]) {
     return databaseRepository.createPersonRecord(record);
   },

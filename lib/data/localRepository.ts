@@ -128,6 +128,14 @@ export const localRepository: PersonRepository = {
     return record;
   },
 
+  async hasPublishedPersonSlug(slug: string) {
+    return displayPeople.some((person) => person.slug === slug && isPublished(person));
+  },
+
+  async hasPublishedCategorySlug(slug: string) {
+    return categories.some((category) => category.slug === slug && category.status === "published");
+  },
+
   async searchPublishedPeople(query: PersonSearchQuery) {
     return searchPeople(await this.listPublishedPeople(), query);
   },
