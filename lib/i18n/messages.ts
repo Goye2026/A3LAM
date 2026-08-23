@@ -33,6 +33,7 @@ export type FoundationMessages = {
   navPeople: string;
   navCategories: string;
   navAbout: string;
+  navSearch: string;
   menuLabel: string;
   searchLabel: string;
   searchPlaceholder: string;
@@ -44,6 +45,10 @@ export type FoundationMessages = {
   searchError: string;
   searchFilterLabel: string;
   searchAllCategories: string;
+  searchPageTitle: string;
+  searchPageDescription: string;
+  searchPageBack: string;
+  clearSearch: string;
   closeSearch: string;
   heroCta: string;
   heroSecondary: string;
@@ -72,6 +77,10 @@ export type FoundationMessages = {
   categoriesEyebrow: string;
   categoriesTitle: string;
   categoriesDescription: string;
+  categoriesPageTitle: string;
+  categoriesPageDescription: string;
+  categoryResults: string;
+  categoryNoPeople: string;
   categoryMedia: string;
   categoryAcademia: string;
   categoryCulture: string;
@@ -88,11 +97,26 @@ export type FoundationMessages = {
   footerExplore: string;
   footerContribute: string;
   footerAbout: string;
+  footerContact: string;
+  footerPrivacy: string;
   footerRights: string;
   demoLabel: string;
   demoDataNote: string;
   publishedDataNote: string;
   profileView: string;
+  profileOverview: string;
+  profileFacts: string;
+  profileOccupation: string;
+  profileCategories: string;
+  profileRecordId: string;
+  profileLastUpdated: string;
+  profileNoBiography: string;
+  profileNoTimeline: string;
+  profileNoEducation: string;
+  profileNoSources: string;
+  profileRelatedCategories: string;
+  profileRelatedPeople: string;
+  profileSourceAccess: string;
   personPageTitle: string;
   personPageLede: string;
   backToDirectory: string;
@@ -104,6 +128,12 @@ export type FoundationMessages = {
   notFoundTitle: string;
   notFoundDescription: string;
   notFoundAction: string;
+  aboutTitle: string;
+  aboutDescription: string;
+  contactTitle: string;
+  contactDescription: string;
+  privacyTitle: string;
+  privacyDescription: string;
 };
 
 const ar: FoundationMessages = {
@@ -140,6 +170,7 @@ const ar: FoundationMessages = {
   navPeople: "الشخصيات",
   navCategories: "التصنيفات",
   navAbout: "عن أعلام",
+  navSearch: "البحث",
   menuLabel: "فتح القائمة",
   searchLabel: "ابحث في أعلام",
   searchPlaceholder: "ابحث عن اسم، مهنة، أو مدينة...",
@@ -151,6 +182,10 @@ const ar: FoundationMessages = {
   searchError: "تعذر تنفيذ البحث الآن. حاول مرة أخرى.",
   searchFilterLabel: "التصنيف",
   searchAllCategories: "كل التصنيفات",
+  searchPageTitle: "اكتشف في أعلام",
+  searchPageDescription: "ابحث في السجلات المنشورة، ثم تابع إلى الملف المرتبط بمصادره.",
+  searchPageBack: "العودة إلى الاستكشاف",
+  clearSearch: "مسح البحث",
   closeSearch: "إغلاق البحث",
   heroCta: "اكتشف الشخصيات",
   heroSecondary: "كيف نتحقق؟",
@@ -179,6 +214,10 @@ const ar: FoundationMessages = {
   categoriesEyebrow: "اكتشف حسب المجال",
   categoriesTitle: "كل أثرٍ له سياقه",
   categoriesDescription: "تنقل بين المجالات لاكتشاف الأشخاص والأفكار والإنجازات ضمن سياقها المهني والثقافي.",
+  categoriesPageTitle: "التصنيفات والمجالات",
+  categoriesPageDescription: "مدخل منظم إلى مجالات المعرفة التي تنتمي إليها الملفات المنشورة في أعلام.",
+  categoryResults: "ملفات منشورة",
+  categoryNoPeople: "لا توجد ملفات منشورة في هذا المجال بعد.",
   categoryMedia: "الإعلام والصحافة",
   categoryAcademia: "الأكاديميا والبحث",
   categoryCulture: "الثقافة والفنون",
@@ -195,11 +234,26 @@ const ar: FoundationMessages = {
   footerExplore: "استكشف",
   footerContribute: "ساهم",
   footerAbout: "المشروع",
+  footerContact: "تواصل",
+  footerPrivacy: "الخصوصية",
   footerRights: "جميع الحقوق محفوظة",
   demoLabel: "عرض تجريبي",
   demoDataNote: "لا تمثل هذه النماذج ملفات أشخاص منشورة.",
   publishedDataNote: "تُعرض هنا السجلات المنشورة فقط بعد التحقق وربط المصادر.",
   profileView: "عرض الملف",
+  profileOverview: "نبذة عامة",
+  profileFacts: "حقائق الملف",
+  profileOccupation: "المهنة والمجال",
+  profileCategories: "التصنيفات",
+  profileRecordId: "معرّف داخلي",
+  profileLastUpdated: "آخر تحديث",
+  profileNoBiography: "لا تتوفر نبذة موسعة لهذا الملف بعد.",
+  profileNoTimeline: "لا توجد أحداث زمنية منشورة لهذا الملف بعد.",
+  profileNoEducation: "لا توجد بيانات تعليمية منشورة لهذا الملف بعد.",
+  profileNoSources: "لا توجد مصادر منشورة لهذا الملف بعد.",
+  profileRelatedCategories: "مجالات مرتبطة",
+  profileRelatedPeople: "ملفات ذات صلة",
+  profileSourceAccess: "فتح المصدر",
   personPageTitle: "صفحة نموذجية لملف شخصية",
   personPageLede: "هذه صفحة عرض محايدة توضّح بنية الملف العام قبل ربطها ببيانات منشورة ومصادر معتمدة.",
   backToDirectory: "العودة إلى الدليل",
@@ -211,6 +265,12 @@ const ar: FoundationMessages = {
   notFoundTitle: "هذه الصفحة غير موجودة",
   notFoundDescription: "لم نتمكن من العثور على الملف أو المسار المطلوب.",
   notFoundAction: "العودة إلى الرئيسية",
+  aboutTitle: "عن أعلام",
+  aboutDescription: "أعلام موسوعة عربية تُبنى حول ملفات منظمة، مصادر واضحة، ومراجعة بشرية قبل النشر.",
+  contactTitle: "تواصل مع أعلام",
+  contactDescription: "للاستفسارات التحريرية أو اقتراح مصدر، استخدم قنوات التواصل التي ستُعلن عند إطلاقها. هذه الصفحة لا تستقبل بيانات حساسة حاليًا.",
+  privacyTitle: "الخصوصية",
+  privacyDescription: "نحافظ على مبدأ تقليل البيانات، ولا نعرض معلومات شخصية حساسة أو وسائل اتصال خاصة. ستُوثّق سياسة الخصوصية التفصيلية قبل الإطلاق العام.",
 };
 
 const en: FoundationMessages = {
@@ -247,6 +307,7 @@ const en: FoundationMessages = {
   navPeople: "People",
   navCategories: "Categories",
   navAbout: "About A3LAM",
+  navSearch: "Search",
   menuLabel: "Open menu",
   searchLabel: "Search A3LAM",
   searchPlaceholder: "Search a name, profession, or city...",
@@ -258,6 +319,10 @@ const en: FoundationMessages = {
   searchError: "Search is unavailable right now. Try again.",
   searchFilterLabel: "Category",
   searchAllCategories: "All categories",
+  searchPageTitle: "Explore A3LAM",
+  searchPageDescription: "Search published records and continue to profiles with clear source attribution.",
+  searchPageBack: "Back to discovery",
+  clearSearch: "Clear search",
   closeSearch: "Close search",
   heroCta: "Explore people",
   heroSecondary: "How we verify",
@@ -286,6 +351,10 @@ const en: FoundationMessages = {
   categoriesEyebrow: "Explore by field",
   categoriesTitle: "Every impact has a context",
   categoriesDescription: "Move through fields to discover people, ideas, and achievements in their professional and cultural context.",
+  categoriesPageTitle: "Categories and fields",
+  categoriesPageDescription: "A structured entry point to the knowledge fields represented by published A3LAM profiles.",
+  categoryResults: "published profiles",
+  categoryNoPeople: "No published profiles are available in this field yet.",
   categoryMedia: "Media & Journalism",
   categoryAcademia: "Academia & Research",
   categoryCulture: "Culture & Arts",
@@ -302,11 +371,26 @@ const en: FoundationMessages = {
   footerExplore: "Explore",
   footerContribute: "Contribute",
   footerAbout: "The project",
+  footerContact: "Contact",
+  footerPrivacy: "Privacy",
   footerRights: "All rights reserved",
   demoLabel: "Display sample",
   demoDataNote: "These samples are not published person profiles.",
   publishedDataNote: "Only published records with verified source links appear here.",
   profileView: "View profile",
+  profileOverview: "Overview",
+  profileFacts: "Profile facts",
+  profileOccupation: "Occupation and field",
+  profileCategories: "Categories",
+  profileRecordId: "Internal record ID",
+  profileLastUpdated: "Last updated",
+  profileNoBiography: "No extended overview is available for this profile yet.",
+  profileNoTimeline: "No published timeline events are available yet.",
+  profileNoEducation: "No published education records are available yet.",
+  profileNoSources: "No published sources are available yet.",
+  profileRelatedCategories: "Related fields",
+  profileRelatedPeople: "Related profiles",
+  profileSourceAccess: "Open source",
   personPageTitle: "Sample person profile page",
   personPageLede: "A neutral profile surface showing the public structure before it connects to published data and approved sources.",
   backToDirectory: "Back to directory",
@@ -318,6 +402,12 @@ const en: FoundationMessages = {
   notFoundTitle: "This page does not exist",
   notFoundDescription: "We could not find the requested profile or route.",
   notFoundAction: "Return home",
+  aboutTitle: "About A3LAM",
+  aboutDescription: "A3LAM is an Arabic encyclopedia built around structured profiles, clear sources, and human review before publication.",
+  contactTitle: "Contact A3LAM",
+  contactDescription: "For editorial questions or source suggestions, use the channels announced at launch. This page does not currently collect sensitive information.",
+  privacyTitle: "Privacy",
+  privacyDescription: "We follow data minimization and do not expose sensitive personal information or private contact methods. A detailed privacy policy will be published before public launch.",
 };
 
 export const messages: Record<Locale, FoundationMessages> = { ar, en };

@@ -1,6 +1,7 @@
 import { CategoryCard } from "@/components/a3lam/CategoryCard";
 import { PersonCard } from "@/components/a3lam/PersonCard";
 import { SearchDiscovery } from "@/components/a3lam/SearchDiscovery";
+import { SiteFooter } from "@/components/a3lam/SiteFooter";
 import { SiteHeader } from "@/components/a3lam/SiteHeader";
 import { toDisplayCategories, toDisplayPeople } from "@/lib/a3lam/catalog";
 import type { Category, Person } from "@/lib/domain/a3lam";
@@ -36,7 +37,7 @@ export default async function HomePage() {
   return (
     <main id="top" className="a3lam-page">
       <div className="a3lam-shell">
-        <SiteHeader copy={copy} />
+        <SiteHeader copy={copy} active="home" />
 
         <section className="a3lam-hero" aria-labelledby="hero-title">
           <div className="hero-visual" aria-hidden="true">
@@ -143,24 +144,7 @@ export default async function HomePage() {
           </a>
         </section>
 
-        <footer className="a3lam-footer">
-          <div className="footer-brand">
-            <span className="footer-mark" aria-hidden="true">أ</span>
-            <div>
-              <strong>{copy.siteName}</strong>
-              <p>{copy.footerTagline}</p>
-            </div>
-          </div>
-          <div className="footer-links" aria-label={copy.siteName}>
-            <a href="#featured">{copy.footerExplore}</a>
-            <a href="#about">{copy.footerContribute}</a>
-            <a href="#top">{copy.footerAbout}</a>
-          </div>
-          <div className="footer-meta">
-            <span>{copy.footerRights}</span>
-            <span>{copy.footerNote}</span>
-          </div>
-        </footer>
+        <SiteFooter copy={copy} />
       </div>
     </main>
   );

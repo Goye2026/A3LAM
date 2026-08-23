@@ -16,19 +16,20 @@ export function PersonCard({ person, copy }: PersonCardProps) {
       <div className="person-card-body">
         <div className="person-card-topline">
           <span className="sample-pill">{person.status === "published" ? copy.publishedProfileStatus : copy.demoLabel}</span>
-          <span className="person-id">{person.id.replace("sample-profile-", "#")}</span>
         </div>
         <h3>{person.name}</h3>
         <p className="person-role">{person.role}</p>
         <p className="person-meta">{person.meta}</p>
-        <div className="person-tags" aria-label={copy.featuredTitle}>
-          {person.tags.map((tag) => (
-            <span key={tag}>{tag}</span>
-          ))}
-        </div>
+        {person.tags.length > 0 ? (
+          <div className="person-tags" aria-label={copy.profileCategories}>
+            {person.tags.map((tag) => (
+              <span key={tag}>{tag}</span>
+            ))}
+          </div>
+        ) : null}
       </div>
       {person.status === "published" ? (
-        <Link className="person-card-link" href={`/person/${person.id}`} aria-label={`${copy.profileView}: ${person.name}`}>
+        <Link className="person-card-link" href={`/person/${person.slug}`} aria-label={`${copy.profileView}: ${person.name}`}>
           <span aria-hidden="true">↗</span>
           {copy.profileView}
         </Link>

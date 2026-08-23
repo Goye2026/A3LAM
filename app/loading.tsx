@@ -1,8 +1,18 @@
+import { defaultLocale } from "@/lib/i18n/config";
+import { getMessages } from "@/lib/i18n/messages";
+
 export default function Loading() {
+  const copy = getMessages(defaultLocale);
   return (
-    <main className="shell" aria-busy="true" aria-live="polite">
-      <p className="eyebrow">A3LAM / FOUNDATION</p>
-      <h1>Loading foundation…</h1>
+    <main className="a3lam-page" aria-busy="true" aria-live="polite">
+      <div className="a3lam-shell">
+        <div className="loading-state">
+          <span className="loading-mark" aria-hidden="true">أ</span>
+          <p className="eyebrow">{copy.siteEyebrow}</p>
+          <h1>{copy.searchLoading}</h1>
+          <span className="loading-rule" aria-hidden="true" />
+        </div>
+      </div>
     </main>
   );
 }

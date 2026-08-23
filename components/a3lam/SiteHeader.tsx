@@ -1,11 +1,21 @@
 import Link from "next/link";
 import type { FoundationMessages } from "@/lib/i18n/messages";
 
+type HeaderSection = "home" | "people" | "categories" | "about" | "search";
+
 type SiteHeaderProps = {
   copy: FoundationMessages;
+  active?: HeaderSection;
 };
 
-export function SiteHeader({ copy }: SiteHeaderProps) {
+export function SiteHeader({ copy, active = "home" }: SiteHeaderProps) {
+  const links = [
+    { key: "home" as const, href: "/", label: copy.navHome },
+    { key: "people" as const, href: "/search", label: copy.navPeople },
+    { key: "categories" as const, href: "/categories", label: copy.navCategories },
+    { key: "about" as const, href: "/about", label: copy.navAbout },
+  ];
+
   return (
     <header className="a3lam-header">
       <Link className="a3lam-brand" href="/" aria-label={`${copy.siteName} — ${copy.navHome}`}>
@@ -19,25 +29,23 @@ export function SiteHeader({ copy }: SiteHeaderProps) {
       </Link>
 
       <nav className="a3lam-nav" aria-label={copy.siteName}>
-        <Link className="a3lam-nav-link is-active" href="#top">
-          {copy.navHome}
-        </Link>
-        <Link className="a3lam-nav-link" href="#featured">
-          {copy.navPeople}
-        </Link>
-        <Link className="a3lam-nav-link" href="#categories">
-          {copy.navCategories}
-        </Link>
-        <Link className="a3lam-nav-link" href="#about">
-          {copy.navAbout}
-        </Link>
+        {links.map((link) => (
+          <Link
+            className={`a3lam-nav-link${active === link.key ? " is-active" : ""}`}
+            href={link.href}
+            key={link.key}
+            aria-current={active === link.key ? "page" : undefined}
+          >
+            {link.label}
+          </Link>
+        ))}
       </nav>
 
-      <Link className="a3lam-header-action" href="#search">
+      <Link className="a3lam-header-action" href="/search" aria-current={active === "search" ? "page" : undefined}>
         <span className="a3lam-search-glyph" aria-hidden="true">
           /
         </span>
-        <span>{copy.searchAction}</span>
+        <span>{copy.navSearch}</span>
       </Link>
     </header>
   );

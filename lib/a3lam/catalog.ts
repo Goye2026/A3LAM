@@ -2,6 +2,7 @@ import type { Category, ContentStatus, Person } from "@/lib/domain/a3lam";
 
 export type DisplayPerson = {
   id: string;
+  slug: string;
   name: string;
   role: string;
   meta: string;
@@ -14,6 +15,7 @@ export type DisplayPerson = {
 export type DisplayCategory = {
   id: string;
   label: string;
+  description: string;
   count: string;
   icon: string;
   tone: "teal" | "sand" | "ink";
@@ -52,6 +54,7 @@ export function toDisplayCategories(categories: Category[]): DisplayCategory[] {
   return categories.map((category, index) => ({
     id: category.id,
     label: category.name,
+    description: category.description,
     count: String(index + 1).padStart(2, "0"),
     ...(categoryVisuals[category.id] ?? { icon: "•", tone: "teal" as const }),
   }));
@@ -64,6 +67,7 @@ export function toDisplayPeople(people: Person[], categories: Category[]): Displ
     const visuals = peopleVisuals[person.id] ?? { initials: person.nameArabic.slice(0, 2), tone: "teal" as const };
     return {
       id: person.id,
+      slug: person.slug,
       name: person.nameArabic,
       role: category?.name ?? person.occupations[0] ?? "غير مصنف",
       meta: statusMeta(person.status),

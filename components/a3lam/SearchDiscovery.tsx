@@ -10,6 +10,8 @@ import { PersonCard } from "./PersonCard";
 type SearchDiscoveryProps = {
   copy: FoundationMessages;
   categories: Category[];
+  initialQuery?: string;
+  initialCategoryId?: string;
 };
 
 type PublicSearchResult = {
@@ -31,10 +33,10 @@ type SubmittedFilters = {
   categoryId: string;
 };
 
-export function SearchDiscovery({ copy, categories }: SearchDiscoveryProps) {
-  const [query, setQuery] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [submittedFilters, setSubmittedFilters] = useState<SubmittedFilters>({ query: "", categoryId: "" });
+export function SearchDiscovery({ copy, categories, initialQuery = "", initialCategoryId = "" }: SearchDiscoveryProps) {
+  const [query, setQuery] = useState(initialQuery);
+  const [categoryId, setCategoryId] = useState(initialCategoryId);
+  const [submittedFilters, setSubmittedFilters] = useState<SubmittedFilters>({ query: initialQuery, categoryId: initialCategoryId });
   const [results, setResults] = useState<PublicSearchResult[]>([]);
   const [searchState, setSearchState] = useState<SearchState>("idle");
   const [requestId, setRequestId] = useState(0);
@@ -133,12 +135,13 @@ export function SearchDiscovery({ copy, categories }: SearchDiscoveryProps) {
                   key={person.id}
                   person={{
                     id: person.id,
+                    slug: person.slug,
                     name: person.nameArabic,
                     role: person.occupations[0] ?? "",
-                    meta: copy.publishedProfileStatus,
+                    meta: person.shortBio,
                     initials: person.nameArabic.slice(0, 2),
                     tone: "teal",
-                    tags: person.occupations,
+                    tags: [],
                     status: person.status,
                   }}
                   copy={copy}

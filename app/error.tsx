@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect } from "react";
+import { defaultLocale } from "@/lib/i18n/config";
+import { getMessages } from "@/lib/i18n/messages";
 
 export default function Error({
   error,
@@ -9,6 +12,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const copy = getMessages(defaultLocale);
+
   useEffect(() => {
     if (process.env.NODE_ENV !== "production") {
       console.error(error);
@@ -16,13 +21,22 @@ export default function Error({
   }, [error]);
 
   return (
-    <main className="shell state-page" role="alert">
-      <p className="eyebrow">500 / FOUNDATION</p>
-      <h1>Something went wrong</h1>
-      <p className="hero-lede">The error was recorded without exposing internal details.</p>
-      <button className="button button-primary" type="button" onClick={() => reset()}>
-        Try again
-      </button>
+    <main className="a3lam-page" role="alert">
+      <div className="a3lam-shell">
+        <div className="state-page error-state">
+          <p className="eyebrow">500 / {copy.siteName}</p>
+          <h1>{copy.dataUnavailable}</h1>
+          <p className="hero-lede">{copy.searchError}</p>
+          <div className="state-actions">
+            <button className="button button-primary" type="button" onClick={() => reset()}>
+              {copy.searchAction}
+            </button>
+            <Link className="button button-quiet" href="/">
+              {copy.notFoundAction}
+            </Link>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
