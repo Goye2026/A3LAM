@@ -58,7 +58,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             copy={copy}
             categories={categories}
             initialQuery={firstParam(params.q)}
-            initialCategoryId={firstParam(params.category)}
+            initialCategorySlug={firstParam(params.category)}
           />
         </div>
         <SiteFooter copy={copy} />

@@ -11,9 +11,9 @@
     "typecheck": "tsc --noEmit",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
     "test": "vitest run",
-    "test:integration": "pnpm db:migrate && pnpm db:seed && vitest run --config vitest.integration.config.ts",
+    "test:integration": "pnpm db:migrate && A3LAM_ALLOW_SYNTHETIC_SEED=true pnpm db:seed && vitest run --config vitest.integration.config.ts",
     "db:migrate": "node scripts/db-migrate.mjs",
-    "db:seed": "A3LAM_ALLOW_SYNTHETIC_SEED=true node scripts/db-seed.mjs",
+    "db:seed": "node scripts/db-seed.mjs",
     "test:watch": "vitest",
     "format": "prettier --check ."
   },

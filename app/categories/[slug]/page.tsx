@@ -72,7 +72,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                 <p className="eyebrow">{copy.navPeople}</p>
                 <h2 id="category-people-title">{copy.categoryPeopleTitle}</h2>
               </div>
-              <Link className="text-link" href={`/search?category=${encodeURIComponent(category?.id ?? "")}`}>
+              <Link className="text-link" href={`/search?category=${encodeURIComponent(category?.slug ?? "")}`}
+>
                 {copy.searchAction} <span aria-hidden="true">↗</span>
               </Link>
             </div>

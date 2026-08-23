@@ -11,43 +11,39 @@ type SearchDiscoveryProps = {
   copy: FoundationMessages;
   categories: Category[];
   initialQuery?: string;
-  initialCategoryId?: string;
+  initialCategorySlug?: string;
 };
 
 type PublicSearchResult = {
-  id: string;
   slug: string;
-  name: string;
   nameArabic: string;
   shortBio: string;
-  categoryIds: string[];
   occupations: string[];
   image: string | null;
-  status: "published";
 };
 
 type SearchState = "idle" | "loading" | "success" | "error";
 
 type SubmittedFilters = {
   query: string;
-  categoryId: string;
+  categorySlug: string;
 };
 
-export function SearchDiscovery({ copy, categories, initialQuery = "", initialCategoryId = "" }: SearchDiscoveryProps) {
+export function SearchDiscovery({ copy, categories, initialQuery = "", initialCategorySlug = "" }: SearchDiscoveryProps) {
   const [query, setQuery] = useState(initialQuery);
-  const [categoryId, setCategoryId] = useState(initialCategoryId);
-  const [submittedFilters, setSubmittedFilters] = useState<SubmittedFilters>({ query: initialQuery, categoryId: initialCategoryId });
+  const [categorySlug, setCategorySlug] = useState(initialCategorySlug);
+  const [submittedFilters, setSubmittedFilters] = useState<SubmittedFilters>({ query: initialQuery, categorySlug: initialCategorySlug });
   const [results, setResults] = useState<PublicSearchResult[]>([]);
   const [searchState, setSearchState] = useState<SearchState>("idle");
   const [requestId, setRequestId] = useState(0);
 
   useEffect(() => {
-    if (!submittedFilters.query.trim() && !submittedFilters.categoryId) return;
+    if (!submittedFilters.query.trim() && !submittedFilters.categorySlug) return;
 
     const controller = new AbortController();
     const params = new URLSearchParams();
     if (submittedFilters.query.trim()) params.set("q", submittedFilters.query.trim());
-    if (submittedFilters.categoryId) params.set("category", submittedFilters.categoryId);
+    if (submittedFilters.categorySlug) params.set("category", submittedFilters.categorySlug);
 
     void (async () => {
       try {
@@ -71,22 +67,22 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
 
   function handleClear() {
     setQuery("");
-    setCategoryId("");
-    setSubmittedFilters({ query: "", categoryId: "" });
+    setCategorySlug("");
+    setSubmittedFilters({ query: "", categorySlug: "" });
     setResults([]);
     setSearchState("idle");
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!query.trim() && !categoryId) {
-      setSubmittedFilters({ query: "", categoryId: "" });
+    if (!query.trim() && !categorySlug) {
+      setSubmittedFilters({ query: "", categorySlug: "" });
       setResults([]);
       setSearchState("idle");
       return;
     }
     setSearchState("loading");
-    setSubmittedFilters({ query, categoryId });
+    setSubmittedFilters({ query, categorySlug });
     setRequestId((current) => current + 1);
   }
 
@@ -114,12 +110,12 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
         <select
           id="a3lam-category"
           className="search-category"
-          value={categoryId}
-          onChange={(event) => setCategoryId(event.target.value)}
+          value={categorySlug}
+          onChange={(event) => setCategorySlug(event.target.value)}
         >
           <option value="">{copy.searchAllCategories}</option>
           {categories.map((category) => (
-            <option key={category.id} value={category.id}>
+            <option key={category.slug} value={category.slug}>
               {category.name}
             </option>
           ))}
@@ -140,9 +136,9 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
               </p>
               {results.map((person) => (
                 <PersonCard
-                  key={person.id}
+                  key={person.slug}
                   person={{
-                    id: person.id,
+                    id: person.slug,
                     slug: person.slug,
                     name: person.nameArabic,
                     role: person.occupations[0] ?? "",
@@ -151,7 +147,7 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
                     image: person.image,
                     tone: "teal",
                     tags: [],
-                    status: person.status,
+                    status: "published",
                   }}
                   copy={copy}
                 />

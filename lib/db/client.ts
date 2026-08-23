@@ -10,10 +10,15 @@ function getDatabaseUrl() {
   return value;
 }
 
+function getMaxConnections() {
+  const value = Number.parseInt(process.env.DATABASE_MAX_CONNECTIONS ?? "5", 10);
+  return Number.isFinite(value) && value > 0 ? value : 5;
+}
+
 export function getDb() {
   if (!sqlClient) {
     sqlClient = postgres(getDatabaseUrl(), {
-      max: Number(process.env.DATABASE_MAX_CONNECTIONS ?? "5"),
+      max: getMaxConnections(),
       prepare: false,
     });
   }

@@ -1,14 +1,14 @@
-# A3LAM — Phase 05 Production Data Foundation
+# A3LAM — أعلام
 
-A3LAM (أعلام) is an Arabic-first biographical knowledge platform. The approved Phase 03 editorial interface remains the public presentation layer, while Phase 04 domain contracts and Phase 05 add a persistent, source-aware data foundation underneath it.
+أعلام منصة عربية لاكتشاف الشخصيات وفهم أثرها عبر ملفات منظمة، مصادر واضحة، ومراجعة بشرية قبل النشر. الواجهة الأساسية عربية وRTL، والبنية العامة جاهزة لاستقبال محتوى تحريري حقيقي عند توفير بيئة الاستضافة وقاعدة البيانات.
 
-## Current phase
+## الحالة الحالية
 
-The repository is currently at **Phase 05 — Production Data Foundation**. Phase 02, Phase 03, and Phase 04 commits remain in history and were not rewritten. **Phase 06 has not started.**
+المشروع في **Phase 10 — Launch Readiness & Deployment Preparation**. تم الحفاظ على تاريخ المراحل السابقة دون إعادة كتابة أو حذف. هذه المرحلة لا تضيف authentication أو admin أو CMS أو payments أو analytics أو user accounts، ولا تغيّر مخطط قاعدة البيانات.
 
-## Locked toolchain
+## Toolchain
 
-| Component | Version |
+| المكوّن | الإصدار |
 |---|---:|
 | Next.js | `16.3.1` |
 | React | `19.2.8` |
@@ -17,98 +17,87 @@ The repository is currently at **Phase 05 — Production Data Foundation**. Phas
 | pnpm | `11.21.0` |
 | ESLint | `9.39.5` |
 
-The lockfile is authoritative. Local development and CI use `pnpm install --frozen-lockfile`.
+الـ lockfile مرجع reproducible. استخدم `pnpm install --frozen-lockfile` في CI وبيئة النشر.
 
-## Database technology
+## المتطلبات
 
-Phase 05 uses **PostgreSQL 16+ with Drizzle ORM and postgres.js**. PostgreSQL provides mature relational constraints, foreign keys, transactions, indexes, and a deployment-friendly path. Drizzle provides typed schema and query construction without introducing a second ORM, while postgres.js is the single database driver.
+للتطوير أو النشر تحتاج إلى Node.js `22.13.0`، وpnpm `11.21.0`، وPostgreSQL متوافق مع البنية الحالية عند تشغيل المسارات العامة المعتمدة على البيانات. لا يحتاج بناء الواجهة وحده إلى PostgreSQL، لكن تشغيل الصفحات الديناميكية وAPI البحث يتطلبان اتصال قاعدة بيانات صالحًا.
 
-The server-only database client lives in `lib/db/client.ts`. It reads `DATABASE_URL` and `DATABASE_MAX_CONNECTIONS` from the environment. No database credential or secret is committed to the repository.
+في النشر الحقيقي استخدم PostgreSQL مُدارًا أو خدمة PostgreSQL موثوقة، ولا تضع بيانات الاتصال داخل المستودع. القيم المحلية في `.env.example` أمثلة تطوير فقط.
 
-## Schema and domain mapping
+## إعداد البيئة
 
-The domain contracts remain in `lib/domain/a3lam.ts`. The typed Drizzle schema in `lib/db/schema.ts` maps them to normalized PostgreSQL tables:
-
-| Domain concept | PostgreSQL tables |
-|---|---|
-| Person | `people` |
-| Category | `categories` |
-| Person ↔ Category | `person_categories` |
-| Occupation | `person_occupations` |
-| Source provenance | `sources`, `person_sources` |
-| Timeline | `timeline_events`, `timeline_event_sources` |
-| Education | `education`, `education_sources` |
-
-Person and category slugs are unique. Lifecycle statuses use database `CHECK` constraints and preserve `draft`, `review`, `published`, and `archived`. Foreign keys protect relationship integrity, while indexes support status, slug, normalized search fields, occupation, timeline, and education lookups.
-
-## Migration strategy
-
-Migration files live in `drizzle/migrations`. `scripts/db-migrate.mjs` creates `schema_migrations`, applies sorted SQL files exactly once, and wraps each migration in a transaction. The database can therefore be recreated from a clean PostgreSQL database using the migration directory without manual SQL steps.
-
-## Local database setup
-
-Copy `.env.example` to `.env.local` and set a PostgreSQL connection string. The committed example uses a local development database only:
+انسخ ملف البيئة النموذجي محليًا:
 
 ```bash
 cp .env.example .env.local
+```
+
+المتغيرات المدعومة:
+
+| المتغير | مطلوب | الاستخدام |
+|---|---:|---|
+| `NODE_ENV` | نعم | `development` محليًا و`production` في بيئة النشر. |
+| `DATABASE_URL` | نعم لتشغيل البيانات | رابط اتصال PostgreSQL server-only. لا يُرسل إلى المتصفح. |
+| `DATABASE_MAX_CONNECTIONS` | لا | الحد الأقصى لاتصالات postgres.js؛ القيمة الافتراضية `5`. |
+| `NEXT_PUBLIC_SITE_URL` | مطلوب للنشر العام | origin عام بصيغة HTTPS، مثل `https://example.org`، للـ canonical وsitemap وOpen Graph وJSON-LD. |
+| `LOG_LEVEL` | لا | مستوى logging المحلي؛ القيمة النموذجية `info`. |
+| `A3LAM_ALLOW_SYNTHETIC_SEED` | لا | يجب تفعيله صراحةً فقط عند تشغيل seed التطويري، ولا يجوز تفعيله في production. |
+
+في التطوير يمكن استخدام:
+
+```env
+NODE_ENV=development
+DATABASE_URL=postgres://a3lam:a3lam@localhost:5432/a3lam
+DATABASE_MAX_CONNECTIONS=5
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+في الإنتاج، عيّن `NODE_ENV=production`، ووفّر `DATABASE_URL` و`NEXT_PUBLIC_SITE_URL` من secret/configuration storage الخاص بمضيفك. لا تستخدم `localhost` كعنوان عام للإنتاج ولا تضع كلمة مرور حقيقية في Git.
+
+## قاعدة البيانات والمigrations
+
+المسار العام هو:
+
+```text
+Next.js route/API → personService → PersonRepository → databaseRepository → PostgreSQL
+```
+
+الـ database client موجود في `lib/db/client.ts` ويُستخدم من طبقة الخادم فقط. ملفات SQL موجودة في `drizzle/migrations`. يقوم `scripts/db-migrate.mjs` بتطبيق الملفات المرتبة مرة واحدة داخل معاملات، ويسجل الإصدارات في `schema_migrations`.
+
+لتجهيز قاعدة تطوير أو قاعدة نشر فارغة، بعد توفير `DATABASE_URL`:
+
+```bash
 pnpm db:migrate
 ```
 
-The current sandbox validation used PostgreSQL 16.15 at `127.0.0.1:5432`. A deployment environment must provide its own secret `DATABASE_URL`; credentials must never be committed.
+لا يعتمد كود الإنتاج على seed التطويري. الاستعلامات العامة تستمر في فرض `status = 'published'` والتحقق من أن التصنيفات والمصادر المرتبطة منشورة، لذلك لا تُعرض سجلات `draft` أو `review` أو `archived`.
 
-## Development seed
+## Synthetic development seed
 
-`pnpm db:seed` is deliberately protected by `A3LAM_ALLOW_SYNTHETIC_SEED=true`. It inserts only unmistakably synthetic development records covering `draft`, `review`, `published`, and `archived`, plus one synthetic source, timeline event, and education record for the published fixture. The records are not real people, historical figures, or production content.
+الـ seed الحالي مخصص للتطوير واختبار واجهة القراءة فقط. يحتوي على سجلات اصطناعية واضحة، ولا يمثل أشخاصًا حقيقيين أو شخصيات تاريخية أو محتوى إنتاجيًا. لا تشغله على قاعدة بيانات الإنتاج.
 
-The seed is idempotent for the fixture identifiers and must not be used as a production content import. Public queries still require the person, related categories, and related sources to be published, with at least one source reference.
-
-## Repository and service architecture
-
-The dependency direction is:
-
-```text
-Next.js UI / route / API
-            ↓
-     personService
-            ↓
-   PersonRepository
-            ↓
- databaseRepository
-            ↓
- PostgreSQL via Drizzle/postgres.js
-```
-
-`lib/data/databaseRepository.ts` replaces the Phase 04 in-memory public data path. It hydrates normalized rows into the existing `PersonRecord` shape, implements create/read/update operations, validates records before insertion or publication, and keeps SQL/database access outside React components. `lib/data/localRepository.ts` remains only as a lightweight Phase 04 contract test fixture; it is no longer the production service source.
-
-## Publication security
-
-The public service exposes only records with `status = 'published'`. It additionally validates the hydrated record so unpublished categories or sources, missing source references, invalid relationships, and malformed records are rejected. The profile route `/person/[slug]` uses the published lookup and sends draft, review, archived, and unknown slugs to the not-found boundary. The search API returns a deliberately limited public response and never includes biography, source, or unpublished metadata.
-
-## Search behavior
-
-Search remains replaceable through `lib/domain/search.ts`, but Phase 05 executes it against PostgreSQL-backed data. It supports Arabic normalization, exact and partial name matching, slug matching, category filtering, occupation filtering, no-match behavior, and published-only filtering. Search requests are handled by `app/api/search/route.ts`; the client discovery component calls that route instead of importing server database code.
-
-## Routes and UI scope
-
-The Phase 03 visual system is preserved. Phase 05 makes only the integration changes needed to load categories and published people asynchronously and to expose persistent search and profile data. The public routes remain `/`, `/api/health`, `/api/search`, and `/person/[slug]`. No admin dashboard, CMS, authentication, user accounts, comments, payments, analytics, or editorial UI is included.
-
-## Testing commands
-
-Unit and foundation tests do not require a database:
+يتطلب التشغيل تفعيلًا صريحًا:
 
 ```bash
-pnpm typecheck
-pnpm lint
-pnpm test
+A3LAM_ALLOW_SYNTHETIC_SEED=true NODE_ENV=development pnpm db:seed
 ```
 
-The integration suite uses a real PostgreSQL instance and requires `DATABASE_URL`:
+يفشل script دون `A3LAM_ALLOW_SYNTHETIC_SEED=true`، ويرفض التشغيل عندما تكون `NODE_ENV=production`. لا تستخدم هذا الأمر لاستيراد المحتوى التحريري الحقيقي.
+
+## التشغيل المحلي
+
+بعد إعداد البيئة وتطبيق migrations:
 
 ```bash
-DATABASE_URL=postgres://a3lam:a3lam@127.0.0.1:5432/a3lam pnpm test:integration
+pnpm dev
 ```
 
-That command runs migrations, applies the explicitly enabled synthetic seed, and executes persistence, relationships, lifecycle, publication security, profile lookup, and database-backed search tests. The full build gate is:
+يفتح الخادم المحلي عادةً على `http://localhost:3000`. تشغيل المسارات المعتمدة على PostgreSQL يتطلب أن تكون قاعدة البيانات متاحة.
+
+## Build وproduction start
+
+تحقق من التثبيت القابل لإعادة الإنتاج ثم أنشئ build الإنتاج:
 
 ```bash
 pnpm install --frozen-lockfile
@@ -118,6 +107,63 @@ pnpm test
 pnpm build
 ```
 
-## Real-content policy
+شغّل build الإنتاج:
 
-No real biographical claims, historical personalities, contact details, or invented sources are included. Future production content requires explicit source provenance and editorial review. AI output is not treated as a source and cannot publish factual content automatically.
+```bash
+pnpm start
+```
+
+قبل التشغيل العام، عيّن `NEXT_PUBLIC_SITE_URL` إلى origin HTTPS الفعلي. عند غيابه يستخدم التطبيق fallback محليًا `http://localhost:3000` للتطوير فقط.
+
+## SEO والنشر العام
+
+تستخدم الصفحات العامة canonical وOpen Graph من خلال `NEXT_PUBLIC_SITE_URL` عندما يكون مضبوطًا، مع fallback محلي واضح. المسارات `/robots.txt` و`/sitemap.xml` مشتقة من المسارات العامة والفئات والملفات المنشورة. لا يضاف `/search` إلى sitemap لأنه `noindex`، كما تُستبعد `/api/` من robots.
+
+تحتوي صفحات الملفات المنشورة على Person JSON-LD مبني على المحتوى الظاهر فقط. الملفات غير المنشورة أو غير الصالحة لا تُفهرس ولا تكشف metadata داخلية. تستخدم مسارات not-found الديناميكية boundary المتدفقة في Next.js؛ لذلك قد تعرض صفحة 404 مع status HTTP `200` في بعض الاستجابات المتدفقة، مع بقاء `noindex` وعدم كشف المحتوى.
+
+## المسارات العامة
+
+| المسار | الغرض |
+|---|---|
+| `/` | الصفحة الرئيسية والاكتشاف |
+| `/search` | البحث في السجلات المنشورة |
+| `/categories` | فهرس المجالات |
+| `/categories/[slug]` | ملفات مجال منشور |
+| `/person/[slug]` | ملف شخصي منشور |
+| `/about` | عن أعلام |
+| `/contact` | التواصل التحريري الحالي |
+| `/privacy` | مبادئ الخصوصية الحالية |
+| `/robots.txt` | تعليمات محركات البحث |
+| `/sitemap.xml` | خريطة المسارات القابلة للفهرسة |
+| `/icon.svg` | favicon |
+| `/api/health` | health probe |
+| `/api/search` | public search API محدود |
+
+## API والأمان الأساسي
+
+يتحقق `/api/search` من طول المدخلات ويقصها إلى حد آمن، ويتعامل مع البحث الفارغ بنتيجة ثابتة، ويعيد projection عامًا محدودًا لا يحتوي internal database IDs أو category IDs أو biography أو source metadata. عند فشل الخدمة يعيد استجابة `503` عامة دون SQL أو stack trace.
+
+تستخدم الاستجابة العامة headers تمنع MIME sniffing وclickjacking غير المقصود، وتضبط Referrer Policy وPermissions Policy، ويُفعّل HSTS في production. الروابط الخارجية للمصادر تستخدم `noopener noreferrer`. لا توجد أسرار أو بيانات اعتماد داخل client code أو المستودع.
+
+## التحقق الخفيف
+
+الأوامر الأساسية:
+
+```bash
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm build
+```
+
+اختبار PostgreSQL التكاملـي اختياري ويتطلب قاعدة بيانات متاحة، ويستخدم seed اصطناعيًا بتفعيل صريح ضمن بيئة غير production:
+
+```bash
+DATABASE_URL=postgres://a3lam:a3lam@127.0.0.1:5432/a3lam \
+A3LAM_ALLOW_SYNTHETIC_SEED=true NODE_ENV=development \
+pnpm test:integration
+```
+
+## حدود الإصدار
+
+لا يتضمن هذا الإصدار authentication أو admin dashboard أو CMS أو contributions أو verification workflows أو comments أو payments أو analytics أو semantic search. كما لا يتضمن محتوى تاريخيًا حقيقيًا أو مصادر مختلقة. يجب أن يمر أي محتوى إنتاجي حقيقي عبر نموذج التحرير والمراجعة المعتمد قبل النشر.

@@ -46,7 +46,7 @@ No manual SQL step is required after the migration command.
 `.env.example` documents the required server-side variables:
 
 ```text
-DATABASE_URL=postgres://a3lam:a3lam@localhost:5432/a3lam
+DATABASE_URL=postgres://USER:PASSWORD@localhost:5432/a3lam
 DATABASE_MAX_CONNECTIONS=5
 ```
 
@@ -109,7 +109,7 @@ pnpm build
 The integration command uses a real PostgreSQL instance:
 
 ```bash
-DATABASE_URL=postgres://a3lam:a3lam@127.0.0.1:5432/a3lam pnpm test:integration
+DATABASE_URL=postgres://USER:PASSWORD@127.0.0.1:5432/a3lam pnpm test:integration
 ```
 
 Integration tests verify migration/seed readiness, category persistence, person read/write/update lifecycle, source relationships, timeline, education, publication security, public profile lookup, Arabic exact/partial/slug search, category and occupation filtering, no-match behavior, and exclusion of draft/review/archived records.

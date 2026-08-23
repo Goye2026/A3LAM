@@ -7,6 +7,10 @@ function requireDatabaseUrl() {
   return value;
 }
 
+if (process.env.NODE_ENV === "production") {
+  throw new Error("Synthetic seed is disabled in production.");
+}
+
 if (process.env.A3LAM_ALLOW_SYNTHETIC_SEED !== "true") {
   throw new Error("Synthetic seed is disabled. Set A3LAM_ALLOW_SYNTHETIC_SEED=true for an explicit development seed.");
 }
