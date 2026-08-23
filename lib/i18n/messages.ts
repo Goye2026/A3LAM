@@ -149,6 +149,98 @@ export type FoundationMessages = {
   infoPageNextTitle: string;
   infoPageNextDescription: string;
   infoPageNextAction: string;
+  adminTitle: string;
+  adminSubtitle: string;
+  adminLoginTitle: string;
+  adminLoginDescription: string;
+  adminAccessToken: string;
+  adminLoginAction: string;
+  adminLogout: string;
+  adminAccessUnavailable: string;
+  adminInvalidAccess: string;
+  adminDashboard: string;
+  adminPeople: string;
+  adminAddPerson: string;
+  adminReviewContent: string;
+  adminPublished: string;
+  adminDraft: string;
+  adminReview: string;
+  adminArchived: string;
+  adminRecentUpdates: string;
+  adminNoPeople: string;
+  adminNoRecent: string;
+  adminPeopleCount: string;
+  adminSearch: string;
+  adminFilterStatus: string;
+  adminAllStatuses: string;
+  adminFilterAction: string;
+  adminEdit: string;
+  adminPreview: string;
+  adminSaveDraft: string;
+  adminSendReview: string;
+  adminPublish: string;
+  adminArchive: string;
+  adminRestore: string;
+  adminPersonNew: string;
+  adminPersonEdit: string;
+  adminBasicInformation: string;
+  adminArabicName: string;
+  adminEnglishName: string;
+  adminSlug: string;
+  adminShortBio: string;
+  adminBiography: string;
+  adminBirthDate: string;
+  adminDeathDate: string;
+  adminBirthPlace: string;
+  adminDeathPlace: string;
+  adminImageUrl: string;
+  adminOccupations: string;
+  adminOccupationsHint: string;
+  adminCategories: string;
+  adminSources: string;
+  adminAddSource: string;
+  adminSourceTitle: string;
+  adminPublisher: string;
+  adminSourceUrl: string;
+  adminPublicationDate: string;
+  adminAccessedAt: string;
+  adminSourceType: string;
+  adminReliability: string;
+  adminReliabilityHigh: string;
+  adminReliabilityMedium: string;
+  adminReliabilityLow: string;
+  adminTimeline: string;
+  adminAddEvent: string;
+  adminEventDate: string;
+  adminEventTitle: string;
+  adminEventDescription: string;
+  adminEducation: string;
+  adminAddEducation: string;
+  adminInstitution: string;
+  adminField: string;
+  adminDateRange: string;
+  adminDescription: string;
+  adminRemove: string;
+  adminSave: string;
+  adminSaving: string;
+  adminSaved: string;
+  adminCancel: string;
+  adminPreviewTitle: string;
+  adminPreviewDescription: string;
+  adminBackToEdit: string;
+  adminDatabaseError: string;
+  adminValidationError: string;
+  adminUnauthorized: string;
+  adminStatusLabel: string;
+  adminStatusTransitionError: string;
+  adminConflictError: string;
+  adminSelectPlaceholder: string;
+  adminNoSources: string;
+  adminNoTimeline: string;
+  adminNoEducation: string;
+  adminPagePrevious: string;
+  adminPageNext: string;
+  adminUpdated: string;
 };
 
 const ar: FoundationMessages = {
@@ -301,6 +393,98 @@ const ar: FoundationMessages = {
   infoPageNextTitle: "ابدأ من الملفات المنشورة",
   infoPageNextDescription: "تصفح السجلات المتاحة أو انتقل بين المجالات لاكتشاف المعرفة المرتبطة بالمصادر.",
   infoPageNextAction: "استكشف الشخصيات",
+  adminTitle: "التحرير الداخلي",
+  adminSubtitle: "إدارة محتوى موسوعة أعلام",
+  adminLoginTitle: "دخول مساحة التحرير",
+  adminLoginDescription: "هذه المساحة مخصصة للمحررين المصرح لهم فقط.",
+  adminAccessToken: "رمز الوصول التحريري",
+  adminLoginAction: "دخول",
+  adminLogout: "تسجيل الخروج",
+  adminAccessUnavailable: "لم تُضبط حماية مساحة التحرير في هذه البيئة.",
+  adminInvalidAccess: "رمز الوصول غير صحيح أو منتهي.",
+  adminDashboard: "لوحة التحرير",
+  adminPeople: "الشخصيات",
+  adminAddPerson: "إضافة شخصية",
+  adminReviewContent: "مراجعة المحتوى",
+  adminPublished: "منشور",
+  adminDraft: "مسودة",
+  adminReview: "قيد المراجعة",
+  adminArchived: "مؤرشف",
+  adminRecentUpdates: "آخر التعديلات",
+  adminNoPeople: "لا توجد شخصيات في السجل الحالي.",
+  adminNoRecent: "لا توجد تعديلات حديثة.",
+  adminPeopleCount: "إجمالي الشخصيات",
+  adminSearch: "بحث داخلي",
+  adminFilterStatus: "تصفية حسب الحالة",
+  adminAllStatuses: "كل الحالات",
+  adminFilterAction: "تطبيق التصفية",
+  adminEdit: "تحرير",
+  adminPreview: "معاينة",
+  adminSaveDraft: "حفظ كمسودة",
+  adminSendReview: "إرسال للمراجعة",
+  adminPublish: "نشر",
+  adminArchive: "أرشفة",
+  adminRestore: "إعادة إلى المراجعة",
+  adminPersonNew: "إضافة شخصية جديدة",
+  adminPersonEdit: "تحرير الشخصية",
+  adminBasicInformation: "المعلومات الأساسية",
+  adminArabicName: "الاسم بالعربية",
+  adminEnglishName: "الاسم بالإنجليزية",
+  adminSlug: "الرابط المختصر",
+  adminShortBio: "النبذة المختصرة",
+  adminBiography: "السيرة المنظمة",
+  adminBirthDate: "تاريخ الميلاد",
+  adminDeathDate: "تاريخ الوفاة",
+  adminBirthPlace: "مكان الميلاد",
+  adminDeathPlace: "مكان الوفاة",
+  adminImageUrl: "رابط الصورة",
+  adminOccupations: "المهن، مفصولة بفواصل",
+  adminOccupationsHint: "اكتب كل مهنة في سطر أو افصل بينها بفواصل.",
+  adminCategories: "التصنيفات",
+  adminSources: "المصادر",
+  adminAddSource: "إضافة مصدر",
+  adminSourceTitle: "عنوان المصدر",
+  adminPublisher: "الناشر",
+  adminSourceUrl: "رابط المصدر",
+  adminPublicationDate: "تاريخ النشر",
+  adminAccessedAt: "تاريخ الوصول",
+  adminSourceType: "نوع المصدر",
+  adminReliability: "تصنيف الموثوقية",
+  adminReliabilityHigh: "مرتفع",
+  adminReliabilityMedium: "متوسط",
+  adminReliabilityLow: "منخفض",
+  adminTimeline: "المسار الزمني",
+  adminAddEvent: "إضافة حدث",
+  adminEventDate: "تاريخ الحدث",
+  adminEventTitle: "عنوان الحدث",
+  adminEventDescription: "وصف الحدث",
+  adminEducation: "التعليم",
+  adminAddEducation: "إضافة تعليم",
+  adminInstitution: "المؤسسة",
+  adminField: "المجال أو البرنامج",
+  adminDateRange: "الفترة",
+  adminDescription: "الوصف",
+  adminRemove: "حذف العنصر",
+  adminSave: "حفظ التغييرات",
+  adminSaving: "جارٍ الحفظ…",
+  adminSaved: "تم الحفظ",
+  adminCancel: "إلغاء",
+  adminPreviewTitle: "معاينة تحريرية",
+  adminPreviewDescription: "هذه المعاينة محمية ولا تظهر للعامة قبل النشر.",
+  adminBackToEdit: "العودة إلى التحرير",
+  adminDatabaseError: "تعذر الوصول إلى قاعدة البيانات الآن.",
+  adminValidationError: "راجع الحقول المطلوبة والقيم غير الصالحة.",
+  adminUnauthorized: "ليست لديك صلاحية الوصول إلى هذه المساحة.",
+  adminStatusLabel: "حالة النشر",
+  adminStatusTransitionError: "لا يسمح مسار التحرير بهذا الانتقال.",
+  adminConflictError: "يوجد تعارض في السجل؛ راجع الرابط أو العملية الحالية.",
+  adminSelectPlaceholder: "اختر…",
+  adminNoSources: "أضف مصدرًا واحدًا على الأقل عند النشر.",
+  adminNoTimeline: "لا توجد أحداث مضافة.",
+  adminNoEducation: "لا توجد بيانات تعليمية مضافة.",
+  adminPagePrevious: "السابق",
+  adminPageNext: "التالي",
+  adminUpdated: "آخر تحديث",
 };
 
 const en: FoundationMessages = {
@@ -453,6 +637,98 @@ const en: FoundationMessages = {
   infoPageNextTitle: "Start with published profiles",
   infoPageNextDescription: "Browse available records or move through the fields to discover source-linked knowledge.",
   infoPageNextAction: "Explore people",
+  adminTitle: "Editorial workspace",
+  adminSubtitle: "Manage A3LAM encyclopedia content",
+  adminLoginTitle: "Editorial workspace sign-in",
+  adminLoginDescription: "This space is limited to authorized editors.",
+  adminAccessToken: "Editorial access token",
+  adminLoginAction: "Sign in",
+  adminLogout: "Sign out",
+  adminAccessUnavailable: "Editorial access is not configured in this environment.",
+  adminInvalidAccess: "The access token is invalid or expired.",
+  adminDashboard: "Editorial dashboard",
+  adminPeople: "People",
+  adminAddPerson: "Add person",
+  adminReviewContent: "Review content",
+  adminPublished: "Published",
+  adminDraft: "Draft",
+  adminReview: "In review",
+  adminArchived: "Archived",
+  adminRecentUpdates: "Recent updates",
+  adminNoPeople: "There are no people in the current records.",
+  adminNoRecent: "There are no recent updates.",
+  adminPeopleCount: "Total people",
+  adminSearch: "Internal search",
+  adminFilterStatus: "Filter by status",
+  adminAllStatuses: "All statuses",
+  adminFilterAction: "Apply filters",
+  adminEdit: "Edit",
+  adminPreview: "Preview",
+  adminSaveDraft: "Save draft",
+  adminSendReview: "Send to review",
+  adminPublish: "Publish",
+  adminArchive: "Archive",
+  adminRestore: "Return to review",
+  adminPersonNew: "Add new person",
+  adminPersonEdit: "Edit person",
+  adminBasicInformation: "Basic information",
+  adminArabicName: "Arabic name",
+  adminEnglishName: "English name",
+  adminSlug: "Public slug",
+  adminShortBio: "Short biography",
+  adminBiography: "Structured biography",
+  adminBirthDate: "Birth date",
+  adminDeathDate: "Death date",
+  adminBirthPlace: "Birth place",
+  adminDeathPlace: "Death place",
+  adminImageUrl: "Image URL",
+  adminOccupations: "Occupations, comma-separated",
+  adminOccupationsHint: "Enter one occupation per line or separate them with commas.",
+  adminCategories: "Categories",
+  adminSources: "Sources",
+  adminAddSource: "Add source",
+  adminSourceTitle: "Source title",
+  adminPublisher: "Publisher",
+  adminSourceUrl: "Source URL",
+  adminPublicationDate: "Publication date",
+  adminAccessedAt: "Access date",
+  adminSourceType: "Source type",
+  adminReliability: "Reliability",
+  adminReliabilityHigh: "High",
+  adminReliabilityMedium: "Medium",
+  adminReliabilityLow: "Low",
+  adminTimeline: "Timeline",
+  adminAddEvent: "Add event",
+  adminEventDate: "Event date",
+  adminEventTitle: "Event title",
+  adminEventDescription: "Event description",
+  adminEducation: "Education",
+  adminAddEducation: "Add education",
+  adminInstitution: "Institution",
+  adminField: "Field or program",
+  adminDateRange: "Date range",
+  adminDescription: "Description",
+  adminRemove: "Remove item",
+  adminSave: "Save changes",
+  adminSaving: "Saving…",
+  adminSaved: "Saved",
+  adminCancel: "Cancel",
+  adminPreviewTitle: "Editorial preview",
+  adminPreviewDescription: "This preview is protected and is not public before publication.",
+  adminBackToEdit: "Back to editing",
+  adminDatabaseError: "The database is unavailable right now.",
+  adminValidationError: "Review required fields and invalid values.",
+  adminUnauthorized: "You are not authorized to access this space.",
+  adminStatusLabel: "Publication status",
+  adminStatusTransitionError: "This editorial transition is not allowed.",
+  adminConflictError: "The record conflicts with an existing record or current operation.",
+  adminSelectPlaceholder: "Select…",
+  adminNoSources: "Add at least one source before publishing.",
+  adminNoTimeline: "No events added.",
+  adminNoEducation: "No education records added.",
+  adminPagePrevious: "Previous",
+  adminPageNext: "Next",
+  adminUpdated: "Updated",
 };
 
 export const messages: Record<Locale, FoundationMessages> = { ar, en };

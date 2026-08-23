@@ -4,7 +4,7 @@
 
 ## الحالة الحالية
 
-المشروع في **Phase 10 — Launch Readiness & Deployment Preparation**. تم الحفاظ على تاريخ المراحل السابقة دون إعادة كتابة أو حذف. هذه المرحلة لا تضيف authentication أو admin أو CMS أو payments أو analytics أو user accounts، ولا تغيّر مخطط قاعدة البيانات.
+المشروع في **Phase 11 — Editorial CMS & Content Management**. تم الحفاظ على تاريخ المراحل السابقة دون إعادة كتابة أو حذف. تتضمن هذه المرحلة مساحة تحرير داخلية محمية لإدارة سجلات الشخصيات ودورة حالتها، مع إبقاء القراءة العامة منشورة فقط. لا تتضمن هذه المرحلة contributions أو verification workflows أو comments أو payments أو analytics أو user accounts عامة.
 
 ## Toolchain
 
@@ -43,6 +43,8 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_SITE_URL` | مطلوب للنشر العام | origin عام بصيغة HTTPS، مثل `https://example.org`، للـ canonical وsitemap وOpen Graph وJSON-LD. |
 | `LOG_LEVEL` | لا | مستوى logging المحلي؛ القيمة النموذجية `info`. |
 | `A3LAM_ALLOW_SYNTHETIC_SEED` | لا | يجب تفعيله صراحةً فقط عند تشغيل seed التطويري، ولا يجوز تفعيله في production. |
+| `A3LAM_ADMIN_ACCESS_TOKEN` | نعم لتفعيل CMS | سر server-only بطول 32 محرفًا على الأقل لتسجيل دخول المحررين؛ لا تضعه في Git أو client code. |
+| `A3LAM_ADMIN_SESSION_TTL_SECONDS` | لا | مدة cookie الجلسة الموقعة؛ الافتراضي 8 ساعات والحد الأقصى 7 أيام. |
 
 في التطوير يمكن استخدام:
 
@@ -53,7 +55,7 @@ DATABASE_MAX_CONNECTIONS=5
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-في الإنتاج، عيّن `NODE_ENV=production`، ووفّر `DATABASE_URL` و`NEXT_PUBLIC_SITE_URL` من secret/configuration storage الخاص بمضيفك. لا تستخدم `localhost` كعنوان عام للإنتاج ولا تضع كلمة مرور حقيقية في Git.
+في الإنتاج، عيّن `NODE_ENV=production`، ووفّر `DATABASE_URL` و`NEXT_PUBLIC_SITE_URL` و`A3LAM_ADMIN_ACCESS_TOKEN` من secret/configuration storage الخاص بمضيفك. يجب أن يكون رمز CMS عشوائيًا وطويلًا، ولا يُعاد استخدامه أو إرساله إلى المتصفح أو وضعه في Git. لا تستخدم `localhost` كعنوان عام للإنتاج ولا تضع كلمة مرور حقيقية في Git.
 
 ## قاعدة البيانات والمigrations
 
@@ -121,6 +123,20 @@ pnpm start
 
 تحتوي صفحات الملفات المنشورة على Person JSON-LD مبني على المحتوى الظاهر فقط. الملفات غير المنشورة أو غير الصالحة لا تُفهرس ولا تكشف metadata داخلية. تستخدم مسارات not-found الديناميكية boundary المتدفقة في Next.js؛ لذلك قد تعرض صفحة 404 مع status HTTP `200` في بعض الاستجابات المتدفقة، مع بقاء `noindex` وعدم كشف المحتوى.
 
+## مسارات CMS الداخلية
+
+| المسار | الغرض |
+|---|---|
+| `/admin/login` | تسجيل دخول المحرر عبر رمز وصول server-only؛ لا يُفهرس. |
+| `/admin` | لوحة مؤشرات حالات السجلات، محمية بجلسة HttpOnly موقعة. |
+| `/admin/people` | قائمة الشخصيات مع البحث والتصفية والإجراءات التحريرية. |
+| `/admin/people/new` | إنشاء مسودة شخصية. |
+| `/admin/people/[id]` | تحرير الشخصية والمصادر والتعليم والمسار الزمني. |
+| `/admin/people/[id]/preview` | معاينة محمية لا تظهر للعامة قبل النشر. |
+| `/api/admin/auth` | POST للدخول وDELETE للخروج؛ بقية `/api/admin/*` تتطلب جلسة صالحة. |
+
+كل mutation في CMS يتحقق server-side من الجلسة، ويفحص payload، ويعيد أخطاء عامة دون SQL أو stack trace. لا توجد حسابات أو registration أو reset في هذه المرحلة.
+
 ## المسارات العامة
 
 | المسار | الغرض |
@@ -166,4 +182,4 @@ pnpm test:integration
 
 ## حدود الإصدار
 
-لا يتضمن هذا الإصدار authentication أو admin dashboard أو CMS أو contributions أو verification workflows أو comments أو payments أو analytics أو semantic search. كما لا يتضمن محتوى تاريخيًا حقيقيًا أو مصادر مختلقة. يجب أن يمر أي محتوى إنتاجي حقيقي عبر نموذج التحرير والمراجعة المعتمد قبل النشر.
+لا يتضمن هذا الإصدار contributions أو verification workflows أو comments أو payments أو analytics أو semantic search أو تعدد اللغات. يتضمن CMS الداخلي آلية وصول بسيطة قائمة على secret واحد server-only، وليس نظام RBAC أو تسجيل مستخدمين. لا يتضمن محتوى تاريخيًا حقيقيًا أو مصادر مختلقة؛ يجب أن يمر أي محتوى إنتاجي حقيقي عبر نموذج التحرير والمراجعة المعتمد قبل النشر.
