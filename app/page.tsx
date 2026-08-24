@@ -9,8 +9,11 @@ import type { Category, Person } from "@/lib/domain/a3lam";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 import { personService } from "@/lib/services/personService";
+import { withTimeout } from "@/lib/foundation/withTimeout";
 
 export const dynamic = "force-dynamic";
+
+const HOMEPAGE_DATA_TIMEOUT_MS = 5000;
 
 export default async function HomePage() {
   const copy = getMessages(defaultLocale);
@@ -19,10 +22,13 @@ export default async function HomePage() {
   let dataUnavailable = false;
 
   try {
-    [categories, people] = await Promise.all([
-      personService.listCategories(),
-      personService.listPublishedPeople(),
-    ]);
+    [categories, people] = await withTimeout(
+      Promise.all([
+        personService.listCategories(),
+        personService.listPublishedPeople(),
+      ]),
+      HOMEPAGE_DATA_TIMEOUT_MS,
+    );
   } catch {
     dataUnavailable = true;
   }

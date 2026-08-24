@@ -3,6 +3,7 @@ import { defaultLocale, fallbackLocale, locales } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 import { createCorrelationId, redactPII } from "@/lib/observability/logger";
 import { getHealthResponse } from "@/lib/observability/health";
+import { withTimeout } from "@/lib/foundation/withTimeout";
 
 describe("localization foundation", () => {
   it("keeps Arabic as the default locale with English registered", () => {
@@ -11,6 +12,12 @@ describe("localization foundation", () => {
     expect(fallbackLocale).toBe("ar");
     expect(getMessages("ar").brandName).toBe("أساس النظام");
     expect(getMessages("en").brandName).toBe("System foundation");
+  });
+});
+
+describe("bounded async operations", () => {
+  it("rejects a pending operation instead of waiting forever", async () => {
+    await expect(withTimeout(new Promise<never>(() => undefined), 5)).rejects.toThrow("operation timed out");
   });
 });
 
