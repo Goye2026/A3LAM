@@ -51,6 +51,12 @@ export type FoundationMessages = {
   searchNoResultsHint: string;
   clearSearch: string;
   closeSearch: string;
+  searchCity: string;
+  searchCountry: string;
+  searchProfessional: string;
+  searchEditorial: string;
+  searchLocationLabel: string;
+  searchSkillsLabel: string;
   heroCta: string;
   heroSecondary: string;
   statsPeople: string;
@@ -306,6 +312,12 @@ const ar: FoundationMessages = {
   searchNoResultsHint: "جرّب اسمًا أقصر، أو اختر مجالًا مختلفًا من التصنيفات.",
   clearSearch: "مسح البحث",
   closeSearch: "إغلاق البحث",
+  searchCity: "المدينة",
+  searchCountry: "الدولة",
+  searchProfessional: "ملف مهني",
+  searchEditorial: "سجل تحريري",
+  searchLocationLabel: "الموقع",
+  searchSkillsLabel: "المهارات",
   heroCta: "اكتشف الشخصيات",
   heroSecondary: "كيف نتحقق؟",
   statsPeople: "السجلات المنشورة",
@@ -561,6 +573,12 @@ const en: FoundationMessages = {
   searchNoResultsHint: "Try a shorter name or choose a different field from the categories.",
   clearSearch: "Clear search",
   closeSearch: "Close search",
+  searchCity: "City",
+  searchCountry: "Country",
+  searchProfessional: "Professional profile",
+  searchEditorial: "Editorial record",
+  searchLocationLabel: "Location",
+  searchSkillsLabel: "Skills",
   heroCta: "Explore people",
   heroSecondary: "How we verify",
   statsPeople: "published records",

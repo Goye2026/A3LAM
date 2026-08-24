@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/user/auth";
-import { getProfileForUser } from "@/lib/user/profileRepository";
+import { calculateProfileCompletion, getProfileForUser } from "@/lib/user/profileRepository";
 import { LogoutButton } from "@/components/a3lam/LogoutButton";
 
 export const metadata: Metadata = {
@@ -18,36 +18,22 @@ export default async function AccountPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/account");
   const profile = await getProfileForUser(user.id);
+  const completion = calculateProfileCompletion(profile);
+  const updatedAt = profile ? new Intl.DateTimeFormat("ar", { dateStyle: "medium" }).format(new Date(profile.profile.updatedAt)) : null;
 
   return (
     <main className="account-page" dir="rtl">
       <div className="account-shell">
         <header className="account-header">
-          <div>
-            <p className="eyebrow">المساحة الشخصية</p>
-            <h1>مرحبًا، {user.name}</h1>
-            <p className="route-description">هذه المساحة لإدارة ملفك المهني، ولا تمنح صلاحيات تحرير المحتوى التحريري في أعلام.</p>
-          </div>
+          <div><p className="eyebrow">المساحة الشخصية</p><h1>مرحبًا، {user.name}</h1><p className="route-description">إدارة ملفك المهني هنا مستقلة عن مساحة التحرير، ولا تمنحك صلاحيات تعديل الموسوعة.</p></div>
           <LogoutButton label="تسجيل الخروج" busyLabel="جارٍ الخروج…" />
         </header>
-        <section className="account-panel" aria-labelledby="profile-status-title">
-          <div className="section-heading-row">
-            <div>
-              <p className="eyebrow">الملف المهني</p>
-              <h2 id="profile-status-title">ملفك في أعلام</h2>
-            </div>
-            <Link className="button button-primary" href="/account/profile">{profile ? "تعديل الملف" : "إنشاء الملف"}</Link>
-          </div>
-          {profile ? (
-            <div className="account-status-grid">
-              <div><span>الاسم</span><strong>{profile.profile.nameArabic}</strong></div>
-              <div><span>الحالة</span><strong>{statusLabels[profile.profile.status]}</strong></div>
-              <div><span>الظهور</span><strong>{visibilityLabels[profile.profile.visibility]}</strong></div>
-              <div><span>آخر تحديث</span><strong>{new Intl.DateTimeFormat("ar", { dateStyle: "medium" }).format(new Date(profile.profile.updatedAt))}</strong></div>
-            </div>
-          ) : (
-            <div className="empty-state"><h3>لم تنشئ ملفك بعد</h3><p>ابدأ بإضافة معلوماتك المهنية، ثم احفظها كمسودة قبل إرسالها للمراجعة.</p></div>
-          )}
+        <section className="account-panel account-dashboard-card" aria-labelledby="profile-status-title">
+          <div className="section-heading-row"><div><p className="eyebrow">لوحة الملف</p><h2 id="profile-status-title">ملفك في أعلام</h2></div><div className="account-primary-actions"><Link className="button button-primary" href="/account/profile">{profile ? "تعديل الملف" : "إنشاء الملف"}</Link>{profile ? <Link className="button button-quiet" href="/account/profile/preview">معاينة</Link> : null}</div></div>
+          {profile ? <>
+            <div className="account-profile-summary"><div><span>الاسم</span><strong>{profile.profile.nameArabic}</strong>{profile.profile.professionalTitle ? <small>{profile.profile.professionalTitle}</small> : null}</div><div><span>الحالة</span><strong className={`status-text status-text-${profile.profile.status}`}>{statusLabels[profile.profile.status]}</strong></div><div><span>الظهور</span><strong>{visibilityLabels[profile.profile.visibility]}</strong></div><div><span>آخر تعديل</span><strong>{updatedAt}</strong></div></div>
+            <div className="completion-panel" aria-labelledby="completion-title"><div className="completion-heading"><div><p className="eyebrow">إرشاد</p><h3 id="completion-title">اكتمال الملف</h3></div><strong aria-label={`اكتمال الملف ${completion.percent} بالمئة`}>{completion.percent}%</strong></div><div className="completion-track" role="progressbar" aria-valuenow={completion.percent} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${completion.percent}%` }} /></div><div className="completion-lists"><div><span className="completion-list-title">مكتمل</span>{completion.completed.length > 0 ? <ul>{completion.completed.map((item) => <li key={item}>✓ {item}</li>)}</ul> : <p>ابدأ بالمعلومات الأساسية.</p>}</div><div><span className="completion-list-title">يمكن استكماله</span>{completion.remaining.length > 0 ? <ul>{completion.remaining.slice(0, 4).map((item) => <li key={item}>＋ {item}</li>)}</ul> : <p>الملف مستكمل إرشاديًا.</p>}</div></div><p className="section-help">النسبة إرشادية ولا تستبدل متطلبات المراجعة والنشر التحريري.</p></div>
+          </> : <div className="empty-state"><h3>لم تنشئ ملفك بعد</h3><p>ابدأ بإضافة معلوماتك المهنية، ثم احفظها كمسودة قبل إرسالها للمراجعة.</p><Link className="button button-primary" href="/profile/new">إنشاء الملف المهني</Link></div>}
         </section>
       </div>
     </main>

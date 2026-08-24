@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Category } from "@/lib/domain/a3lam";
-import type { ProfileRecord } from "@/lib/user/profileRepository";
+import type { ProfileFile, ProfileRecord } from "@/lib/user/profileRepository";
 
 type Experience = { id?: string; jobTitle: string; organization: string; location: string; startDate: string; endDate: string; isCurrent: boolean; description: string };
 type Education = { id?: string; institution: string; degree: string; field: string; startDate: string; endDate: string; description: string };
@@ -19,6 +19,12 @@ type FormState = {
 };
 
 const emptyState: FormState = { name: "", nameArabic: "", slug: "", professionalTitle: "", professionalSummary: "", biography: "", city: "", country: "اليمن", contactEmail: "", phone: "", emailPublic: false, phonePublic: false, visibility: "private", imageUrl: "", categoryIds: [], source: { title: "", publisher: "", url: "", type: "official" }, skills: [], experiences: [], educations: [], certifications: [], languages: [], portfolio: [], socialLinks: [] };
+
+const editorSteps = ["المعلومات الأساسية", "النبذة والمسمى", "الخبرات", "التعليم", "المهارات", "الشهادات", "اللغات", "الأعمال والمشاريع", "الروابط المهنية", "الاتصال والخصوصية", "المصدر", "المعاينة والإرسال"];
+function localCompletion(form: FormState) {
+  const checks = [Boolean(form.name.trim() && form.nameArabic.trim() && form.slug.trim()), Boolean(form.professionalTitle.trim() && (form.professionalSummary.trim() || form.biography.trim())), form.experiences.length > 0, form.educations.length > 0, form.skills.length > 0, form.certifications.length > 0, form.languages.length > 0, form.portfolio.length > 0, form.socialLinks.length > 0, Boolean(form.contactEmail.trim() || form.phone.trim()), Boolean(form.source.title.trim() && form.source.url.trim())];
+  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+}
 
 function initialState(profile: ProfileRecord | null): FormState {
   if (!profile) return emptyState;
@@ -36,6 +42,7 @@ function initialState(profile: ProfileRecord | null): FormState {
 
 function updateAt<T>(items: T[], index: number, patch: Partial<T>) { return items.map((item, itemIndex) => itemIndex === index ? { ...item, ...patch } : item); }
 function removeAt<T>(items: T[], index: number) { return items.filter((_, itemIndex) => itemIndex !== index); }
+function moveAt<T>(items: T[], index: number, direction: -1 | 1) { const target = index + direction; if (target < 0 || target >= items.length) return items; const next = [...items]; [next[index], next[target]] = [next[target], next[index]]; return next; }
 
 export function ProfileEditor({ profile, categories }: { profile: ProfileRecord | null; categories: Category[] }) {
   const router = useRouter();
@@ -43,6 +50,12 @@ export function ProfileEditor({ profile, categories }: { profile: ProfileRecord 
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [fileBusy, setFileBusy] = useState(false);
+  const [fileError, setFileError] = useState("");
+  const [attachedFiles, setAttachedFiles] = useState<ProfileFile[]>(profile?.files ?? []);
+  const [fileType, setFileType] = useState<"portrait" | "cv" | "document">("cv");
+  const [filePublic, setFilePublic] = useState(false);
+  const completion = localCompletion(form);
 
   function setField<K extends keyof FormState>(field: K, value: FormState[K]) { setForm((current) => ({ ...current, [field]: value })); }
   async function save(action: "save" | "submit") {
@@ -54,12 +67,33 @@ export function ProfileEditor({ profile, categories }: { profile: ProfileRecord 
     setBusy(false);
   }
 
+  async function uploadFile(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (!profile) { setFileError("احفظ المسودة أولًا قبل رفع الملفات."); return; }
+    setFileBusy(true); setFileError("");
+    const payload = new FormData();
+    payload.set("file", file);
+    payload.set("fileType", fileType);
+    payload.set("isPublic", String(filePublic));
+    try {
+      const response = await fetch("/api/account/profile/files", { method: "POST", body: payload });
+      const data = await response.json() as { file?: ProfileFile; message?: string };
+      if (!response.ok || !data.file) setFileError(data.message || "تعذر رفع الملف");
+      else { setAttachedFiles((current) => [...current, data.file!]); if (fileType === "portrait") setField("imageUrl", data.file.url); }
+    } catch { setFileError("تعذر الاتصال بخدمة التخزين"); }
+    setFileBusy(false);
+  }
+
   return (
     <div className="profile-editor" dir="rtl">
       <div className="editor-toolbar">
         <div><p className="eyebrow">ملف مهني</p><h1>{profile ? "تعديل ملفك" : "إنشاء ملفك المهني"}</h1><p className="route-description">احفظ عملك كمسودة في أي وقت. لا يظهر الملف للعامة قبل المراجعة والموافقة.</p></div>
         <div className="editor-actions"><button className="button button-quiet" onClick={() => router.push("/account")}>العودة</button>{profile ? <button className="button button-quiet" onClick={() => router.push("/account/profile/preview")}>معاينة خاصة</button> : null}<button className="button button-primary" onClick={() => void save("save")} disabled={busy}>{busy ? "جارٍ الحفظ…" : "حفظ المسودة"}</button><button className="button button-dark" onClick={() => void save("submit")} disabled={busy}>إرسال للمراجعة</button></div>
       </div>
+      <nav className="editor-progress" aria-label="مراحل إنشاء الملف"><div className="editor-progress-heading"><span className="eyebrow">مسار الإنشاء</span><strong>{completion}% مكتمل إرشاديًا</strong></div><ol>{editorSteps.map((step, index) => <li className={index < Math.round((completion / 100) * 11) ? "is-complete" : ""} key={step}><span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>{step}</li>)}</ol><div className="completion-track" role="progressbar" aria-label="اكتمال الملف" aria-valuenow={completion} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${completion}%` }} /></div></nav>
+      <section className="editor-live-preview" aria-labelledby="live-preview-title"><div><p className="eyebrow">معاينة مباشرة</p><h2 id="live-preview-title">{form.nameArabic || "اسمك المهني"}</h2><p className="profile-latin-name">{form.name || "الاسم اللاتيني"}</p><p className="profile-role">{form.professionalTitle || "المسمى المهني"}</p>{form.city || form.country ? <p className="profile-meta">{[form.city, form.country].filter(Boolean).join("، ")}</p> : null}</div><div><span className="status-badge status-draft">{form.visibility === "published" ? "عام بعد المراجعة" : form.visibility === "unlisted" ? "غير مدرج بعد المراجعة" : "مسودة خاصة"}</span>{form.skills.length > 0 ? <div className="skill-list">{form.skills.slice(0, 5).map((skill) => <span key={skill}>{skill}</span>)}</div> : <p className="section-help">أضف مهارات لتظهر هنا في شكلها العام.</p>}</div></section>
       {notice ? <p className="form-success" role="status">{notice}</p> : null}
       {error ? <p className="form-error" role="alert">{error}</p> : null}
       <section className="editor-section"><h2>المعلومات الأساسية</h2><div className="form-grid">
@@ -101,10 +135,11 @@ export function ProfileEditor({ profile, categories }: { profile: ProfileRecord 
       </RepeatSection>
 
       <RepeatSection title="الروابط الاجتماعية" addLabel="إضافة رابط" onAdd={() => setField("socialLinks", [...form.socialLinks, { platform: "website", url: "" }])}>
-        {form.socialLinks.map((item, index) => <div className="repeat-card" key={item.id ?? index}><div className="form-grid"><label><span>المنصة</span><select value={item.platform} onChange={(e) => setField("socialLinks", updateAt(form.socialLinks, index, { platform: e.target.value }))}><option value="website">الموقع</option><option value="linkedin">LinkedIn</option><option value="x">X</option><option value="facebook">Facebook</option><option value="instagram">Instagram</option><option value="github">GitHub</option><option value="youtube">YouTube</option></select></label><label><span>الرابط</span><input value={item.url} onChange={(e) => setField("socialLinks", updateAt(form.socialLinks, index, { url: e.target.value }))} type="url" dir="ltr" /></label></div><button type="button" className="link-button danger" onClick={() => setField("socialLinks", removeAt(form.socialLinks, index))}>حذف الرابط</button></div>)}
+        {form.socialLinks.map((item, index) => <div className="repeat-card" key={item.id ?? index}><div className="form-grid"><label><span>المنصة</span><select value={item.platform} onChange={(e) => setField("socialLinks", updateAt(form.socialLinks, index, { platform: e.target.value }))}><option value="website">الموقع</option><option value="linkedin">LinkedIn</option><option value="x">X</option><option value="facebook">Facebook</option><option value="instagram">Instagram</option><option value="github">GitHub</option><option value="youtube">YouTube</option></select></label><label><span>الرابط</span><input value={item.url} onChange={(e) => setField("socialLinks", updateAt(form.socialLinks, index, { url: e.target.value }))} type="url" dir="ltr" /></label></div><div className="repeat-actions"><button type="button" className="link-button" disabled={index === 0} onClick={() => setField("socialLinks", moveAt(form.socialLinks, index, -1))}>↑ رفع</button><button type="button" className="link-button" disabled={index === form.socialLinks.length - 1} onClick={() => setField("socialLinks", moveAt(form.socialLinks, index, 1))}>↓ خفض</button><button type="button" className="link-button danger" onClick={() => setField("socialLinks", removeAt(form.socialLinks, index))}>حذف الرابط</button></div></div>)}
       </RepeatSection>
 
-      <section className="editor-section"><h2>بيانات الاتصال</h2><p className="section-help">تُحفظ هذه البيانات بشكل خاص افتراضيًا ولا تُعرض إلا عند تفعيل الظهور صراحة.</p><div className="form-grid"><label><span>البريد المهني</span><input value={form.contactEmail} onChange={(e) => setField("contactEmail", e.target.value)} type="email" dir="ltr" /></label><label><span>الهاتف المهني</span><input value={form.phone} onChange={(e) => setField("phone", e.target.value)} type="tel" dir="ltr" /></label><label className="checkbox-label"><input checked={form.emailPublic} onChange={(e) => setField("emailPublic", e.target.checked)} type="checkbox" /><span>إظهار البريد في الملف العام</span></label><label className="checkbox-label"><input checked={form.phonePublic} onChange={(e) => setField("phonePublic", e.target.checked)} type="checkbox" /><span>إظهار الهاتف في الملف العام</span></label></div></section>
+      <section className="editor-section" id="contact-privacy"><h2>بيانات الاتصال والخصوصية</h2><p className="section-help">تُحفظ هذه البيانات بشكل خاص افتراضيًا ولا تُعرض إلا عند تفعيل الظهور صراحة.</p><div className="form-grid"><label><span>البريد المهني</span><input value={form.contactEmail} onChange={(e) => setField("contactEmail", e.target.value)} type="email" dir="ltr" /></label><label><span>الهاتف المهني</span><input value={form.phone} onChange={(e) => setField("phone", e.target.value)} type="tel" dir="ltr" /></label><label className="checkbox-label"><input checked={form.emailPublic} onChange={(e) => setField("emailPublic", e.target.checked)} type="checkbox" /><span>إظهار البريد في الملف العام</span></label><label className="checkbox-label"><input checked={form.phonePublic} onChange={(e) => setField("phonePublic", e.target.checked)} type="checkbox" /><span>إظهار الهاتف في الملف العام</span></label></div></section>
+      <section className="editor-section" id="files"><h2>الملفات المرفقة</h2><p className="section-help">الأنواع الآمنة: PDF وJPG وJPEG وPNG وWebP. لا تُرفع الملفات قبل حفظ المسودة، ولا يوجد تخزين محلي بديل.</p><div className="file-upload-controls"><label><span>نوع الملف</span><select value={fileType} onChange={(e) => setFileType(e.target.value as "portrait" | "cv" | "document")}><option value="portrait">صورة شخصية</option><option value="cv">سيرة ذاتية</option><option value="document">مستند مهني</option></select></label><label className="checkbox-label"><input checked={filePublic} onChange={(e) => setFilePublic(e.target.checked)} type="checkbox" /><span>السماح بظهوره للعامة بعد النشر</span></label><label className="file-input-label"><span>{fileBusy ? "جارٍ الرفع…" : "اختيار ملف"}</span><input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" onChange={(event) => void uploadFile(event)} disabled={fileBusy || !profile} /></label></div>{fileError ? <p className="form-error" role="alert">{fileError}</p> : null}{attachedFiles.length > 0 ? <ul className="attached-file-list">{attachedFiles.map((file) => <li key={file.id}><strong>{file.originalName}</strong><span>{file.fileType} · {file.isPublic ? "عام بعد النشر" : "خاص"}</span></li>)}</ul> : <p className="section-help">لا توجد ملفات مرفقة بعد.</p>}</section>
       <div className="editor-footer-actions"><button className="button button-primary" onClick={() => void save("save")} disabled={busy}>حفظ المسودة</button><button className="button button-dark" onClick={() => void save("submit")} disabled={busy}>إرسال للمراجعة</button></div>
     </div>
   );

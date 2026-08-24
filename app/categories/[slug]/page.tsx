@@ -53,6 +53,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   const displayPeople = category ? toDisplayPeople(people, [category]) : [];
   const hasPeople = displayPeople.length > 0 || professionalProfiles.length > 0;
+  const publishedCount = displayPeople.length + professionalProfiles.length;
 
   return (
     <main className="a3lam-page">
@@ -71,6 +72,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             <p className="eyebrow">{copy.categoriesEyebrow}</p>
             <h1>{category?.name ?? copy.dataUnavailable}</h1>
             <p className="route-description">{category?.description ?? copy.dataUnavailable}</p>
+            {category ? <div className="category-stat-strip" aria-label="إحصاءات التصنيف"><strong>{publishedCount}</strong><span>ملفًا منشورًا</span><span className="category-stat-note">يظهر المحتوى المنشور والمتحقق فقط</span></div> : null}
           </div>
 
           <section className="category-people-section" aria-labelledby="category-people-title">
@@ -92,11 +94,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
               </div>
             ) : hasPeople ? (
               <div className="people-grid">
-                {displayPeople.map((person) => (
-                  <PersonCard key={`legacy-${person.id}`} person={person} copy={copy} />
-                ))}
+                {professionalProfiles.length > 0 ? <div className="category-result-group-label">الملفات المهنية</div> : null}
                 {professionalProfiles.map((profile) => (
                   <ProfessionalProfileCard key={`profile-${profile.id}`} profile={profile} />
+                ))}
+                {displayPeople.length > 0 ? <div className="category-result-group-label">الموسوعة التحريرية</div> : null}
+                {displayPeople.map((person) => (
+                  <PersonCard key={`legacy-${person.id}`} person={person} copy={copy} />
                 ))}
               </div>
             ) : (

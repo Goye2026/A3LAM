@@ -24,7 +24,8 @@ export async function POST(request: Request) {
     const key = `profiles/${user.id}/${profile.profile.id}/${fileTypeValue}-${randomUUID()}.${upload.extension}`;
     const stored = await putObject(key, upload.bytes, upload.mimeType);
     const id = await createProfileFile(profile.profile.id, { storageKey: stored.key, url: stored.url, originalName: upload.originalName, mimeType: upload.mimeType, extension: upload.extension, sizeBytes: upload.sizeBytes, fileType: upload.fileType, isPublic: form.get("isPublic") === "true" });
-    return NextResponse.json({ file: { id, url: stored.url, fileType: upload.fileType, isPublic: form.get("isPublic") === "true" } }, { status: 201 });
+    const isPublic = form.get("isPublic") === "true";
+    return NextResponse.json({ file: { id, url: stored.url, originalName: upload.originalName, mimeType: upload.mimeType, extension: upload.extension, sizeBytes: upload.sizeBytes, fileType: upload.fileType, isPublic } }, { status: 201 });
   } catch (error) {
     if (error instanceof InvalidUploadError) return NextResponse.json({ message: error.message }, { status: 400 });
     if (error instanceof StorageUnavailableError) return NextResponse.json({ message: "رفع الملفات غير متاح حاليًا: يلزم إعداد التخزين الخارجي" }, { status: 503 });

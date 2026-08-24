@@ -4,7 +4,7 @@ import { parseProfileInput, ProfileInputError, validateProfileForPublication } f
 import { InvalidUploadError, validateUpload } from "@/lib/storage/validation";
 import { ADMIN_SESSION_COOKIE } from "@/lib/admin/auth";
 import { isSameOriginMutation } from "@/lib/user/requestSecurity";
-import { projectPublicProfile, type ProfileRecord } from "@/lib/user/profileRepository";
+import { calculateProfileCompletion, projectPublicProfile, type ProfileRecord } from "@/lib/user/profileRepository";
 
 const baseProfile = {
   name: "Test Professional",
@@ -61,6 +61,20 @@ describe("Phase 13 public privacy projection", () => {
     expect(projection.email).toBeNull();
     expect(projection.phone).toBeNull();
     expect(projection.files.map((file) => file.id)).toEqual(["public"]);
+  });
+});
+
+describe("Phase 14 profile UX contracts", () => {
+  it("calculates an advisory completion percentage without changing publication requirements", () => {
+    const empty = calculateProfileCompletion(null);
+    expect(empty.percent).toBe(0);
+    expect(empty.remaining).toContain("المعلومات الأساسية");
+    const record = {
+      profile: { id: "p", userId: "u", slug: "profile", name: "Name", nameArabic: "اسم", professionalTitle: "باحث", professionalSummary: "نبذة", biography: "", city: "صنعاء", country: "اليمن", contactEmail: null, phone: null, emailPublic: false, phonePublic: false, imageUrl: null, status: "draft", visibility: "private", createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z" },
+      categories: [], source: { id: "s", title: "مصدر", publisher: "مؤسسة", url: "https://example.com", type: "official", status: "draft" }, skills: ["بحث"], experiences: [], educations: [], certifications: [], languages: [], portfolio: [], socialLinks: [], files: [],
+    } as ProfileRecord;
+    expect(calculateProfileCompletion(record).percent).toBeGreaterThan(0);
+    expect(calculateProfileCompletion(record).percent).toBeLessThan(100);
   });
 });
 

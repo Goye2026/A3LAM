@@ -69,9 +69,12 @@ export type PublicProfile = Omit<Profile, "userId" | "contactEmail" | "phone" | 
 
 export type ProfileSourceRecord = { id: string; title: string; publisher: string; url: string; type: SourceType; status: ContentStatus };
 
-export type PublicProfileCard = { slug: string; nameArabic: string; name: string; professionalTitle: string; professionalSummary: string; imageUrl: string | null; categories: string[] };
+export type PublicProfileCard = { slug: string; nameArabic: string; name: string; professionalTitle: string; professionalSummary: string; imageUrl: string | null; city: string | null; country: string | null; skills: string[]; categories: string[] };
 
 type Database = PostgresJsDatabase<typeof schema>;
+
+export { calculateProfileCompletion } from "@/lib/user/profileCompletion";
+export type { ProfileCompletion } from "@/lib/user/profileCompletion";
 
 type ProfileRow = typeof schema.profiles.$inferSelect;
 
@@ -101,7 +104,7 @@ async function hydrateProfile(db: Database, row: ProfileRow): Promise<ProfileRec
     db.select().from(schema.profileCertifications).where(eq(schema.profileCertifications.profileId, row.id)).orderBy(desc(schema.profileCertifications.obtainedDate)),
     db.select().from(schema.profileLanguages).where(eq(schema.profileLanguages.profileId, row.id)).orderBy(asc(schema.profileLanguages.language)),
     db.select().from(schema.profilePortfolioItems).where(eq(schema.profilePortfolioItems.profileId, row.id)).orderBy(asc(schema.profilePortfolioItems.title)),
-    db.select().from(schema.profileSocialLinks).where(eq(schema.profileSocialLinks.profileId, row.id)).orderBy(asc(schema.profileSocialLinks.platform)),
+    db.select().from(schema.profileSocialLinks).where(eq(schema.profileSocialLinks.profileId, row.id)).orderBy(asc(schema.profileSocialLinks.id)),
     db.select().from(schema.profileFiles).where(eq(schema.profileFiles.profileId, row.id)).orderBy(desc(schema.profileFiles.createdAt)),
   ]);
   return {
@@ -217,7 +220,7 @@ export async function saveUserProfile(userId: string, input: ProfileInput, statu
     if (input.certifications.length > 0) await tx.insert(schema.profileCertifications).values(input.certifications.map((item) => ({ id: randomUUID(), profileId, name: item.name, issuer: item.issuer, obtainedDate: item.obtainedDate || null, verificationUrl: item.verificationUrl || null })));
     if (input.languages.length > 0) await tx.insert(schema.profileLanguages).values(input.languages.map((item) => ({ id: randomUUID(), profileId, language: item.language, proficiency: item.proficiency })));
     if (input.portfolio.length > 0) await tx.insert(schema.profilePortfolioItems).values(input.portfolio.map((item) => ({ id: randomUUID(), profileId, title: item.title, description: item.description, url: item.url || null, coverUrl: item.coverUrl || null, workType: item.workType })));
-    if (input.socialLinks.length > 0) await tx.insert(schema.profileSocialLinks).values(input.socialLinks.map((item) => ({ id: randomUUID(), profileId, platform: item.platform, url: item.url })));
+    if (input.socialLinks.length > 0) await tx.insert(schema.profileSocialLinks).values(input.socialLinks.map((item, index) => ({ id: `social-${profileId}-${String(index).padStart(3, "0")}`, profileId, platform: item.platform, url: item.url })));
   });
   return profileById(db, profileId);
 }
@@ -229,7 +232,7 @@ export async function listPublicProfiles() {
   return records.filter(publicValid).map((record) => projectPublicProfile(record));
 }
 
-export async function searchPublicProfiles(query: string, categoryId?: string) {
+export async function searchPublicProfiles(query: string, categoryId?: string, filters: { city?: string; country?: string } = {}) {
   const db = getDb();
   const normalized = normalizeArabic(query);
   const conditions = [eq(schema.profiles.status, "published"), eq(schema.profiles.visibility, "published")];
@@ -237,9 +240,11 @@ export async function searchPublicProfiles(query: string, categoryId?: string) {
     const pattern = `%${normalized}%`;
     const skillRows = await db.select({ profileId: schema.profileSkills.profileId }).from(schema.profileSkills).where(ilike(schema.profileSkills.skillNormalized, pattern));
     const skillIds = skillRows.map((item) => item.profileId);
-    const textMatch = or(ilike(schema.profiles.name, pattern), ilike(schema.profiles.nameArabic, pattern), ilike(schema.profiles.professionalTitle, pattern), ilike(schema.profiles.professionalSummary, pattern));
+    const textMatch = or(ilike(schema.profiles.name, pattern), ilike(schema.profiles.nameArabic, pattern), ilike(schema.profiles.professionalTitle, pattern), ilike(schema.profiles.professionalSummary, pattern), ilike(schema.profiles.city, pattern), ilike(schema.profiles.country, pattern));
     conditions.push(skillIds.length > 0 ? or(textMatch, inArray(schema.profiles.id, skillIds))! : textMatch!);
   }
+  if (filters.city?.trim()) conditions.push(ilike(schema.profiles.city, `%${filters.city.trim()}%`));
+  if (filters.country?.trim()) conditions.push(ilike(schema.profiles.country, `%${filters.country.trim()}%`));
   if (categoryId) {
     const relationRows = await db.select({ profileId: schema.profileCategories.profileId }).from(schema.profileCategories).where(eq(schema.profileCategories.categoryId, categoryId));
     const ids = relationRows.map((item) => item.profileId);
@@ -294,5 +299,10 @@ export async function getPublicProfileCardsByIds(ids: string[]) {
   const db = getDb();
   const rows = await db.select().from(schema.profiles).where(and(inArray(schema.profiles.id, ids), eq(schema.profiles.status, "published"), eq(schema.profiles.visibility, "published")));
   const records = await Promise.all(rows.map((row) => hydrateProfile(db, row)));
-  return records.filter(publicValid).map((record) => ({ slug: record.profile.slug, nameArabic: record.profile.nameArabic, name: record.profile.name, professionalTitle: record.profile.professionalTitle, professionalSummary: record.profile.professionalSummary, imageUrl: record.profile.imageUrl, categories: record.categories.map((item) => item.name) }));
+  return records.filter(publicValid).map((record) => ({ slug: record.profile.slug, nameArabic: record.profile.nameArabic, name: record.profile.name, professionalTitle: record.profile.professionalTitle, professionalSummary: record.profile.professionalSummary, imageUrl: record.profile.imageUrl, city: record.profile.city, country: record.profile.country, skills: record.skills.slice(0, 6), categories: record.categories.map((item) => item.name) }));
+}
+
+export async function listProfileAuditLogs(profileId: string) {
+  const db = getDb();
+  return db.select().from(schema.auditLogs).where(and(eq(schema.auditLogs.entityType, "profile"), eq(schema.auditLogs.entityId, profileId))).orderBy(desc(schema.auditLogs.createdAt)).limit(50);
 }
