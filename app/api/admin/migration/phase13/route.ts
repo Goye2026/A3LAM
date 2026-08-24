@@ -27,7 +27,10 @@ export async function POST(request: Request) {
     if (applied.length !== 1 || missing.length > 0) return NextResponse.json({ ok: false, applied: false, missingTables: missing }, { status: 500 });
     return NextResponse.json({ ok: true, applied: true, migration: MIGRATION, requiredTables: REQUIRED_TABLES.length }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    console.error("phase13_migration_failed", error instanceof Error ? error.name : "unknown");
+    const databaseError = error as { code?: unknown; message?: unknown };
+    const code = typeof databaseError.code === "string" ? databaseError.code.slice(0, 24) : "unknown";
+    const message = typeof databaseError.message === "string" ? databaseError.message.replace(/(?:postgres(?:ql)?:\/\/|password|secret|token|DATABASE_URL)[^\s]*/gi, "[redacted]").slice(0, 240) : "unknown";
+    console.error("phase13_migration_failed", { code, message });
     return NextResponse.json({ message: "تعذر تطبيق migration" }, { status: 500 });
   } finally {
     await sql.end({ timeout: 5 });
