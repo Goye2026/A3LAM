@@ -45,12 +45,13 @@ export function SiteHeader({ copy, active = "home" }: SiteHeaderProps) {
         ))}
       </nav>
 
-      <Link className="a3lam-header-action" href="/search" aria-current={active === "search" ? "page" : undefined}>
-        <span className="a3lam-search-glyph" aria-hidden="true">
-          /
-        </span>
-        <span>{copy.navSearch}</span>
-      </Link>
+      <div className="a3lam-header-actions">
+        <Link className="a3lam-header-action" href="/search" aria-current={active === "search" ? "page" : undefined}>
+          <span className="a3lam-search-glyph" aria-hidden="true">/</span>
+          <span>{copy.navSearch}</span>
+        </Link>
+        <Link className="a3lam-header-account" href="/account">حسابي</Link>
+      </div>
     </header>
   );
 }

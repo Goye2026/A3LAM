@@ -1,5 +1,5 @@
-import { date, index, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
-import type { ContentStatus, SourceType } from "@/lib/domain/a3lam";
+import { boolean, date, index, integer, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import type { ContentStatus, ProfileStatus, ProfileVisibility, SourceType } from "@/lib/domain/a3lam";
 
 const lifecycleStatus = (column: string) => text(column).$type<ContentStatus>().notNull().default("draft");
 
@@ -158,6 +158,249 @@ export const educationSources = pgTable(
   }),
 );
 
+export const userAccounts = pgTable(
+  "user_accounts",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    emailNormalized: text("email_normalized").notNull(),
+    passwordHash: text("password_hash").notNull(),
+    role: text("role").$type<"user" | "admin">().notNull().default("user"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    lastSignedIn: timestamp("last_signed_in", { withTimezone: true }),
+  },
+  (table) => ({
+    emailUnique: uniqueIndex("user_accounts_email_unique").on(table.emailNormalized),
+  }),
+);
+
+export const userSessions = pgTable(
+  "user_sessions",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id").notNull().references(() => userAccounts.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    tokenUnique: uniqueIndex("user_sessions_token_unique").on(table.tokenHash),
+    userIndex: index("user_sessions_user_idx").on(table.userId),
+    expiryIndex: index("user_sessions_expiry_idx").on(table.expiresAt),
+  }),
+);
+
+export const profiles = pgTable(
+  "profiles",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id").notNull().references(() => userAccounts.id, { onDelete: "cascade" }),
+    slug: text("slug").notNull(),
+    name: text("name").notNull(),
+    nameArabic: text("name_arabic").notNull(),
+    professionalTitle: text("professional_title").notNull().default(""),
+    professionalSummary: text("professional_summary").notNull().default(""),
+    biography: text("biography").notNull().default(""),
+    city: text("city"),
+    country: text("country"),
+    contactEmail: text("contact_email"),
+    phone: text("phone"),
+    emailPublic: boolean("email_public").notNull().default(false),
+    phonePublic: boolean("phone_public").notNull().default(false),
+    imageUrl: text("image_url"),
+    status: text("status").$type<ProfileStatus>().notNull().default("draft"),
+    visibility: text("visibility").$type<ProfileVisibility>().notNull().default("private"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    userUnique: uniqueIndex("profiles_user_unique").on(table.userId),
+    slugUnique: uniqueIndex("profiles_slug_unique").on(table.slug),
+    statusVisibilityIndex: index("profiles_status_visibility_idx").on(table.status, table.visibility),
+  }),
+);
+
+export const profileCategories = pgTable(
+  "profile_categories",
+  {
+    profileId: text("profile_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+    categoryId: text("category_id").notNull().references(() => categories.id, { onDelete: "restrict" }),
+  },
+  (table) => ({
+    primaryKey: primaryKey({ columns: [table.profileId, table.categoryId] }),
+  }),
+);
+
+export const profileSourceRecords = pgTable(
+  "profile_source_records",
+  {
+    id: text("id").primaryKey(),
+    profileId: text("profile_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    publisher: text("publisher").notNull(),
+    url: text("url").notNull(),
+    sourceType: text("source_type").$type<SourceType>().notNull(),
+    status: lifecycleStatus("status"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    profileUnique: uniqueIndex("profile_source_records_profile_unique").on(table.profileId),
+    profileIndex: index("profile_source_records_profile_idx").on(table.profileId),
+  }),
+);
+
+export const profileExperiences = pgTable(
+  "profile_experiences",
+  {
+    id: text("id").primaryKey(),
+    profileId: text("profile_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+    jobTitle: text("job_title").notNull(),
+    organization: text("organization").notNull(),
+    location: text("location").notNull().default(""),
+    startDate: date("start_date"),
+    endDate: date("end_date"),
+    isCurrent: boolean("is_current").notNull().default(false),
+    description: text("description").notNull().default(""),
+  },
+  (table) => ({
+    profileIndex: index("profile_experiences_profile_idx").on(table.profileId),
+  }),
+);
+
+export const profileEducations = pgTable(
+  "profile_educations",
+  {
+    id: text("id").primaryKey(),
+    profileId: text("profile_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+    institution: text("institution").notNull(),
+    degree: text("degree").notNull().default(""),
+    field: text("field").notNull().default(""),
+    startDate: date("start_date"),
+    endDate: date("end_date"),
+    description: text("description").notNull().default(""),
+  },
+  (table) => ({
+    profileIndex: index("profile_educations_profile_idx").on(table.profileId),
+  }),
+);
+
+export const profileSkills = pgTable(
+  "profile_skills",
+  {
+    profileId: text("profile_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+    skill: text("skill").notNull(),
+    skillNormalized: text("skill_normalized").notNull(),
+  },
+  (table) => ({
+    primaryKey: primaryKey({ columns: [table.profileId, table.skill] }),
+    normalizedIndex: index("profile_skills_normalized_idx").on(table.skillNormalized),
+  }),
+);
+
+export const profileCertifications = pgTable(
+  "profile_certifications",
+  {
+    id: text("id").primaryKey(),
+    profileId: text("profile_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    issuer: text("issuer").notNull(),
+    obtainedDate: date("obtained_date"),
+    verificationUrl: text("verification_url"),
+  },
+  (table) => ({
+    profileIndex: index("profile_certifications_profile_idx").on(table.profileId),
+  }),
+);
+
+export const profileLanguages = pgTable(
+  "profile_languages",
+  {
+    id: text("id").primaryKey(),
+    profileId: text("profile_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+    language: text("language").notNull(),
+    proficiency: text("proficiency").notNull(),
+  },
+  (table) => ({
+    profileIndex: index("profile_languages_profile_idx").on(table.profileId),
+  }),
+);
+
+export const profilePortfolioItems = pgTable(
+  "profile_portfolio_items",
+  {
+    id: text("id").primaryKey(),
+    profileId: text("profile_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    description: text("description").notNull().default(""),
+    url: text("url"),
+    coverUrl: text("cover_url"),
+    workType: text("work_type").notNull(),
+  },
+  (table) => ({
+    profileIndex: index("profile_portfolio_profile_idx").on(table.profileId),
+  }),
+);
+
+export const profileSocialLinks = pgTable(
+  "profile_social_links",
+  {
+    id: text("id").primaryKey(),
+    profileId: text("profile_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+    platform: text("platform").notNull(),
+    url: text("url").notNull(),
+  },
+  (table) => ({
+    platformUnique: uniqueIndex("profile_social_platform_unique").on(table.profileId, table.platform),
+    profileIndex: index("profile_social_profile_idx").on(table.profileId),
+  }),
+);
+
+export const auditLogs = pgTable(
+  "audit_logs",
+  {
+    id: text("id").primaryKey(),
+    actorType: text("actor_type").notNull(),
+    actorId: text("actor_id"),
+    entityType: text("entity_type").notNull(),
+    entityId: text("entity_id").notNull(),
+    field: text("field").notNull(),
+    oldValue: text("old_value"),
+    newValue: text("new_value"),
+    action: text("action").notNull(),
+    reason: text("reason"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    entityIndex: index("audit_logs_entity_idx").on(table.entityType, table.entityId, table.createdAt),
+    actorIndex: index("audit_logs_actor_idx").on(table.actorType, table.actorId, table.createdAt),
+  }),
+);
+
+export const profileFiles = pgTable(
+  "profile_files",
+  {
+    id: text("id").primaryKey(),
+    profileId: text("profile_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+    storageKey: text("storage_key").notNull(),
+    url: text("url").notNull(),
+    originalName: text("original_name").notNull(),
+    mimeType: text("mime_type").notNull(),
+    extension: text("extension").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    fileType: text("file_type").notNull(),
+    isPublic: boolean("is_public").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    storageKeyUnique: uniqueIndex("profile_files_storage_key_unique").on(table.storageKey),
+    profileIndex: index("profile_files_profile_idx").on(table.profileId),
+  }),
+);
+
 export const dbSchema = {
   categories,
   people,
@@ -169,4 +412,18 @@ export const dbSchema = {
   timelineEventSources,
   education,
   educationSources,
+  userAccounts,
+  userSessions,
+  profiles,
+  profileCategories,
+  profileSourceRecords,
+  profileExperiences,
+  profileEducations,
+  profileSkills,
+  profileCertifications,
+  profileLanguages,
+  profilePortfolioItems,
+  profileSocialLinks,
+  profileFiles,
+  auditLogs,
 };

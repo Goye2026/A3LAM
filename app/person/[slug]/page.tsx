@@ -4,307 +4,52 @@ import { notFound } from "next/navigation";
 import { BiographyContent } from "@/components/a3lam/BiographyContent";
 import { PersonCard } from "@/components/a3lam/PersonCard";
 import { PersonPortrait } from "@/components/a3lam/PersonPortrait";
+import { ProfileActions } from "@/components/a3lam/ProfileActions";
 import { SiteFooter } from "@/components/a3lam/SiteFooter";
 import { SiteHeader } from "@/components/a3lam/SiteHeader";
 import { toDisplayPeople } from "@/lib/a3lam/catalog";
 import type { Person, SourceType } from "@/lib/domain/a3lam";
+import { getUnlistedOrPublishedProfileBySlug, type PublicProfile } from "@/lib/user/profileRepository";
 import { personService } from "@/lib/services/personService";
 import { absoluteUrl } from "@/lib/seo/site";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages, type FoundationMessages } from "@/lib/i18n/messages";
 
-type PersonPageProps = {
-  params: Promise<{ slug: string }>;
-};
-
+type PersonPageProps = { params: Promise<{ slug: string }> };
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PersonPageProps): Promise<Metadata> {
   const { slug } = await params;
+  const profile = await getUnlistedOrPublishedProfileBySlug(slug);
+  if (profile) return { title: profile.nameArabic, description: profile.professionalSummary || profile.biography.slice(0, 160), alternates: { canonical: `/person/${profile.slug}` }, openGraph: { type: "profile", title: profile.nameArabic, description: profile.professionalSummary || profile.biography.slice(0, 160), url: `/person/${profile.slug}`, ...(profile.imageUrl ? { images: [profile.imageUrl] } : {}) }, robots: profile.visibility === "unlisted" ? { index: false, follow: false } : { index: true, follow: true } };
   const record = await personService.getPublishedPersonBySlug(slug);
-  if (!record) {
-    return {
-      title: "404",
-      robots: { index: false, follow: false },
-    };
-  }
-
-  const { person } = record;
-  return {
-    title: person.nameArabic,
-    description: person.shortBio,
-    alternates: { canonical: `/person/${person.slug}` },
-    openGraph: {
-      type: "profile",
-      title: person.nameArabic,
-      description: person.shortBio,
-      url: `/person/${person.slug}`,
-    },
-    robots: { index: true, follow: true },
-  };
+  if (!record) return { title: "404", robots: { index: false, follow: false } };
+  return { title: record.person.nameArabic, description: record.person.shortBio, alternates: { canonical: `/person/${record.person.slug}` }, openGraph: { type: "profile", title: record.person.nameArabic, description: record.person.shortBio, url: `/person/${record.person.slug}` }, robots: { index: true, follow: true } };
 }
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("ar", { dateStyle: "medium" }).format(new Date(value));
-}
+function formatDate(value: string) { return new Intl.DateTimeFormat("ar", { dateStyle: "medium" }).format(new Date(value)); }
+function serializeJsonLd(value: unknown) { return JSON.stringify(value).replace(/</g, "\\u003c"); }
+function sourceTypeLabel(type: SourceType, copy: FoundationMessages) { const labels: Record<SourceType, string> = { official: copy.sourceOfficial, institution: copy.sourceInstitution, government: copy.sourceGovernment, media: copy.sourceMedia, professional: copy.sourceProfessional, academic: copy.sourceAcademic, secondary: copy.sourceSecondary }; return labels[type]; }
+function relatedPeopleFor(person: Person, people: Person[]) { return people.filter((candidate) => candidate.id !== person.id && candidate.categoryIds.some((id) => person.categoryIds.includes(id))).slice(0, 3); }
 
-function serializeJsonLd(value: unknown) {
-  return JSON.stringify(value).replace(/</g, "\\u003c");
-}
-
-function sourceTypeLabel(type: SourceType, copy: FoundationMessages) {
-  const labels: Record<SourceType, string> = {
-    official: copy.sourceOfficial,
-    institution: copy.sourceInstitution,
-    government: copy.sourceGovernment,
-    media: copy.sourceMedia,
-    professional: copy.sourceProfessional,
-    academic: copy.sourceAcademic,
-    secondary: copy.sourceSecondary,
-  };
-  return labels[type];
-}
-
-function relatedPeopleFor(person: Person, people: Person[]) {
-  return people
-    .filter((candidate) => candidate.id !== person.id && candidate.categoryIds.some((id) => person.categoryIds.includes(id)))
-    .slice(0, 3);
+function PublicProfessionalProfile({ profile, copy }: { profile: PublicProfile; copy: FoundationMessages }) {
+  const role = profile.professionalTitle || profile.categories.map((category) => category.name).join(" · ");
+  const personJsonLd = { "@context": "https://schema.org", "@type": "Person", name: profile.nameArabic, alternateName: profile.name, description: profile.professionalSummary || profile.biography, url: absoluteUrl(`/person/${profile.slug}`), ...(profile.imageUrl ? { image: profile.imageUrl } : {}), ...(role ? { jobTitle: role } : {}), ...(profile.email ? { email: profile.email } : {}), ...(profile.phone ? { telephone: profile.phone } : {}), ...(profile.socialLinks.length > 0 ? { sameAs: profile.socialLinks.map((link) => link.url) } : {}) };
+  return <main className="a3lam-page"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(personJsonLd) }} /><div className="a3lam-shell"><SiteHeader copy={copy} active="people" /><div className="profile-page professional-profile"><nav className="breadcrumb" aria-label={copy.navPeople}><Link href="/">{copy.navHome}</Link><span aria-hidden="true">/</span><Link href="/search">{copy.navPeople}</Link><span aria-hidden="true">/</span><span aria-current="page">{profile.nameArabic}</span></nav><section className="profile-hero" aria-labelledby="profile-title"><PersonPortrait className="profile-avatar" src={profile.imageUrl} alt={profile.nameArabic} initials={profile.nameArabic.slice(0, 2)} tone="teal" /><div className="profile-heading"><span className="status-badge status-published">ملف مهني موثق بالمصادر</span><h1 id="profile-title">{profile.nameArabic}</h1>{profile.name !== profile.nameArabic ? <p className="profile-latin-name">{profile.name}</p> : null}<p className="profile-role">{role || "شخصية مهنية"}</p>{profile.city || profile.country ? <p className="profile-meta">{[profile.city, profile.country].filter(Boolean).join("، ")}</p> : null}<div className="profile-category-links" aria-label={copy.profileRelatedCategories}>{profile.categories.map((category) => <Link key={category.id} href={`/categories/${category.slug}`}>{category.name}</Link>)}</div></div><div className="profile-status"><strong>ملف عام</strong><span>{profile.source ? "مصدر موثق" : "قيد التحقق"}</span></div></section><ProfileActions title={profile.nameArabic} /><div className="profile-layout"><div className="profile-main-column"><section className="profile-section" aria-labelledby="overview-title"><p className="eyebrow">نبذة مهنية</p><h2 id="overview-title">{profile.professionalTitle || "التعريف المهني"}</h2>{profile.professionalSummary || profile.biography ? <BiographyContent value={profile.professionalSummary || profile.biography} /> : <p className="empty-state">لا توجد نبذة منشورة.</p>}</section>{profile.skills.length > 0 ? <section className="profile-section" aria-labelledby="skills-title"><p className="eyebrow">المهارات</p><h2 id="skills-title">مجالات الخبرة</h2><div className="skill-list">{profile.skills.map((skill) => <span key={skill}>{skill}</span>)}</div></section> : null}{profile.experiences.length > 0 ? <section className="profile-section" aria-labelledby="experience-title"><div className="section-header-row"><div><p className="eyebrow">المسار المهني</p><h2 id="experience-title">الخبرات</h2></div><span className="section-index">{String(profile.experiences.length).padStart(2, "0")}</span></div><ol className="cv-list">{profile.experiences.map((item) => <li key={item.id}><div><h3>{item.jobTitle}</h3><p className="education-field">{item.organization}{item.location ? ` · ${item.location}` : ""}</p>{item.startDate || item.endDate || item.isCurrent ? <p className="cv-date">{item.startDate || ""} — {item.isCurrent ? "حتى الآن" : item.endDate || ""}</p> : null}{item.description ? <p>{item.description}</p> : null}</div></li>)}</ol></section> : null}{profile.educations.length > 0 ? <section className="profile-section" aria-labelledby="education-title"><div className="section-header-row"><div><p className="eyebrow">التعليم</p><h2 id="education-title">التعليم والمؤهلات</h2></div><span className="section-index">{String(profile.educations.length).padStart(2, "0")}</span></div><ul className="education-list">{profile.educations.map((item) => <li className="education-item" key={item.id}><span className="timeline-marker" aria-hidden="true" /><div><h3>{item.institution}</h3><p className="education-field">{[item.degree, item.field].filter(Boolean).join(" · ")}</p>{item.description ? <p>{item.description}</p> : null}</div></li>)}</ul></section> : null}{profile.certifications.length > 0 ? <section className="profile-section" aria-labelledby="certifications-title"><p className="eyebrow">اعتمادات</p><h2 id="certifications-title">الشهادات المهنية</h2><ul className="simple-list">{profile.certifications.map((item) => <li key={item.id}><strong>{item.name}</strong><span>{item.issuer}{item.obtainedDate ? ` · ${item.obtainedDate}` : ""}</span>{item.verificationUrl ? <a href={item.verificationUrl} target="_blank" rel="noopener noreferrer">التحقق من الشهادة ↗</a> : null}</li>)}</ul></section> : null}{profile.languages.length > 0 ? <section className="profile-section" aria-labelledby="languages-title"><p className="eyebrow">اللغات</p><h2 id="languages-title">اللغات</h2><div className="language-list">{profile.languages.map((item) => <span key={item.id}><strong>{item.language}</strong> · {item.proficiency}</span>)}</div></section> : null}{profile.portfolio.length > 0 ? <section className="profile-section" aria-labelledby="portfolio-title"><p className="eyebrow">نماذج الأعمال</p><h2 id="portfolio-title">الأعمال والمشاريع</h2><ul className="simple-list">{profile.portfolio.map((item) => <li key={item.id}><strong>{item.title}</strong><span>{item.description}</span>{item.url ? <a href={item.url} target="_blank" rel="noopener noreferrer">زيارة العمل ↗</a> : null}</li>)}</ul></section> : null}{profile.source ? <section className="profile-section" aria-labelledby="source-title"><p className="eyebrow">مصدر الملف</p><h2 id="source-title">المصدر الموثوق</h2><div className="source-item"><div><p className="source-type">{sourceTypeLabel(profile.source.type, copy)}</p><h3>{profile.source.title}</h3><p>{profile.source.publisher}</p></div><a href={profile.source.url} target="_blank" rel="noopener noreferrer">فتح المصدر ↗</a></div></section> : null}</div><aside className="profile-sidebar" aria-label="معلومات الملف"><div className="profile-sidebar-intro"><span className="eyebrow">حول الملف</span><p>ملف مهني يقدّم المعلومات المنشورة مع مراعاة الخصوصية وقابلية التحقق.</p></div>{profile.socialLinks.length > 0 ? <div className="profile-side-block"><p className="eyebrow">روابط مهنية</p><div className="social-links">{profile.socialLinks.map((link) => <a href={link.url} key={link.id} target="_blank" rel="noopener noreferrer">{link.platform}</a>)}</div></div> : null}{profile.email || profile.phone ? <div className="profile-side-block"><p className="eyebrow">تواصل مهني</p>{profile.email ? <a href={`mailto:${profile.email}`}>{profile.email}</a> : null}{profile.phone ? <a href={`tel:${profile.phone}`}>{profile.phone}</a> : null}</div> : null}<div className="profile-side-block"><p className="eyebrow">آخر تحديث</p><p>{formatDate(profile.updatedAt)}</p></div></aside></div><Link className="back-link profile-back-link" href="/search"><span aria-hidden="true">↙</span>{copy.backToDirectory}</Link></div><SiteFooter copy={copy} /></div></main>;
 }
 
 export default async function PersonPage({ params }: PersonPageProps) {
   const { slug } = await params;
+  const copy = getMessages(defaultLocale);
+  const profile = await getUnlistedOrPublishedProfileBySlug(slug);
+  if (profile) return <PublicProfessionalProfile profile={profile} copy={copy} />;
   const record = await personService.getPublishedPersonBySlug(slug);
   if (!record) notFound();
-
-  const copy = getMessages(defaultLocale);
-  const { person, categories, timeline, education, sources } = record;
-  const orderedTimeline = [...timeline].sort((left, right) => left.date.localeCompare(right.date));
+  const { person, categories, education, sources } = record;
   let relatedPeople: Person[] = [];
-  try {
-    relatedPeople = relatedPeopleFor(person, await personService.listPublishedPeople());
-  } catch {
-    relatedPeople = [];
-  }
-
+  try { relatedPeople = relatedPeopleFor(person, await personService.listPublishedPeople()); } catch { relatedPeople = []; }
   const role = categories.map((category) => category.name).join(" · ") || person.occupations.join(" · ");
-  const initials = person.nameArabic.slice(0, 2);
-  const relatedDisplayPeople = toDisplayPeople(relatedPeople, categories);
-  const personJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: person.nameArabic,
-    description: person.shortBio,
-    url: absoluteUrl(`/person/${person.slug}`),
-    ...(person.occupations[0] ? { jobTitle: person.occupations[0] } : {}),
-  };
-  const facts = [
-    person.birthDate ? { label: copy.profileBirth, value: `${formatDate(person.birthDate)}${person.birthPlace ? ` · ${person.birthPlace}` : ""}` } : null,
-    person.deathDate ? { label: copy.profileDeath, value: `${formatDate(person.deathDate)}${person.deathPlace ? ` · ${person.deathPlace}` : ""}` } : null,
-    person.occupations.length > 0 ? { label: copy.profileOccupation, value: person.occupations.join(" · ") } : null,
-    categories.length > 0 ? { label: copy.profileCategories, value: categories.map((category) => category.name).join(" · ") } : null,
-    sources.length > 0 ? { label: copy.sourcesLabel, value: String(sources.length) } : null,
-    { label: copy.profileLastUpdated, value: formatDate(person.updatedAt) },
-  ].filter((fact): fact is { label: string; value: string } => fact !== null);
-
-  return (
-    <main className="a3lam-page">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(personJsonLd) }} />
-      <div className="a3lam-shell">
-        <SiteHeader copy={copy} active="people" />
-        <div className="profile-page">
-          <nav className="breadcrumb" aria-label={copy.navPeople}>
-            <Link href="/">{copy.navHome}</Link>
-            <span aria-hidden="true">/</span>
-            <Link href="/search">{copy.navPeople}</Link>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page">{person.nameArabic}</span>
-          </nav>
-
-          <section className="profile-hero" aria-labelledby="profile-title">
-            <PersonPortrait
-              className="profile-avatar"
-              src={person.image}
-              alt={person.nameArabic}
-              initials={initials}
-              tone="teal"
-            />
-            <div className="profile-heading">
-              <span className="status-badge status-published">{copy.publishedProfileStatus}</span>
-              <h1 id="profile-title">{person.nameArabic}</h1>
-              <p className="profile-role">{role}</p>
-              <p className="profile-meta">{person.shortBio}</p>
-              <div className="profile-category-links" aria-label={copy.profileRelatedCategories}>
-                {categories.map((category) => (
-                  <Link key={category.id} href={`/categories/${category.slug}`}>
-                    {category.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-            <div className="profile-status">
-              <strong>{copy.publishedProfileStatus}</strong>
-              <span>{sources.length} {copy.sourcesLabel}</span>
-            </div>
-          </section>
-
-          <div className="profile-layout">
-            <div className="profile-main-column">
-              <section className="profile-section" aria-labelledby="overview-title">
-                <p className="eyebrow">{copy.profileOverview}</p>
-                <h2 id="overview-title">{person.shortBio}</h2>
-                {person.biography ? <BiographyContent value={person.biography} /> : <p className="empty-state">{copy.profileNoBiography}</p>}
-              </section>
-
-              <section className="profile-section" aria-labelledby="facts-title">
-                <p className="eyebrow">{copy.profileFacts}</p>
-                <h2 id="facts-title">{copy.profileFacts}</h2>
-                <dl className="facts-grid">
-                  {facts.map((fact) => (
-                    <div className="fact-item" key={fact.label}>
-                      <dt>{fact.label}</dt>
-                      <dd>{fact.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </section>
-
-              <section className={`profile-section${education.length === 0 ? " profile-section-empty" : ""}`} aria-labelledby="education-title">
-                <div className="section-header-row">
-                  <div>
-                    <p className="eyebrow">{copy.educationLabel}</p>
-                    <h2 id="education-title">{copy.educationLabel}</h2>
-                  </div>
-                  <span className="section-index">{String(education.length).padStart(2, "0")}</span>
-                </div>
-                {education.length > 0 ? (
-                  <ul className="education-list">
-                    {education.map((item) => (
-                      <li className="education-item" key={item.id}>
-                        <span className="timeline-marker" aria-hidden="true" />
-                        <div>
-                          <h3>{item.institution}</h3>
-                          <p className="education-field">{item.field} · {item.dateRange}</p>
-                          {item.description ? <p>{item.description}</p> : null}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="empty-state">{copy.profileNoEducation}</p>
-                )}
-              </section>
-
-              <section className={`profile-section${orderedTimeline.length === 0 ? " profile-section-empty" : ""}`} aria-labelledby="timeline-title">
-                <div className="section-header-row">
-                  <div>
-                    <p className="eyebrow">{copy.timelineLabel}</p>
-                    <h2 id="timeline-title">{copy.timelineLabel}</h2>
-                  </div>
-                  <span className="section-index">{String(orderedTimeline.length).padStart(2, "0")}</span>
-                </div>
-                {orderedTimeline.length > 0 ? (
-                  <ol className="timeline-list">
-                    {orderedTimeline.map((event) => (
-                      <li className="timeline-item" key={event.id}>
-                        <time className="timeline-date" dateTime={event.date}>{event.date}</time>
-                        <div className="timeline-content">
-                          <span className="timeline-marker" aria-hidden="true" />
-                          <h3>{event.title}</h3>
-                          <p>{event.description}</p>
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                ) : (
-                  <p className="empty-state">{copy.profileNoTimeline}</p>
-                )}
-              </section>
-
-              <section className="profile-section" aria-labelledby="sources-title">
-                <div className="section-header-row">
-                  <div>
-                    <p className="eyebrow">{copy.sourcesLabel}</p>
-                    <h2 id="sources-title">{copy.sourcesLabel}</h2>
-                  </div>
-                  <span className="section-index">{String(sources.length).padStart(2, "0")}</span>
-                </div>
-                {sources.length > 0 ? (
-                  <ol className="source-list">
-                    {sources.map((source) => (
-                      <li className="source-item" key={source.id}>
-                        <div>
-                          <p className="source-type">{sourceTypeLabel(source.type, copy)}</p>
-                          <h3>{source.title}</h3>
-                          <p>{source.publisher}{source.publicationDate ? ` · ${source.publicationDate}` : ""}</p>
-                        </div>
-                        <a href={source.url} target="_blank" rel="noopener noreferrer" aria-label={`${copy.profileSourceAccess}: ${source.title}`}>
-                          {copy.profileSourceAccess} <span aria-hidden="true">↗</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ol>
-                ) : (
-                  <p className="empty-state">{copy.profileNoSources}</p>
-                )}
-              </section>
-            </div>
-
-            <aside className="profile-sidebar" aria-label={copy.profileFacts}>
-              <div className="profile-sidebar-intro">
-                <span className="eyebrow">{copy.profileStatus}</span>
-                <p>{copy.personPageLede}</p>
-              </div>
-              {facts.map((fact) => (
-                <div className="profile-side-block" key={`side-${fact.label}`}>
-                  <p className="eyebrow">{fact.label}</p>
-                  <p>{fact.value}</p>
-                </div>
-              ))}
-            </aside>
-          </div>
-
-          {relatedDisplayPeople.length > 0 ? (
-            <section className="profile-related" aria-labelledby="related-title">
-              <div className="section-header-row">
-                <div>
-                  <p className="eyebrow">{copy.profileRelatedPeople}</p>
-                  <h2 id="related-title">{copy.profileRelatedPeople}</h2>
-                </div>
-                <Link className="text-link" href="/search">
-                  {copy.searchAction} <span aria-hidden="true">↗</span>
-                </Link>
-              </div>
-              <div className="people-grid">
-                {relatedDisplayPeople.map((relatedPerson) => (
-                  <PersonCard key={relatedPerson.id} person={relatedPerson} copy={copy} />
-                ))}
-              </div>
-            </section>
-          ) : null}
-
-          <section className="profile-discovery" aria-labelledby="profile-discovery-title">
-            <div>
-              <p className="eyebrow">{copy.infoPageNextEyebrow}</p>
-              <h2 id="profile-discovery-title">{copy.infoPageNextTitle}</h2>
-            </div>
-            <div className="profile-discovery-actions">
-              <Link className="button button-primary" href="/search">
-                {copy.infoPageNextAction}
-                <span aria-hidden="true">↗</span>
-              </Link>
-              <Link className="button button-quiet" href="/categories">
-                {copy.navCategories}
-              </Link>
-            </div>
-          </section>
-
-          <Link className="back-link profile-back-link" href="/search">
-            <span aria-hidden="true">↙</span>
-            {copy.backToDirectory}
-          </Link>
-        </div>
-        <SiteFooter copy={copy} />
-      </div>
-    </main>
-  );
+  const facts = [person.occupations.length > 0 ? { label: copy.profileOccupation, value: person.occupations.join(" · ") } : null, categories.length > 0 ? { label: copy.profileCategories, value: categories.map((category) => category.name).join(" · ") } : null, sources.length > 0 ? { label: copy.sourcesLabel, value: String(sources.length) } : null, { label: copy.profileLastUpdated, value: formatDate(person.updatedAt) }].filter((fact): fact is { label: string; value: string } => fact !== null);
+  const personJsonLd = { "@context": "https://schema.org", "@type": "Person", name: person.nameArabic, description: person.shortBio, url: absoluteUrl(`/person/${person.slug}`), ...(person.occupations[0] ? { jobTitle: person.occupations[0] } : {}) };
+  return <main className="a3lam-page"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(personJsonLd) }} /><div className="a3lam-shell"><SiteHeader copy={copy} active="people" /><div className="profile-page"><nav className="breadcrumb" aria-label={copy.navPeople}><Link href="/">{copy.navHome}</Link><span aria-hidden="true">/</span><Link href="/search">{copy.navPeople}</Link><span aria-hidden="true">/</span><span aria-current="page">{person.nameArabic}</span></nav><section className="profile-hero" aria-labelledby="profile-title"><PersonPortrait className="profile-avatar" src={person.image} alt={person.nameArabic} initials={person.nameArabic.slice(0, 2)} tone="teal" /><div className="profile-heading"><span className="status-badge status-published">{copy.publishedProfileStatus}</span><h1 id="profile-title">{person.nameArabic}</h1><p className="profile-role">{role}</p><p className="profile-meta">{person.shortBio}</p><div className="profile-category-links" aria-label={copy.profileRelatedCategories}>{categories.map((category) => <Link key={category.id} href={`/categories/${category.slug}`}>{category.name}</Link>)}</div></div><div className="profile-status"><strong>{copy.publishedProfileStatus}</strong><span>{sources.length} {copy.sourcesLabel}</span></div></section><div className="profile-layout"><div className="profile-main-column"><section className="profile-section" aria-labelledby="overview-title"><p className="eyebrow">{copy.profileOverview}</p><h2 id="overview-title">{person.shortBio}</h2>{person.biography ? <BiographyContent value={person.biography} /> : <p className="empty-state">{copy.profileNoBiography}</p>}</section><section className="profile-section" aria-labelledby="facts-title"><p className="eyebrow">{copy.profileFacts}</p><h2 id="facts-title">{copy.profileFacts}</h2><dl className="facts-grid">{facts.map((fact) => <div className="fact-item" key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl></section>{education.length > 0 ? <section className="profile-section" aria-labelledby="education-title"><div className="section-header-row"><div><p className="eyebrow">{copy.educationLabel}</p><h2 id="education-title">{copy.educationLabel}</h2></div><span className="section-index">{String(education.length).padStart(2, "0")}</span></div><ul className="education-list">{education.map((item) => <li className="education-item" key={item.id}><span className="timeline-marker" aria-hidden="true" /><div><h3>{item.institution}</h3><p className="education-field">{item.field} · {item.dateRange}</p>{item.description ? <p>{item.description}</p> : null}</div></li>)}</ul></section> : null}<section className="profile-section" aria-labelledby="sources-title"><div className="section-header-row"><div><p className="eyebrow">{copy.sourcesLabel}</p><h2 id="sources-title">{copy.sourcesLabel}</h2></div><span className="section-index">{String(sources.length).padStart(2, "0")}</span></div>{sources.length > 0 ? <ol className="source-list">{sources.map((source) => <li className="source-item" key={source.id}><div><p className="source-type">{sourceTypeLabel(source.type, copy)}</p><h3>{source.title}</h3><p>{source.publisher}{source.publicationDate ? ` · ${source.publicationDate}` : ""}</p></div><a href={source.url} target="_blank" rel="noopener noreferrer">{copy.profileSourceAccess} ↗</a></li>)}</ol> : <p className="empty-state">{copy.profileNoSources}</p>}</section></div><aside className="profile-sidebar" aria-label={copy.profileFacts}><div className="profile-sidebar-intro"><span className="eyebrow">{copy.profileStatus}</span><p>{copy.personPageLede}</p></div>{facts.map((fact) => <div className="profile-side-block" key={`side-${fact.label}`}><p className="eyebrow">{fact.label}</p><p>{fact.value}</p></div>)}</aside></div>{toDisplayPeople(relatedPeople, categories).length > 0 ? <section className="profile-related" aria-labelledby="related-title"><div className="section-header-row"><div><p className="eyebrow">{copy.profileRelatedPeople}</p><h2 id="related-title">{copy.profileRelatedPeople}</h2></div><Link className="text-link" href="/search">{copy.searchAction} ↗</Link></div><div className="people-grid">{toDisplayPeople(relatedPeople, categories).map((relatedPerson) => <PersonCard key={relatedPerson.id} person={relatedPerson} copy={copy} />)}</div></section> : null}<section className="profile-discovery" aria-labelledby="profile-discovery-title"><div><p className="eyebrow">{copy.infoPageNextEyebrow}</p><h2 id="profile-discovery-title">{copy.infoPageNextTitle}</h2></div><div className="profile-discovery-actions"><Link className="button button-primary" href="/search">{copy.infoPageNextAction} ↗</Link><Link className="button button-quiet" href="/categories">{copy.navCategories}</Link></div></section><Link className="back-link profile-back-link" href="/search"><span aria-hidden="true">↙</span>{copy.backToDirectory}</Link></div><SiteFooter copy={copy} /></div></main>;
 }

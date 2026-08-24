@@ -1,6 +1,18 @@
 export const CONTENT_STATUSES = ["draft", "review", "published", "archived"] as const;
 export type ContentStatus = (typeof CONTENT_STATUSES)[number];
 
+export const PROFILE_STATUSES = ["draft", "pending_review", "published", "archived"] as const;
+export type ProfileStatus = (typeof PROFILE_STATUSES)[number];
+
+export const PROFILE_VISIBILITIES = ["private", "unlisted", "published"] as const;
+export type ProfileVisibility = (typeof PROFILE_VISIBILITIES)[number];
+
+export const PROFILE_SOCIAL_PLATFORMS = ["linkedin", "x", "facebook", "instagram", "github", "youtube", "website"] as const;
+export type ProfileSocialPlatform = (typeof PROFILE_SOCIAL_PLATFORMS)[number];
+
+export const PROFILE_WORK_TYPES = ["project", "article", "book", "design", "research", "website", "application", "video", "product"] as const;
+export type ProfileWorkType = (typeof PROFILE_WORK_TYPES)[number];
+
 export const SOURCE_TYPES = [
   "official",
   "institution",

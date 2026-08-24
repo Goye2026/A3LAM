@@ -4,7 +4,7 @@
 
 ## الحالة الحالية
 
-المشروع في **Phase 11 — Editorial CMS & Content Management**. تم الحفاظ على تاريخ المراحل السابقة دون إعادة كتابة أو حذف. تتضمن هذه المرحلة مساحة تحرير داخلية محمية لإدارة سجلات الشخصيات ودورة حالتها، مع إبقاء القراءة العامة منشورة فقط. لا تتضمن هذه المرحلة contributions أو verification workflows أو comments أو payments أو analytics أو user accounts عامة.
+المشروع في **Phase 13 — Public Professional CV Profiles**. تم الحفاظ على تاريخ المراحل السابقة دون إعادة كتابة أو حذف. تتضمن هذه المرحلة مساحة تحرير داخلية محمية للسجلات التحريرية القديمة، وحسابات مستخدمين مستقلة وملفات CV مملوكة للمستخدم مع دورة مراجعة بشرية قبل النشر. لا تتضمن هذه المرحلة contributions العامة أو verification workflows أو comments أو payments أو analytics.
 
 ## Toolchain
 
@@ -44,7 +44,10 @@ cp .env.example .env.local
 | `LOG_LEVEL` | لا | مستوى logging المحلي؛ القيمة النموذجية `info`. |
 | `A3LAM_ALLOW_SYNTHETIC_SEED` | لا | يجب تفعيله صراحةً فقط عند تشغيل seed التطويري، ولا يجوز تفعيله في production. |
 | `A3LAM_ADMIN_ACCESS_TOKEN` | نعم لتفعيل CMS | سر server-only بطول 32 محرفًا على الأقل لتسجيل دخول المحررين؛ لا تضعه في Git أو client code. |
-| `A3LAM_ADMIN_SESSION_TTL_SECONDS` | لا | مدة cookie الجلسة الموقعة؛ الافتراضي 8 ساعات والحد الأقصى 7 أيام. |
+| `A3LAM_ADMIN_SESSION_TTL_SECONDS` | لا | مدة cookie جلسة Admin الموقعة؛ الافتراضي 8 ساعات والحد الأقصى 7 أيام. |
+| `A3LAM_STORAGE_UPLOAD_URL` | لا | endpoint server-only لرفع HTTP PUT؛ إذا غاب يبقى رفع الملفات معطلًا برسالة 503. |
+| `A3LAM_STORAGE_PUBLIC_BASE_URL` | لا | origin العام لروابط الملفات التي يعيدها provider الخارجي. |
+| `A3LAM_STORAGE_UPLOAD_TOKEN` | لا | token server-only لـ provider التخزين؛ لا يُرسل إلى العميل ولا يُحفظ في Git. |
 
 في التطوير يمكن استخدام:
 
@@ -121,7 +124,7 @@ pnpm start
 
 تستخدم الصفحات العامة canonical وOpen Graph من خلال `NEXT_PUBLIC_SITE_URL` عندما يكون مضبوطًا، مع fallback محلي واضح. المسارات `/robots.txt` و`/sitemap.xml` مشتقة من المسارات العامة والفئات والملفات المنشورة. لا يضاف `/search` إلى sitemap لأنه `noindex`، كما تُستبعد `/api/` من robots.
 
-تحتوي صفحات الملفات المنشورة على Person JSON-LD مبني على المحتوى الظاهر فقط. الملفات غير المنشورة أو غير الصالحة لا تُفهرس ولا تكشف metadata داخلية. تستخدم مسارات not-found الديناميكية boundary المتدفقة في Next.js؛ لذلك قد تعرض صفحة 404 مع status HTTP `200` في بعض الاستجابات المتدفقة، مع بقاء `noindex` وعدم كشف المحتوى.
+تحتوي صفحات الملفات المنشورة على Person JSON-LD مبني على المحتوى الظاهر فقط. الملفات غير المنشورة أو غير الصالحة لا تُفهرس ولا تكشف metadata داخلية. ملفات `unlisted` قابلة للرابط المباشر مع `noindex` ولا تدخل search أو category أو sitemap؛ ملفات `private` تعيد 404. تستخدم مسارات not-found الديناميكية boundary المتدفقة في Next.js؛ لذلك قد تعرض صفحة 404 مع status HTTP `200` في بعض الاستجابات المتدفقة، مع بقاء `noindex` وعدم كشف المحتوى.
 
 ## مسارات CMS الداخلية
 
@@ -134,8 +137,9 @@ pnpm start
 | `/admin/people/[id]` | تحرير الشخصية والمصادر والتعليم والمسار الزمني. |
 | `/admin/people/[id]/preview` | معاينة محمية لا تظهر للعامة قبل النشر. |
 | `/api/admin/auth` | POST للدخول وDELETE للخروج؛ بقية `/api/admin/*` تتطلب جلسة صالحة. |
+| `/admin/profiles` | مراجعة ملفات المستخدمين وإجراءات الموافقة والإرجاع والأرشفة. |
 
-كل mutation في CMS يتحقق server-side من الجلسة، ويفحص payload، ويعيد أخطاء عامة دون SQL أو stack trace. لا توجد حسابات أو registration أو reset في هذه المرحلة.
+كل mutation في CMS يتحقق server-side من الجلسة، ويفحص payload، ويعيد أخطاء عامة دون SQL أو stack trace. مصادقة المستخدمين مستقلة عن Admin: `/register` و`/login` ينشئان جلسات DB opaque موقعة بالـ hash داخل `user_sessions`، ولا يُعاد استخدام `A3LAM_ADMIN_ACCESS_TOKEN`.
 
 ## المسارات العامة
 
@@ -145,7 +149,12 @@ pnpm start
 | `/search` | البحث في السجلات المنشورة |
 | `/categories` | فهرس المجالات |
 | `/categories/[slug]` | ملفات مجال منشور |
-| `/person/[slug]` | ملف شخصي منشور |
+| `/person/[slug]` | ملف شخصي منشور؛ يعرض CV مهنيًا لملفات المستخدم العامة مع fallback آمن للسجلات التحريرية القديمة. |
+| `/register` | إنشاء حساب مستخدم مستقل. |
+| `/login` | تسجيل دخول المستخدم. |
+| `/account` | حساب المستخدم وحالة الملف. |
+| `/account/profile` | إنشاء أو تعديل ملف CV وحفظه أو إرساله للمراجعة. |
+| `/account/profile/preview` | معاينة خاصة للمستخدم فقط. |
 | `/about` | عن أعلام |
 | `/contact` | التواصل التحريري الحالي |
 | `/privacy` | مبادئ الخصوصية الحالية |
@@ -153,7 +162,12 @@ pnpm start
 | `/sitemap.xml` | خريطة المسارات القابلة للفهرسة |
 | `/icon.svg` | favicon |
 | `/api/health` | health probe |
-| `/api/search` | public search API محدود |
+| `/api/search` | public search API محدود؛ يشمل الأشخاص التحريريين وملفات CV العامة فقط. |
+| `/api/auth/register` و`/api/auth/login` و`/api/auth/logout` و`/api/auth/me` | مصادقة المستخدم المستقلة وجلسة opaque server-side. |
+| `/api/account/profile` | قراءة أو حفظ ملف المستخدم أو إرساله للمراجعة؛ الملكية server-side. |
+| `/api/account/profile/files` | رفع ملف آمن إلى provider خارجي اختياري؛ يعيد 503 عند غياب الإعداد. |
+| `/api/admin/profiles` و`/api/admin/profiles/[id]` | قائمة وmoderation لملفات المستخدمين بحراسة Admin الحالية. |
+| `/api/categories` | قائمة التصنيفات المنشورة لمحرر CV. |
 
 ## API والأمان الأساسي
 
@@ -182,4 +196,4 @@ pnpm test:integration
 
 ## حدود الإصدار
 
-لا يتضمن هذا الإصدار contributions أو verification workflows أو comments أو payments أو analytics أو semantic search أو تعدد اللغات. يتضمن CMS الداخلي آلية وصول بسيطة قائمة على secret واحد server-only، وليس نظام RBAC أو تسجيل مستخدمين. لا يتضمن محتوى تاريخيًا حقيقيًا أو مصادر مختلقة؛ يجب أن يمر أي محتوى إنتاجي حقيقي عبر نموذج التحرير والمراجعة المعتمد قبل النشر.
+لا يتضمن هذا الإصدار contributions أو verification workflows أو comments أو payments أو analytics أو semantic search أو تعدد اللغات. يتضمن CMS الداخلي دورة legacy منفصلة، وحسابات مستخدمين أساسية مع ملف واحد لكل حساب. رفع الملفات الخارجي اختياري ويتطلب provider مهيأ؛ لا يوجد fallback filesystem ولا تُحفظ bytes في PostgreSQL. لا تُنشأ حسابات أو ملفات اصطناعية في Production، ويجب أن يمر النشر عبر Admin والمصدر المهني وبوابة الحالة.

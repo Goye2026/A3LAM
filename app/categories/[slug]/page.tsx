@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PersonCard } from "@/components/a3lam/PersonCard";
+import { ProfessionalProfileCard } from "@/components/a3lam/ProfessionalProfileCard";
 import { SiteFooter } from "@/components/a3lam/SiteFooter";
 import { SiteHeader } from "@/components/a3lam/SiteHeader";
 import { toDisplayPeople } from "@/lib/a3lam/catalog";
@@ -9,6 +10,7 @@ import type { Category, Person } from "@/lib/domain/a3lam";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 import { personService } from "@/lib/services/personService";
+import { searchPublicProfiles, type PublicProfile } from "@/lib/user/profileRepository";
 import { pageMetadata } from "@/lib/seo/site";
 
 type CategoryPageProps = {
@@ -32,12 +34,16 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const copy = getMessages(defaultLocale);
   let category: Category | null = null;
   let people: Person[] = [];
+  let professionalProfiles: PublicProfile[] = [];
   let unavailable = false;
 
   try {
     category = await personService.getCategoryBySlug(slug);
     if (category) {
-      people = await personService.listPublishedPeopleByCategoryId(category.id);
+      [people, professionalProfiles] = await Promise.all([
+        personService.listPublishedPeopleByCategoryId(category.id),
+        searchPublicProfiles("", category.id),
+      ]);
     }
   } catch {
     unavailable = true;
@@ -46,6 +52,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   if (!category && !unavailable) notFound();
 
   const displayPeople = category ? toDisplayPeople(people, [category]) : [];
+  const hasPeople = displayPeople.length > 0 || professionalProfiles.length > 0;
 
   return (
     <main className="a3lam-page">
@@ -83,10 +90,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                 <p>{copy.dataUnavailable}</p>
                 <Link className="button button-quiet" href="/categories">{copy.navCategories}</Link>
               </div>
-            ) : displayPeople.length > 0 ? (
+            ) : hasPeople ? (
               <div className="people-grid">
                 {displayPeople.map((person) => (
-                  <PersonCard key={person.id} person={person} copy={copy} />
+                  <PersonCard key={`legacy-${person.id}`} person={person} copy={copy} />
+                ))}
+                {professionalProfiles.map((profile) => (
+                  <ProfessionalProfileCard key={`profile-${profile.id}`} profile={profile} />
                 ))}
               </div>
             ) : (

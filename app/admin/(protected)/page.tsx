@@ -52,6 +52,7 @@ export default async function AdminDashboardPage() {
           <Link href="/admin/people?status=review" className="admin-action-card"><strong>{copy.adminReviewContent}</strong><span>{copy.adminReview}</span></Link>
           <Link href="/admin/people?status=published" className="admin-action-card"><strong>{copy.adminPublished}</strong><span>{copy.adminPeople}</span></Link>
           <Link href="/admin/people?status=draft" className="admin-action-card"><strong>{copy.adminDraft}</strong><span>{copy.adminPeople}</span></Link>
+          <Link href="/admin/profiles" className="admin-action-card"><strong>الملفات المهنية</strong><span>مراجعة ملفات المستخدمين</span></Link>
         </div>
       </section>
       <section className="admin-panel" aria-labelledby="admin-recent-title">

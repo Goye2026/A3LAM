@@ -28,10 +28,10 @@ export async function proxy(request: NextRequest) {
   const [resource, slug] = segments;
   if (!slug || segments.length !== 2 || !SLUG_PATTERN.test(slug)) return NextResponse.next();
 
+  if (resource === "person") return NextResponse.next();
+
   try {
-    const exists = resource === "person"
-      ? await personService.hasPublishedPersonSlug(slug)
-      : await personService.hasPublishedCategorySlug(slug);
+    const exists = await personService.hasPublishedCategorySlug(slug);
     return exists ? NextResponse.next() : notFoundResponse(request);
   } catch {
     return NextResponse.next();
