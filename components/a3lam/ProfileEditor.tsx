@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Category } from "@/lib/domain/a3lam";
+import type { FoundationMessages } from "@/lib/i18n/messages";
 import type { ProfileFile, ProfileRecord } from "@/lib/user/profileRepository";
 
 type Experience = { id?: string; jobTitle: string; organization: string; location: string; startDate: string; endDate: string; isCurrent: boolean; description: string };
@@ -44,7 +45,7 @@ function updateAt<T>(items: T[], index: number, patch: Partial<T>) { return item
 function removeAt<T>(items: T[], index: number) { return items.filter((_, itemIndex) => itemIndex !== index); }
 function moveAt<T>(items: T[], index: number, direction: -1 | 1) { const target = index + direction; if (target < 0 || target >= items.length) return items; const next = [...items]; [next[index], next[target]] = [next[target], next[index]]; return next; }
 
-export function ProfileEditor({ profile, categories }: { profile: ProfileRecord | null; categories: Category[] }) {
+export function ProfileEditor({ profile, categories, copy }: { profile: ProfileRecord | null; categories: Category[]; copy: FoundationMessages }) {
   const router = useRouter();
   const [form, setForm] = useState(() => initialState(profile));
   const [notice, setNotice] = useState("");
@@ -55,15 +56,35 @@ export function ProfileEditor({ profile, categories }: { profile: ProfileRecord 
   const [attachedFiles, setAttachedFiles] = useState<ProfileFile[]>(profile?.files ?? []);
   const [fileType, setFileType] = useState<"portrait" | "cv" | "document">("cv");
   const [filePublic, setFilePublic] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const completion = localCompletion(form);
 
-  function setField<K extends keyof FormState>(field: K, value: FormState[K]) { setForm((current) => ({ ...current, [field]: value })); }
+  useEffect(() => {
+    if (!isDirty) return;
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
+  function setField<K extends keyof FormState>(field: K, value: FormState[K]) {
+    setForm((current) => ({ ...current, [field]: value }));
+    setIsDirty(true);
+  }
   async function save(action: "save" | "submit") {
     setBusy(true); setError(""); setNotice("");
     const response = await fetch("/api/account/profile", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ action, profile: form }) });
     const data = await response.json() as { message?: string; issues?: string[] };
     if (!response.ok) setError(data.issues?.join(" • ") || data.message || "تعذر حفظ الملف");
-    else { setNotice(action === "submit" ? "تم إرسال الملف للمراجعة التحريرية." : "تم حفظ المسودة."); router.refresh(); }
+    else {
+      setNotice(action === "submit" ? "تم إرسال الملف للمراجعة التحريرية." : copy.editorSaved);
+      setIsDirty(false);
+      setLastSavedAt(new Date());
+      router.refresh();
+    }
     setBusy(false);
   }
 
@@ -90,8 +111,9 @@ export function ProfileEditor({ profile, categories }: { profile: ProfileRecord 
     <div className="profile-editor" dir="rtl">
       <div className="editor-toolbar">
         <div><p className="eyebrow">ملف مهني</p><h1>{profile ? "تعديل ملفك" : "إنشاء ملفك المهني"}</h1><p className="route-description">احفظ عملك كمسودة في أي وقت. لا يظهر الملف للعامة قبل المراجعة والموافقة.</p></div>
-        <div className="editor-actions"><button className="button button-quiet" onClick={() => router.push("/account")}>العودة</button>{profile ? <button className="button button-quiet" onClick={() => router.push("/account/profile/preview")}>معاينة خاصة</button> : null}<button className="button button-primary" onClick={() => void save("save")} disabled={busy}>{busy ? "جارٍ الحفظ…" : "حفظ المسودة"}</button><button className="button button-dark" onClick={() => void save("submit")} disabled={busy}>إرسال للمراجعة</button></div>
+        <div className="editor-actions"><button className="button button-quiet" onClick={() => router.push("/account")}>العودة</button>{profile ? <button className="button button-quiet" onClick={() => router.push("/account/profile/preview")}>معاينة خاصة</button> : null}<button className="button button-primary" onClick={() => void save("save")} disabled={busy}>{busy ? copy.editorSaving : copy.adminSaveDraft}</button><button className="button button-dark" onClick={() => void save("submit")} disabled={busy}>{copy.adminSendReview}</button></div>
       </div>
+      <div className={`editor-save-state${isDirty ? " is-dirty" : ""}`} role="status" aria-live="polite"><span className="save-state-dot" aria-hidden="true" />{busy ? copy.editorSaving : isDirty ? copy.editorUnsaved : lastSavedAt ? `${copy.editorSaved} · ${new Intl.DateTimeFormat("ar", { timeStyle: "short" }).format(lastSavedAt)}` : copy.editorSaveHint}</div>
       <nav className="editor-progress" aria-label="مراحل إنشاء الملف"><div className="editor-progress-heading"><span className="eyebrow">مسار الإنشاء</span><strong>{completion}% مكتمل إرشاديًا</strong></div><ol>{editorSteps.map((step, index) => <li className={index < Math.round((completion / 100) * 11) ? "is-complete" : ""} key={step}><span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>{step}</li>)}</ol><div className="completion-track" role="progressbar" aria-label="اكتمال الملف" aria-valuenow={completion} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${completion}%` }} /></div></nav>
       <section className="editor-live-preview" aria-labelledby="live-preview-title"><div><p className="eyebrow">معاينة مباشرة</p><h2 id="live-preview-title">{form.nameArabic || "اسمك المهني"}</h2><p className="profile-latin-name">{form.name || "الاسم اللاتيني"}</p><p className="profile-role">{form.professionalTitle || "المسمى المهني"}</p>{form.city || form.country ? <p className="profile-meta">{[form.city, form.country].filter(Boolean).join("، ")}</p> : null}</div><div><span className="status-badge status-draft">{form.visibility === "published" ? "عام بعد المراجعة" : form.visibility === "unlisted" ? "غير مدرج بعد المراجعة" : "مسودة خاصة"}</span>{form.skills.length > 0 ? <div className="skill-list">{form.skills.slice(0, 5).map((skill) => <span key={skill}>{skill}</span>)}</div> : <p className="section-help">أضف مهارات لتظهر هنا في شكلها العام.</p>}</div></section>
       {notice ? <p className="form-success" role="status">{notice}</p> : null}
@@ -140,7 +162,7 @@ export function ProfileEditor({ profile, categories }: { profile: ProfileRecord 
 
       <section className="editor-section" id="contact-privacy"><h2>بيانات الاتصال والخصوصية</h2><p className="section-help">تُحفظ هذه البيانات بشكل خاص افتراضيًا ولا تُعرض إلا عند تفعيل الظهور صراحة.</p><div className="form-grid"><label><span>البريد المهني</span><input value={form.contactEmail} onChange={(e) => setField("contactEmail", e.target.value)} type="email" dir="ltr" /></label><label><span>الهاتف المهني</span><input value={form.phone} onChange={(e) => setField("phone", e.target.value)} type="tel" dir="ltr" /></label><label className="checkbox-label"><input checked={form.emailPublic} onChange={(e) => setField("emailPublic", e.target.checked)} type="checkbox" /><span>إظهار البريد في الملف العام</span></label><label className="checkbox-label"><input checked={form.phonePublic} onChange={(e) => setField("phonePublic", e.target.checked)} type="checkbox" /><span>إظهار الهاتف في الملف العام</span></label></div></section>
       <section className="editor-section" id="files"><h2>الملفات المرفقة</h2><p className="section-help">الأنواع الآمنة: PDF وJPG وJPEG وPNG وWebP. لا تُرفع الملفات قبل حفظ المسودة، ولا يوجد تخزين محلي بديل.</p><div className="file-upload-controls"><label><span>نوع الملف</span><select value={fileType} onChange={(e) => setFileType(e.target.value as "portrait" | "cv" | "document")}><option value="portrait">صورة شخصية</option><option value="cv">سيرة ذاتية</option><option value="document">مستند مهني</option></select></label><label className="checkbox-label"><input checked={filePublic} onChange={(e) => setFilePublic(e.target.checked)} type="checkbox" /><span>السماح بظهوره للعامة بعد النشر</span></label><label className="file-input-label"><span>{fileBusy ? "جارٍ الرفع…" : "اختيار ملف"}</span><input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" onChange={(event) => void uploadFile(event)} disabled={fileBusy || !profile} /></label></div>{fileError ? <p className="form-error" role="alert">{fileError}</p> : null}{attachedFiles.length > 0 ? <ul className="attached-file-list">{attachedFiles.map((file) => <li key={file.id}><strong>{file.originalName}</strong><span>{file.fileType} · {file.isPublic ? "عام بعد النشر" : "خاص"}</span></li>)}</ul> : <p className="section-help">لا توجد ملفات مرفقة بعد.</p>}</section>
-      <div className="editor-footer-actions"><button className="button button-primary" onClick={() => void save("save")} disabled={busy}>حفظ المسودة</button><button className="button button-dark" onClick={() => void save("submit")} disabled={busy}>إرسال للمراجعة</button></div>
+      <div className="editor-footer-actions"><button className="button button-primary" onClick={() => void save("save")} disabled={busy}>{busy ? copy.editorSaving : copy.adminSaveDraft}</button><button className="button button-dark" onClick={() => void save("submit")} disabled={busy}>{copy.adminSendReview}</button></div>
     </div>
   );
 }

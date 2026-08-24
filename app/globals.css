@@ -276,6 +276,19 @@ a {
   line-height: 1.08;
 }
 
+.hero-audience {
+  display: inline-flex;
+  width: fit-content;
+  margin-block-start: var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-brand-deep);
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.35rem 0.75rem;
+}
+
 .hero-lede {
   max-width: 38rem;
   margin: 0;
@@ -1188,6 +1201,10 @@ a {
   .a3lam-header-action span:last-child {
     display: none;
   }
+
+  .a3lam-header-actions { gap: var(--space-2); }
+  .a3lam-header-profile { max-width: 7.5rem; overflow: hidden; text-overflow: ellipsis; }
+  .a3lam-header-account { padding-inline-start: var(--space-2); }
 
   .discovery-form {
     display: grid;
@@ -2212,6 +2229,9 @@ textarea.admin-input { resize: vertical; }
 .account-header, .editor-toolbar, .section-heading-row { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-6); }
 .account-header { border-block-end: 1px solid var(--color-border); padding-block: var(--space-6) var(--space-8); }
 .account-panel, .editor-section { margin-block-start: var(--space-6); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); padding: clamp(1rem, 3vw, 2rem); box-shadow: var(--shadow-card); }
+.account-welcome { display: flex; align-items: center; justify-content: space-between; gap: var(--space-6); margin-block-start: var(--space-6); border: 1px solid var(--color-brand); border-radius: var(--radius-lg); background: var(--color-brand-pale); padding: clamp(1rem, 3vw, 1.5rem); }
+.account-welcome h2 { margin: var(--space-2) 0; color: var(--color-brand-deep); font-size: clamp(1.3rem, 3vw, 2rem); }
+.account-welcome p:not(.eyebrow) { max-width: 38rem; margin: 0; color: var(--color-ink-soft); }
 .account-panel h2, .editor-section h2 { margin: 0; color: var(--color-ink); font-size: 1.3rem; }
 .account-status-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); margin-block-start: var(--space-6); }
 .account-status-grid div { display: grid; gap: 0.25rem; border-inline-start: 2px solid var(--color-accent); padding-inline-start: var(--space-3); }
@@ -2220,6 +2240,10 @@ textarea.admin-input { resize: vertical; }
 .empty-state { color: var(--color-ink-muted); }
 .profile-editor { padding-block: var(--space-4) var(--space-12); }
 .editor-toolbar { margin-block-end: var(--space-6); }
+.editor-save-state { display: flex; align-items: center; gap: var(--space-2); margin-block: 0 var(--space-4); color: var(--color-ink-muted); font-size: 0.78rem; }
+.editor-save-state.is-dirty { color: var(--color-warning); font-weight: 700; }
+.save-state-dot { width: 0.55rem; height: 0.55rem; flex: 0 0 auto; border-radius: 50%; background: var(--color-success); }
+.editor-save-state.is-dirty .save-state-dot { background: var(--color-warning); box-shadow: 0 0 0 0.25rem var(--color-accent-pale); }
 .editor-actions, .editor-footer-actions, .profile-actions, .profile-moderation-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); margin-block-start: var(--space-5); }
 .field-wide { grid-column: 1 / -1; }
@@ -2237,6 +2261,9 @@ textarea.admin-input { resize: vertical; }
 .professional-profile .profile-latin-name { margin: -0.5rem 0 0.5rem; color: var(--color-ink-muted); font-family: var(--font-latin); }
 .profile-actions { justify-content: flex-start; margin-block: var(--space-4); }
 .profile-actions span { color: var(--color-success); font-size: 0.8rem; }
+.profile-share-links { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+.profile-share-links button { border: 1px solid var(--color-border); border-radius: 999px; background: transparent; color: var(--color-ink-muted); padding: 0.35rem 0.65rem; font-family: var(--font-latin), var(--font-arabic); font-size: 0.68rem; font-weight: 700; }
+.profile-share-links button:hover, .profile-share-links button:focus-visible { border-color: var(--color-brand); color: var(--color-brand); }
 .skill-list, .language-list, .social-links { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-block-start: var(--space-4); }
 .skill-list span, .language-list span, .social-links a { border: 1px solid var(--color-border-strong); border-radius: 999px; background: var(--color-surface-muted); padding: 0.4rem 0.75rem; text-decoration: none; }
 .cv-list, .simple-list { display: grid; gap: var(--space-4); margin: var(--space-5) 0 0; padding: 0; list-style: none; }
@@ -2250,7 +2277,7 @@ textarea.admin-input { resize: vertical; }
   .stats-strip { grid-template-columns: repeat(4, 1fr); }
 }
 @media (max-width: 48rem) {
-  .account-header, .editor-toolbar, .section-heading-row { flex-direction: column; }
+  .account-header, .editor-toolbar, .section-heading-row, .account-welcome { flex-direction: column; align-items: stretch; }
   .account-header > .button, .editor-actions .button, .editor-footer-actions .button { width: 100%; }
   .account-status-grid, .form-grid { grid-template-columns: 1fr; }
   .field-wide { grid-column: auto; }
@@ -2268,6 +2295,9 @@ textarea.admin-input { resize: vertical; }
 
 .a3lam-header-actions { display: flex; align-items: center; gap: var(--space-4); }
 .a3lam-header-account { border-inline-start: 1px solid var(--color-border); padding-inline-start: var(--space-4); color: var(--color-brand-deep); font-size: 0.82rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.a3lam-header-profile { color: var(--color-brand); font-size: 0.78rem; font-weight: 800; text-decoration: none; white-space: nowrap; }
+.a3lam-header-profile:hover, .a3lam-header-account:hover { color: var(--color-accent); }
+.a3lam-header-actions .button { min-height: 2.4rem; padding-inline: 0.75rem; font-size: 0.72rem; }
 
 /* Phase 14: professional CV experience */
 .account-primary-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
@@ -2359,6 +2389,10 @@ textarea.admin-input { resize: vertical; }
 .attached-file-list { display: grid; gap: var(--space-2); margin: var(--space-4) 0 0; padding: 0; list-style: none; }
 .attached-file-list li { display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); border-block-end: 1px solid var(--color-border); padding-block: var(--space-2); }
 .attached-file-list span { color: var(--color-ink-muted); font-size: 0.78rem; }
+.admin-profile-filters { display: grid; grid-template-columns: 1fr; gap: var(--space-3); margin-block-start: var(--space-5); padding-block-end: var(--space-5); border-block-end: 1px solid var(--color-border); }
+.admin-profile-filters label { display: grid; gap: var(--space-2); color: var(--color-ink-soft); font-size: 0.76rem; font-weight: 800; }
+.admin-profile-filters input, .admin-profile-filters select { width: 100%; min-height: 2.75rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-ink); padding: 0.55rem 0.7rem; }
+.admin-profile-filters input:focus-visible, .admin-profile-filters select:focus-visible { border-color: var(--color-brand); }
 .admin-profile-table { margin-block-start: var(--space-5); overflow-x: auto; }
 .admin-profile-table-head, .admin-profile-row { display: grid; grid-template-columns: 1.3fr 1fr 0.75fr 1.4fr; gap: var(--space-4); min-width: 52rem; align-items: start; }
 .admin-profile-table-head { padding: 0 var(--space-4) var(--space-3); color: var(--color-ink-muted); font-size: 0.75rem; font-weight: 800; }
@@ -2383,6 +2417,9 @@ textarea.admin-input { resize: vertical; }
 .privacy-review-row small { color: var(--color-ink-muted); }
 .admin-review-sidebar a { overflow-wrap: anywhere; color: var(--color-brand-deep); font-size: 0.8rem; }
 .admin-review-sidebar .source-type { display: block; margin-block-start: var(--space-2); color: var(--color-ink-muted); }
+@media (min-width: 40rem) {
+  .admin-profile-filters { grid-template-columns: minmax(14rem, 2fr) repeat(3, minmax(8rem, 1fr)); align-items: end; }
+}
 @media (max-width: 48rem) {
   .file-upload-controls, .admin-review-grid { grid-template-columns: 1fr; }
   .admin-review-hero { grid-template-columns: 1fr; justify-items: start; }

@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/user/auth";
 import { calculateProfileCompletion, getProfileForUser } from "@/lib/user/profileRepository";
 import { LogoutButton } from "@/components/a3lam/LogoutButton";
+import { defaultLocale } from "@/lib/i18n/config";
+import { getMessages } from "@/lib/i18n/messages";
 
 export const metadata: Metadata = {
   title: "حسابي",
@@ -14,11 +16,15 @@ export const metadata: Metadata = {
 const statusLabels = { draft: "مسودة", pending_review: "قيد المراجعة", published: "منشور", archived: "مؤرشف" } as const;
 const visibilityLabels = { private: "خاص", unlisted: "غير مدرج", published: "عام" } as const;
 
-export default async function AccountPage() {
+type AccountPageProps = { searchParams?: Promise<{ welcome?: string }> };
+
+export default async function AccountPage({ searchParams }: AccountPageProps) {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/account");
   const profile = await getProfileForUser(user.id);
   const completion = calculateProfileCompletion(profile);
+  const copy = getMessages(defaultLocale);
+  const params = searchParams ? await searchParams : {};
   const updatedAt = profile ? new Intl.DateTimeFormat("ar", { dateStyle: "medium" }).format(new Date(profile.profile.updatedAt)) : null;
 
   return (
@@ -26,8 +32,9 @@ export default async function AccountPage() {
       <div className="account-shell">
         <header className="account-header">
           <div><p className="eyebrow">المساحة الشخصية</p><h1>مرحبًا، {user.name}</h1><p className="route-description">إدارة ملفك المهني هنا مستقلة عن مساحة التحرير، ولا تمنحك صلاحيات تعديل الموسوعة.</p></div>
-          <LogoutButton label="تسجيل الخروج" busyLabel="جارٍ الخروج…" />
+          <LogoutButton label={copy.navLogout} busyLabel={copy.editorSaving} />
         </header>
+        {params.welcome === "1" ? <section className="account-welcome" aria-labelledby="welcome-title"><div><p className="eyebrow">A3LAM / الخطوة التالية</p><h2 id="welcome-title">{copy.accountWelcomeTitle}</h2><p>{copy.accountWelcomeDescription}</p></div><Link className="button button-primary" href="/account/profile">ابدأ إنشاء سيرتك</Link></section> : null}
         <section className="account-panel account-dashboard-card" aria-labelledby="profile-status-title">
           <div className="section-heading-row"><div><p className="eyebrow">لوحة الملف</p><h2 id="profile-status-title">ملفك في أعلام</h2></div><div className="account-primary-actions"><Link className="button button-primary" href="/account/profile">{profile ? "تعديل الملف" : "إنشاء الملف"}</Link>{profile ? <Link className="button button-quiet" href="/account/profile/preview">معاينة</Link> : null}</div></div>
           {profile ? <>

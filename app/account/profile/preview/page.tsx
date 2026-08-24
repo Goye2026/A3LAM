@@ -7,6 +7,8 @@ import { getProfileForUser, type ProfileRecord } from "@/lib/user/profileReposit
 import { PersonPortrait } from "@/components/a3lam/PersonPortrait";
 import { BiographyContent } from "@/components/a3lam/BiographyContent";
 import { ProfileActions } from "@/components/a3lam/ProfileActions";
+import { defaultLocale } from "@/lib/i18n/config";
+import { getMessages } from "@/lib/i18n/messages";
 
 export const metadata: Metadata = { title: "معاينة الملف المهني", robots: { index: false, follow: false } };
 
@@ -21,6 +23,7 @@ export default async function ProfilePreviewPage() {
 }
 
 function PreviewContent({ record }: { record: ProfileRecord }) {
+  const copy = getMessages(defaultLocale);
   const { profile, categories, source, skills, experiences, educations, certifications, languages, portfolio, socialLinks, files } = record;
   const location = [profile.city, profile.country].filter(Boolean).join("، ");
   return (
@@ -42,7 +45,7 @@ function PreviewContent({ record }: { record: ProfileRecord }) {
             </div>
             <PersonPortrait className="profile-avatar" src={profile.imageUrl} alt={profile.nameArabic || "معاينة الصورة"} initials={(profile.nameArabic || "أع").slice(0, 2)} tone="teal" />
           </div>
-          <ProfileActions title={profile.nameArabic || "ملف مهني"} />
+          <ProfileActions title={profile.nameArabic || "ملف مهني"} copy={copy} />
           <section className="profile-section" aria-labelledby="preview-overview">
             <p className="eyebrow">نبذة مهنية</p>
             <h2 id="preview-overview">{profile.professionalTitle || "التعريف المهني"}</h2>

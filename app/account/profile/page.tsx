@@ -4,6 +4,8 @@ import { ProfileEditor } from "@/components/a3lam/ProfileEditor";
 import { getCurrentUser } from "@/lib/user/auth";
 import { getProfileForUser } from "@/lib/user/profileRepository";
 import { personService } from "@/lib/services/personService";
+import { defaultLocale } from "@/lib/i18n/config";
+import { getMessages } from "@/lib/i18n/messages";
 
 export const metadata: Metadata = {
   title: "تحرير الملف المهني",
@@ -15,5 +17,6 @@ export default async function AccountProfilePage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/account/profile");
   const [profile, categories] = await Promise.all([getProfileForUser(user.id), personService.listCategories()]);
-  return <main className="account-page"><div className="account-shell"><ProfileEditor profile={profile} categories={categories} /></div></main>;
+  const copy = getMessages(defaultLocale);
+  return <main className="account-page"><div className="account-shell"><ProfileEditor profile={profile} categories={categories} copy={copy} /></div></main>;
 }

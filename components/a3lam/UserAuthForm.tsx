@@ -45,7 +45,7 @@ export function UserAuthForm({ mode, copy }: UserAuthFormProps) {
       });
       const data = (await response.json()) as { message?: string };
       if (!response.ok) throw new Error(data.message || copy.invalid);
-      router.push("/account");
+      router.push(mode === "register" ? "/account?welcome=1" : "/account");
       router.refresh();
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : copy.invalid);

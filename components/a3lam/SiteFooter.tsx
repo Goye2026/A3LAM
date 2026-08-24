@@ -18,6 +18,7 @@ export function SiteFooter({ copy }: SiteFooterProps) {
       <nav className="footer-links" aria-label={copy.siteName}>
         <Link href="/search">{copy.footerExplore}</Link>
         <Link href="/categories">{copy.navCategories}</Link>
+        <Link href="/profile/new">{copy.homeCreateProfile}</Link>
         <Link href="/about">{copy.footerAbout}</Link>
         <Link href="/contact">{copy.footerContact}</Link>
         <Link href="/privacy">{copy.footerPrivacy}</Link>

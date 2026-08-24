@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { FoundationMessages } from "@/lib/i18n/messages";
+import { getCurrentUser } from "@/lib/user/auth";
+import { LogoutButton } from "./LogoutButton";
 
 type HeaderSection = "home" | "people" | "categories" | "about" | "search" | "contact" | "privacy";
 
@@ -12,7 +14,8 @@ type SiteHeaderProps = {
   active?: HeaderSection;
 };
 
-export function SiteHeader({ copy, active = "home" }: SiteHeaderProps) {
+export async function SiteHeader({ copy, active = "home" }: SiteHeaderProps) {
+  const user = await getCurrentUser();
   const links = [
     { key: "home" as const, href: "/", label: copy.navHome },
     { key: "people" as const, href: "/search", label: copy.navPeople },
@@ -33,16 +36,19 @@ export function SiteHeader({ copy, active = "home" }: SiteHeaderProps) {
       </Link>
 
       <nav className="a3lam-nav" aria-label={copy.siteName}>
-        {links.map((link) => (
-          <Link
-            className={`a3lam-nav-link${(active === link.key || (link.key === "about" && isAboutSection(active))) ? " is-active" : ""}`}
-            href={link.href}
-            key={link.key}
-            aria-current={active === link.key || (link.key === "about" && isAboutSection(active)) ? "page" : undefined}
-          >
-            {link.label}
-          </Link>
-        ))}
+        {links.map((link) => {
+          const isActive = active === link.key || (link.key === "about" && isAboutSection(active));
+          return (
+            <Link
+              className={`a3lam-nav-link${isActive ? " is-active" : ""}`}
+              href={link.href}
+              key={link.key}
+              aria-current={isActive ? "page" : undefined}
+            >
+              {link.label}
+            </Link>
+          );
+        })}
       </nav>
 
       <div className="a3lam-header-actions">
@@ -50,7 +56,17 @@ export function SiteHeader({ copy, active = "home" }: SiteHeaderProps) {
           <span className="a3lam-search-glyph" aria-hidden="true">/</span>
           <span>{copy.navSearch}</span>
         </Link>
-        <Link className="a3lam-header-account" href="/account">حسابي</Link>
+        {user ? (
+          <>
+            <Link className="a3lam-header-account" href="/account">{copy.navMyProfile}</Link>
+            <LogoutButton label={copy.navLogout} busyLabel={copy.navSigningOut} />
+          </>
+        ) : (
+          <>
+            <Link className="a3lam-header-profile" href="/profile/new">{copy.navCreateProfile}</Link>
+            <Link className="a3lam-header-account" href="/login">{copy.navLogin}</Link>
+          </>
+        )}
       </div>
     </header>
   );

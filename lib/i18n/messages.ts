@@ -34,6 +34,32 @@ export type FoundationMessages = {
   navCategories: string;
   navAbout: string;
   navSearch: string;
+  navCreateProfile: string;
+  navMyProfile: string;
+  navLogout: string;
+  navLogin: string;
+  navSigningOut: string;
+  homeAudience: string;
+  homeCreateProfile: string;
+  homeExplore: string;
+  editorUnsaved: string;
+  editorSaved: string;
+  editorSaving: string;
+  editorSaveHint: string;
+  moderationSearchPlaceholder: string;
+  moderationAllCategories: string;
+  moderationSortLabel: string;
+  moderationSortUpdated: string;
+  moderationSortCompletion: string;
+  moderationSortName: string;
+  moderationShowing: string;
+  moderationNoMatch: string;
+  profileShare: string;
+  profilePrint: string;
+  profileCopied: string;
+  profileShareFailed: string;
+  accountWelcomeTitle: string;
+  accountWelcomeDescription: string;
   menuLabel: string;
   searchLabel: string;
   searchPlaceholder: string;
@@ -263,13 +289,13 @@ export type FoundationMessages = {
 const ar: FoundationMessages = {
   brandEyebrow: "A3LAM / FOUNDATION",
   brandName: "أساس النظام",
-  siteEyebrow: "موسوعة الشخصيات العربية",
+  siteEyebrow: "موسوعة عربية · ملفات مهنية",
   siteName: "أعلام",
   phaseStatus: "منصة معرفية موثوقة",
   heroEyebrow: "اكتشف أثر الشخصيات العربية",
-  heroTitle: "الأثر يبدأ من سيرةٍ موثقة",
+  heroTitle: "أعلام — موسوعة الشخصيات العربية والسير المهنية",
   heroLede:
-    "أعلام مساحة عربية لاكتشاف الشخصيات التي صنعت فرقًا في الإعلام، والعلوم، والثقافة، والمجتمع. نرتب المعرفة بوضوح، ونربط كل معلومة بمصدرها.",
+    "اكتشف الشخصيات العربية، وابحث عن المهنيين، وأنشئ سيرتك الذاتية في مساحة واحدة. تُنشر الملفات المهنية بعد المراجعة وربط المعلومات بمصادر واضحة.",
   primaryAction: "استكشف الشخصيات",
   secondaryAction: "تصفح التصنيفات",
   scopeKicker: "مبدأ التحرير",
@@ -291,10 +317,36 @@ const ar: FoundationMessages = {
   footerRtl: "تجربة عربية من اليمين إلى اليسار",
   footerNote: "© أعلام · موسوعة الشخصيات العربية",
   navHome: "الرئيسية",
-  navPeople: "الشخصيات",
+  navPeople: "استكشف",
   navCategories: "التصنيفات",
   navAbout: "عن أعلام",
   navSearch: "البحث",
+  navCreateProfile: "أنشئ سيرتك الذاتية",
+  navMyProfile: "سيرتي المهنية",
+  navLogout: "تسجيل الخروج",
+  navLogin: "تسجيل الدخول",
+  navSigningOut: "جارٍ تسجيل الخروج…",
+  homeAudience: "موسوعة عربية + منصة سير ذاتية مهنية",
+  homeCreateProfile: "أنشئ سيرتك الذاتية",
+  homeExplore: "استكشف الأعلام",
+  editorUnsaved: "لديك تغييرات غير محفوظة",
+  editorSaved: "تم حفظ المسودة",
+  editorSaving: "جارٍ حفظ المسودة…",
+  editorSaveHint: "احفظ المسودة قبل مغادرة الصفحة حتى لا تفقد عملك.",
+  moderationSearchPlaceholder: "ابحث بالاسم أو المسمى أو المدينة…",
+  moderationAllCategories: "كل التصنيفات",
+  moderationSortLabel: "ترتيب النتائج",
+  moderationSortUpdated: "الأحدث تعديلًا",
+  moderationSortCompletion: "الأعلى اكتمالًا",
+  moderationSortName: "الاسم أبجديًا",
+  moderationShowing: "عرض",
+  moderationNoMatch: "لا توجد ملفات تطابق أدوات التصفية الحالية.",
+  profileShare: "مشاركة الملف",
+  profilePrint: "طباعة الملف",
+  profileCopied: "تم نسخ رابط الملف",
+  profileShareFailed: "تعذرت المشاركة؛ يمكنك نسخ الرابط يدويًا.",
+  accountWelcomeTitle: "مرحبًا بك في أعلام",
+  accountWelcomeDescription: "الخطوة التالية واضحة: أنشئ ملفك المهني وشارك خبرتك مع الآخرين.",
   menuLabel: "فتح القائمة",
   searchLabel: "ابحث في أعلام",
   searchPlaceholder: "ابحث عن اسم، مهنة، أو مدينة...",
@@ -524,13 +576,13 @@ const ar: FoundationMessages = {
 const en: FoundationMessages = {
   brandEyebrow: "A3LAM / FOUNDATION",
   brandName: "System foundation",
-  siteEyebrow: "Arabic biographical encyclopedia",
+  siteEyebrow: "Arabic encyclopedia · professional profiles",
   siteName: "A3LAM",
   phaseStatus: "Trusted knowledge platform",
   heroEyebrow: "Discover Arab impact",
-  heroTitle: "Every impact begins with a sourced story",
+  heroTitle: "A3LAM — Arab people and professional profiles",
   heroLede:
-    "A3LAM is an Arabic space for discovering people shaping media, science, culture, and society. We organize knowledge clearly and connect every claim to its source.",
+    "Discover Arab people, search for professionals, and create your CV in one trusted space. Professional profiles are published after review and clear source attribution.",
   primaryAction: "Explore people",
   secondaryAction: "Browse categories",
   scopeKicker: "Editorial principle",
@@ -552,10 +604,36 @@ const en: FoundationMessages = {
   footerRtl: "Arabic right-to-left experience",
   footerNote: "© A3LAM · Arabic biographical encyclopedia",
   navHome: "Home",
-  navPeople: "People",
+  navPeople: "Explore",
   navCategories: "Categories",
   navAbout: "About A3LAM",
   navSearch: "Search",
+  navCreateProfile: "Create your CV",
+  navMyProfile: "My profile",
+  navLogout: "Sign out",
+  navLogin: "Sign in",
+  navSigningOut: "Signing out…",
+  homeAudience: "Arabic encyclopedia + professional CV platform",
+  homeCreateProfile: "Create your CV",
+  homeExplore: "Explore A3LAM",
+  editorUnsaved: "You have unsaved changes",
+  editorSaved: "Draft saved",
+  editorSaving: "Saving draft…",
+  editorSaveHint: "Save your draft before leaving so you do not lose your work.",
+  moderationSearchPlaceholder: "Search by name, title, or city…",
+  moderationAllCategories: "All categories",
+  moderationSortLabel: "Sort results",
+  moderationSortUpdated: "Recently updated",
+  moderationSortCompletion: "Most complete",
+  moderationSortName: "Name A–Z",
+  moderationShowing: "Showing",
+  moderationNoMatch: "No profiles match the current filters.",
+  profileShare: "Share profile",
+  profilePrint: "Print profile",
+  profileCopied: "Profile link copied",
+  profileShareFailed: "Sharing failed; you can copy the link manually.",
+  accountWelcomeTitle: "Welcome to A3LAM",
+  accountWelcomeDescription: "Your next step is clear: create your professional profile and share your experience.",
   menuLabel: "Open menu",
   searchLabel: "Search A3LAM",
   searchPlaceholder: "Search a name, profession, or city...",

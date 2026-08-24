@@ -53,15 +53,16 @@ export default async function HomePage() {
           </div>
           <div className="hero-content">
             <p className="eyebrow">{copy.heroEyebrow}</p>
+            <p className="hero-audience">{copy.homeAudience}</p>
             <h1 id="hero-title">{copy.heroTitle}</h1>
             <p className="hero-lede">{copy.heroLede}</p>
             <div className="hero-actions">
-              <a className="button button-primary" href="/search">
-                {copy.heroCta}
+              <a className="button button-primary" href="/profile/new">
+                {copy.homeCreateProfile}
                 <span aria-hidden="true">↗</span>
               </a>
-              <a className="button button-quiet" href="#about">
-                {copy.heroSecondary}
+              <a className="button button-quiet" href="/search">
+                {copy.homeExplore}
               </a>
             </div>
             <div className="hero-note-line">
@@ -139,7 +140,7 @@ export default async function HomePage() {
             <h2 id="cta-title">{copy.ctaTitle}</h2>
             <p>{copy.ctaDescription}</p>
           </div>
-          <a className="button button-light" href="#search">
+          <a className="button button-light" href="/about">
             {copy.ctaAction}
             <span aria-hidden="true">↗</span>
           </a>
