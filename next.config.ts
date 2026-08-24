@@ -13,6 +13,9 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  outputFileTracingIncludes: {
+    "/api/admin/migration/phase13": ["./drizzle/migrations/**/*.sql"],
+  },
   async headers() {
     return [
       {
