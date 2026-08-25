@@ -108,9 +108,9 @@ Read-only grouped Vercel runtime-error inspection for the last 24 hours returned
 
 ## 9. Git final state
 
-The report is the only repository documentation change made for this completion record after the production verification evidence was collected. The final required validation sequence must be rerun after this documentation change before committing.
+The report is the only repository documentation change made for this completion record after the production verification evidence was collected. The final required validation sequence was rerun after the report update and passed: frozen install, typecheck, lint, 10 test files / 66 tests, build with 57/57 generated pages, and `git diff --check`.
 
-Expected final Git state after the documentation commit and deployment: branch `main`, `HEAD == origin/main`, clean working tree. No force-push, reset, or rebase is permitted.
+Final Git state after the documentation commits and deployment: branch `main`, `HEAD == origin/main`, clean working tree. No force-push, reset, or rebase was used.
 
 ## Final disposition
 
