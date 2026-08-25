@@ -41,6 +41,8 @@ export function AdminShell({ children }: { children: ReactNode }) {
               <Link href="/admin/users">{copy.adminUsers}</Link>
               <Link href="/admin/administrators">{copy.adminAdministrators}</Link>
               <Link href="/admin/editors">{copy.adminEditors}</Link>
+              <Link href="/admin/sessions">{copy.adminSessions}</Link>
+              <Link href="/admin/roles">{copy.adminPermissionMatrix}</Link>
               <Link href="/admin/audit">{copy.adminAudit}</Link>
             </NavGroup>
             <NavGroup label={copy.adminProductGroup}>

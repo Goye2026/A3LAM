@@ -1,5 +1,6 @@
 import { boolean, date, index, integer, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import type { ContentStatus, ProfileStatus, ProfileVisibility, SourceType } from "@/lib/domain/a3lam";
+import type { AdminAccountStatus, AdminPermissionCode, AdminRoleCode } from "@/lib/admin/types";
 
 const lifecycleStatus = (column: string) => text(column).$type<ContentStatus>().notNull().default("draft");
 
@@ -170,6 +171,7 @@ export const userAccounts = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
     lastSignedIn: timestamp("last_signed_in", { withTimezone: true }),
+    disabledAt: timestamp("disabled_at", { withTimezone: true }),
   },
   (table) => ({
     emailUnique: uniqueIndex("user_accounts_email_unique").on(table.emailNormalized),
@@ -190,6 +192,82 @@ export const userSessions = pgTable(
     tokenUnique: uniqueIndex("user_sessions_token_unique").on(table.tokenHash),
     userIndex: index("user_sessions_user_idx").on(table.userId),
     expiryIndex: index("user_sessions_expiry_idx").on(table.expiresAt),
+  }),
+);
+
+export const adminIdentities = pgTable(
+  "admin_identities",
+  {
+    id: text("id").primaryKey(),
+    email: text("email").notNull(),
+    emailNormalized: text("email_normalized").notNull(),
+    displayName: text("display_name").notNull(),
+    passwordHash: text("password_hash"),
+    status: text("status").$type<AdminAccountStatus>().notNull().default("invited"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    lastSignedIn: timestamp("last_signed_in", { withTimezone: true }),
+    lastActivityAt: timestamp("last_activity_at", { withTimezone: true }),
+  },
+  (table) => ({
+    emailUnique: uniqueIndex("admin_identities_email_unique").on(table.emailNormalized),
+    statusIndex: index("admin_identities_status_idx").on(table.status),
+  }),
+);
+
+export const adminRoles = pgTable("admin_roles", {
+  code: text("code").$type<AdminRoleCode>().primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+});
+
+export const adminPermissions = pgTable("admin_permissions", {
+  code: text("code").$type<AdminPermissionCode>().primaryKey(),
+  description: text("description").notNull(),
+});
+
+export const adminRolePermissions = pgTable(
+  "admin_role_permissions",
+  {
+    roleCode: text("role_code").$type<AdminRoleCode>().notNull().references(() => adminRoles.code, { onDelete: "cascade" }),
+    permissionCode: text("permission_code").$type<AdminPermissionCode>().notNull().references(() => adminPermissions.code, { onDelete: "cascade" }),
+  },
+  (table) => ({
+    primaryKey: primaryKey({ columns: [table.roleCode, table.permissionCode] }),
+  }),
+);
+
+export const adminRoleAssignments = pgTable(
+  "admin_role_assignments",
+  {
+    adminId: text("admin_id").notNull().references(() => adminIdentities.id, { onDelete: "cascade" }),
+    roleCode: text("role_code").$type<AdminRoleCode>().notNull(),
+    assignedBy: text("assigned_by").references(() => adminIdentities.id, { onDelete: "set null" }),
+    assignedAt: timestamp("assigned_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    primaryKey: primaryKey({ columns: [table.adminId] }),
+    roleIndex: index("admin_role_assignments_role_idx").on(table.roleCode),
+  }),
+);
+
+export const adminSessions = pgTable(
+  "admin_sessions",
+  {
+    id: text("id").primaryKey(),
+    adminId: text("admin_id").notNull().references(() => adminIdentities.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    lastActivityAt: timestamp("last_activity_at", { withTimezone: true }).notNull().defaultNow(),
+    userAgent: text("user_agent"),
+    ipAddress: text("ip_address"),
+  },
+  (table) => ({
+    tokenUnique: uniqueIndex("admin_sessions_token_unique").on(table.tokenHash),
+    adminIndex: index("admin_sessions_admin_idx").on(table.adminId),
+    expiryIndex: index("admin_sessions_expiry_idx").on(table.expiresAt),
   }),
 );
 
@@ -413,8 +491,14 @@ export const dbSchema = {
   education,
   educationSources,
   userAccounts,
-  userSessions,
-  profiles,
+    userSessions,
+    adminIdentities,
+    adminRoles,
+    adminPermissions,
+    adminRolePermissions,
+    adminRoleAssignments,
+    adminSessions,
+    profiles,
   profileCategories,
   profileSourceRecords,
   profileExperiences,

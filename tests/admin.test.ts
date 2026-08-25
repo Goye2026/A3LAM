@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createAdminSession, isAdminAccessConfigured, isAdminRequest, isValidAdminSession } from "@/lib/admin/auth";
 import { buildPersonRecord, parseAdminCategoryInput, parseAdminPersonInput } from "@/lib/admin/records";
+import { parseAdminIdentityCreateBody, parseAdminIdentityUpdateBody } from "@/lib/admin/input";
 import type { Category } from "@/lib/domain/a3lam";
 import { canAdminRoleManageRole, hasAdminPermission, isFinalSuperAdminDeletionAllowed, permissionsForRole } from "@/lib/admin/rbac";
 import { requirePermission } from "@/lib/admin/http";
@@ -27,14 +28,34 @@ describe("Phase 17 centralized RBAC policy", () => {
     expect(isFinalSuperAdminDeletionAllowed(2)).toBe(true);
   });
 
-  it("enforces permissions on the server-side gate", () => {
+  it("keeps the role matrix explicit and least-privilege for editors", () => {
+    expect(hasAdminPermission("EDITOR", "people.update")).toBe(true);
+    expect(hasAdminPermission("EDITOR", "admins.manage")).toBe(false);
+    expect(hasAdminPermission("ADMIN", "roles.update")).toBe(false);
+    expect(hasAdminPermission("SUPER_ADMIN", "roles.update")).toBe(true);
+  });
+
+  it("enforces permissions on the server-side gate", async () => {
     vi.stubEnv("A3LAM_ADMIN_ACCESS_TOKEN", token);
     vi.stubEnv("NODE_ENV", "test");
-    const denied = requirePermission(new Request("http://localhost"), "settings.manage");
+    const denied = await requirePermission(new Request("http://localhost"), "settings.manage");
     expect(denied?.status).toBe(401);
     const session = createAdminSession();
-    const allowed = requirePermission(new Request("http://localhost", { headers: { cookie: `a3lam_admin_session=${encodeURIComponent(session)}` } }), "settings.manage");
+    const allowed = await requirePermission(new Request("http://localhost", { headers: { cookie: `a3lam_admin_session=${encodeURIComponent(session)}` } }), "settings.manage");
     expect(allowed).toBeNull();
+  });
+});
+
+describe("Phase 17.1 admin identity input", () => {
+  it("accepts only normalized identity fields and a known role", () => {
+    expect(parseAdminIdentityCreateBody({ email: "  Admin@Example.com ", displayName: "  Admin  ", role: "ADMIN" })).toEqual({ email: "admin@example.com", displayName: "Admin", role: "ADMIN" });
+    expect(parseAdminIdentityUpdateBody({ role: "EDITOR", displayName: "Editor" })).toEqual({ role: "EDITOR", displayName: "Editor" });
+  });
+
+  it("rejects unsafe or incomplete identity input", () => {
+    expect(() => parseAdminIdentityCreateBody({ email: "not-an-email", displayName: "Admin", role: "ADMIN" })).toThrow(/email/);
+    expect(() => parseAdminIdentityCreateBody({ email: "admin@example.com", displayName: "Admin", role: "ROOT" })).toThrow(/role/);
+    expect(() => parseAdminIdentityUpdateBody({})).toThrow(/fields/);
   });
 });
 

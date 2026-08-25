@@ -266,7 +266,7 @@ export async function getAdminProfile(id: string) {
   return profileById(getDb(), id);
 }
 
-export async function transitionAdminProfile(id: string, nextStatus: ProfileStatus) {
+export async function transitionAdminProfile(id: string, nextStatus: ProfileStatus, actorId: string | null = null) {
   const current = await getAdminProfile(id);
   if (!current) return null;
   const allowed: Record<ProfileStatus, ProfileStatus[]> = { draft: ["draft", "pending_review"], pending_review: ["draft", "pending_review", "published"], published: ["published", "archived"], archived: ["archived", "draft"] };
@@ -282,7 +282,7 @@ export async function transitionAdminProfile(id: string, nextStatus: ProfileStat
   await db.transaction(async (tx) => {
     await tx.update(schema.profiles).set({ status: nextStatus, updatedAt: new Date() }).where(eq(schema.profiles.id, id));
     if (nextStatus === "published" && current.source) await tx.update(schema.profileSourceRecords).set({ status: "published", updatedAt: new Date() }).where(eq(schema.profileSourceRecords.id, current.source.id));
-    await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_session", actorId: null, entityType: "profile", entityId: id, field: "status", oldValue: current.profile.status, newValue: nextStatus, action: "moderate_profile", reason: null });
+    await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "profile", entityId: id, field: "status", oldValue: current.profile.status, newValue: nextStatus, action: "moderate_profile", reason: null });
   });
   return getAdminProfile(id);
 }

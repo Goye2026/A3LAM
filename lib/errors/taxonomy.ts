@@ -12,6 +12,7 @@ export type FoundationErrorCode =
   | "INVALID_INPUT"
   | "INVALID_CONFIGURATION"
   | "UNAUTHORIZED"
+  | "FORBIDDEN"
   | "NOT_FOUND"
   | "CONFLICT"
   | "RATE_LIMITED"
@@ -43,6 +44,12 @@ export const safeErrors: Record<FoundationErrorCode, SafeError> = {
     code: "UNAUTHORIZED",
     publicMessage: "This action is not available.",
     status: 401,
+  },
+  FORBIDDEN: {
+    category: "authorization",
+    code: "FORBIDDEN",
+    publicMessage: "You do not have permission to perform this action.",
+    status: 403,
   },
   NOT_FOUND: {
     category: "not_found",

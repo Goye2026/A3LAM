@@ -124,7 +124,7 @@ export async function getUserForToken(token: string | null | undefined): Promise
     .select({ user: schema.userAccounts })
     .from(schema.userSessions)
     .innerJoin(schema.userAccounts, eq(schema.userSessions.userId, schema.userAccounts.id))
-    .where(and(eq(schema.userSessions.tokenHash, hashSessionToken(token)), isNull(schema.userSessions.revokedAt), gt(schema.userSessions.expiresAt, new Date())))
+    .where(and(eq(schema.userSessions.tokenHash, hashSessionToken(token)), isNull(schema.userSessions.revokedAt), gt(schema.userSessions.expiresAt, new Date()), isNull(schema.userAccounts.disabledAt)))
     .limit(1);
   return rows[0] ? publicUser(rows[0].user) : null;
 }

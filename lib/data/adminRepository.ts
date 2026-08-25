@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, ilike, inArray, isNull, or, sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { getDb } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
@@ -19,7 +19,7 @@ import {
 } from "@/lib/domain/a3lam";
 import type { ContentStatus, ProfileStatus } from "@/lib/domain/a3lam";
 import { normalizeArabic } from "@/lib/domain/search";
-import type { AdminAuditLogItem, AdminCategoryInput, AdminCategorySummary, AdminControlCenterSummary, AdminDashboardData, AdminPeoplePage, AdminPersonEditorData, AdminPersonListItem, AdminUserSummary } from "@/lib/admin/types";
+import { ADMIN_ROLE_CODES, type AdminAccountStatus, type AdminAuditLogItem, type AdminCategoryInput, type AdminCategorySummary, type AdminControlCenterSummary, type AdminDashboardData, type AdminIdentitySummary, type AdminPeoplePage, type AdminPersonEditorData, type AdminPersonListItem, type AdminRoleCode, type AdminSessionSummary, type AdminUserSummary } from "@/lib/admin/types";
 
 export const ADMIN_PAGE_SIZE = 20;
 
@@ -234,6 +234,21 @@ export const adminRepository = {
       db.select({ count: sql<string>`count(*)` }).from(schema.userAccounts),
       db.select({ status: schema.profiles.status, count: sql<string>`count(*)` }).from(schema.profiles).groupBy(schema.profiles.status),
     ]);
+    let adminIdentities: number | null = null;
+    let editors: number | null = null;
+    let adminSessions: number | null = null;
+    try {
+      const [adminRows, editorRows, sessionRows] = await Promise.all([
+        db.select({ count: sql<string>`count(*)` }).from(schema.adminIdentities),
+        db.select({ count: sql<string>`count(*)` }).from(schema.adminRoleAssignments).where(eq(schema.adminRoleAssignments.roleCode, "EDITOR")),
+        db.select({ count: sql<string>`count(*)` }).from(schema.adminSessions).where(and(isNull(schema.adminSessions.revokedAt), gt(schema.adminSessions.expiresAt, new Date()))),
+      ]);
+      adminIdentities = Number(adminRows[0]?.count ?? 0);
+      editors = Number(editorRows[0]?.count ?? 0);
+      adminSessions = Number(sessionRows[0]?.count ?? 0);
+    } catch {
+      // Phase 17.0 remains usable before the Phase 17.1 schema migration is applied.
+    }
     const profiles = { total: 0, pendingReview: 0, published: 0, draft: 0 };
     for (const row of profileRows) {
       const count = Number(row.count);
@@ -247,6 +262,9 @@ export const adminRepository = {
       categories: Number(categoryRows[0]?.count ?? 0),
       users: Number(userRows[0]?.count ?? 0),
       profiles,
+      adminIdentities,
+      editors,
+      adminSessions,
     };
   },
 
@@ -332,18 +350,18 @@ export const adminRepository = {
     return rows[0] ? categoryFromRow(rows[0]) : null;
   },
 
-  async createCategory(input: AdminCategoryInput) {
+  async createCategory(input: AdminCategoryInput, actorId: string | null = null) {
     const category: Category = { id: randomUUID(), slug: input.slug, name: input.name, description: input.description, status: input.status };
     assertCategory(category);
     const db = getDb();
     await db.transaction(async (tx) => {
       await tx.insert(schema.categories).values({ id: category.id, slug: category.slug, name: category.name, description: category.description, status: category.status });
-      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_session", actorId: null, entityType: "category", entityId: category.id, field: "record", oldValue: null, newValue: category.slug, action: "create_category", reason: null });
+      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "category", entityId: category.id, field: "record", oldValue: null, newValue: category.slug, action: "create_category", reason: null });
     });
     return category;
   },
 
-  async updateCategory(id: string, input: AdminCategoryInput) {
+  async updateCategory(id: string, input: AdminCategoryInput, actorId: string | null = null) {
     const current = await this.getCategory(id);
     if (!current) return null;
     const category: Category = { id, slug: input.slug, name: input.name, description: input.description, status: current.status };
@@ -351,7 +369,7 @@ export const adminRepository = {
     const db = getDb();
     await db.transaction(async (tx) => {
       await tx.update(schema.categories).set({ slug: category.slug, name: category.name, description: category.description, updatedAt: new Date() }).where(eq(schema.categories.id, id));
-      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_session", actorId: null, entityType: "category", entityId: id, field: "record", oldValue: current.slug, newValue: category.slug, action: "update_category", reason: null });
+      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "category", entityId: id, field: "record", oldValue: current.slug, newValue: category.slug, action: "update_category", reason: null });
     });
     return category;
   },
@@ -410,7 +428,7 @@ export const adminRepository = {
     return rows[0]?.status ?? null;
   },
 
-  async createRecord(record: PersonRecord) {
+  async createRecord(record: PersonRecord, actorId: string | null = null) {
     assertEditableRecord(record);
     const db = getDb();
     await db.transaction(async (tx) => {
@@ -458,12 +476,12 @@ export const adminRepository = {
         await tx.insert(schema.education).values({ id: item.id, personId: record.person.id, institution: item.institution, field: item.field, dateRange: item.dateRange, description: item.description });
         if (item.sourceIds.length > 0) await tx.insert(schema.educationSources).values(item.sourceIds.map((sourceId) => ({ educationId: item.id, sourceId })));
       }
-      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_session", actorId: null, entityType: "person", entityId: record.person.id, field: "record", oldValue: null, newValue: record.person.slug, action: "create_person", reason: null });
+      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "person", entityId: record.person.id, field: "record", oldValue: null, newValue: record.person.slug, action: "create_person", reason: null });
     });
     return this.getEditorData(record.person.id);
   },
 
-  async transitionStatus(id: string, nextStatus: ContentStatus) {
+  async transitionStatus(id: string, nextStatus: ContentStatus, actorId: string | null = null) {
     const db = getDb();
     const editor = await this.getEditorData(id);
     if (!editor) return null;
@@ -479,12 +497,196 @@ export const adminRepository = {
       if (nextStatus === "published" && editor.record.sources.length > 0) {
         await tx.update(schema.sources).set({ status: "published", updatedAt: new Date() }).where(inArray(schema.sources.id, editor.record.sources.map((source) => source.id)));
       }
-      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_session", actorId: null, entityType: "person", entityId: id, field: "status", oldValue: editor.record.person.status, newValue: nextStatus, action: "transition_person", reason: null });
+      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "person", entityId: id, field: "status", oldValue: editor.record.person.status, newValue: nextStatus, action: "transition_person", reason: null });
     });
     return this.getEditorData(id);
   },
 
-  async replaceRecord(id: string, record: PersonRecord) {
+  async listAdminUsers(options: { query?: string; disabled?: "active" | "disabled" | ""; limit?: number } = {}) {
+    const db = getDb();
+    const conditions = [];
+    const query = options.query?.trim();
+    if (query) conditions.push(or(ilike(schema.userAccounts.name, `%${query}%`), ilike(schema.userAccounts.email, `%${query}%`)));
+    if (options.disabled === "active") conditions.push(isNull(schema.userAccounts.disabledAt));
+    if (options.disabled === "disabled") conditions.push(sql`${schema.userAccounts.disabledAt} IS NOT NULL`);
+    const rows = await db.select({
+      user: schema.userAccounts,
+      profileId: schema.profiles.id,
+      profileNameArabic: schema.profiles.nameArabic,
+      profileStatus: schema.profiles.status,
+      profileVisibility: schema.profiles.visibility,
+      activeSessions: sql<number>`count(${schema.userSessions.id})`,
+    }).from(schema.userAccounts)
+      .leftJoin(schema.profiles, eq(schema.profiles.userId, schema.userAccounts.id))
+      .leftJoin(schema.userSessions, and(eq(schema.userSessions.userId, schema.userAccounts.id), isNull(schema.userSessions.revokedAt), gt(schema.userSessions.expiresAt, new Date())))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .groupBy(schema.userAccounts.id, schema.profiles.id)
+      .orderBy(desc(schema.userAccounts.createdAt))
+      .limit(Math.min(Math.max(options.limit ?? 100, 1), 100));
+    return rows.map(({ user, profileId, profileNameArabic, profileStatus, profileVisibility, activeSessions }) => ({ id: user.id, name: user.name, email: user.email, createdAt: asIsoTimestamp(user.createdAt), lastSignedIn: user.lastSignedIn ? asIsoTimestamp(user.lastSignedIn) : null, accountStatus: user.disabledAt ? "disabled" as const : "active" as const, activeSessions: Number(activeSessions ?? 0), profileStatus: profileStatus ?? null, visibility: profileVisibility ?? null, profile: profileId ? { id: profileId, nameArabic: profileNameArabic ?? "", status: profileStatus ?? "draft", visibility: profileVisibility ?? "private" } : null }));
+  },
+
+  async setUserDisabled(id: string, disabled: boolean, actorId: string | null) {
+    const db = getDb();
+    return db.transaction(async (tx) => {
+      const currentRows = await tx.select({ id: schema.userAccounts.id, disabledAt: schema.userAccounts.disabledAt }).from(schema.userAccounts).where(eq(schema.userAccounts.id, id)).limit(1);
+      const current = currentRows[0];
+      if (!current) return null;
+      const now = new Date();
+      const rows = await tx.update(schema.userAccounts).set({ disabledAt: disabled ? now : null, updatedAt: now }).where(eq(schema.userAccounts.id, id)).returning({ id: schema.userAccounts.id, disabledAt: schema.userAccounts.disabledAt });
+      if (disabled) await tx.update(schema.userSessions).set({ revokedAt: now }).where(and(eq(schema.userSessions.userId, id), isNull(schema.userSessions.revokedAt)));
+      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "user_account", entityId: id, field: "disabled_at", oldValue: current.disabledAt?.toISOString() ?? null, newValue: disabled ? now.toISOString() : null, action: disabled ? "disable_user" : "enable_user", reason: null, createdAt: now });
+      return { id: rows[0].id, accountStatus: rows[0].disabledAt ? "disabled" as const : "active" as const };
+    });
+  },
+
+  async revokeUserSessions(userId: string, actorId: string | null) {
+    const db = getDb();
+    return db.transaction(async (tx) => {
+      const account = await tx.select({ id: schema.userAccounts.id }).from(schema.userAccounts).where(eq(schema.userAccounts.id, userId)).limit(1);
+      if (!account[0]) return null;
+      const now = new Date();
+      const rows = await tx.update(schema.userSessions).set({ revokedAt: now }).where(and(eq(schema.userSessions.userId, userId), isNull(schema.userSessions.revokedAt))).returning({ id: schema.userSessions.id });
+      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "user_account", entityId: userId, field: "sessions", oldValue: String(rows.length), newValue: "0", action: "revoke_user_sessions", reason: null, createdAt: now });
+      return rows.length;
+    });
+  },
+
+  async listAdminIdentities(options: { query?: string; status?: AdminAccountStatus | ""; role?: AdminRoleCode | ""; limit?: number } = {}): Promise<AdminIdentitySummary[]> {
+    const db = getDb();
+    const query = options.query?.trim();
+    const conditions = [];
+    if (query) conditions.push(or(ilike(schema.adminIdentities.displayName, `%${query}%`), ilike(schema.adminIdentities.email, `%${query}%`)));
+    if (options.status) conditions.push(eq(schema.adminIdentities.status, options.status));
+    if (options.role) conditions.push(eq(schema.adminRoleAssignments.roleCode, options.role));
+    const where = conditions.length > 0 ? and(...conditions) : undefined;
+    const rows = await db.select({
+      identity: schema.adminIdentities,
+      roleCode: schema.adminRoleAssignments.roleCode,
+      activeSessions: sql<number>`count(${schema.adminSessions.id})`,
+    }).from(schema.adminIdentities)
+      .leftJoin(schema.adminRoleAssignments, eq(schema.adminRoleAssignments.adminId, schema.adminIdentities.id))
+      .leftJoin(schema.adminSessions, and(eq(schema.adminSessions.adminId, schema.adminIdentities.id), isNull(schema.adminSessions.revokedAt), gt(schema.adminSessions.expiresAt, new Date())))
+      .where(where)
+      .groupBy(schema.adminIdentities.id, schema.adminRoleAssignments.roleCode)
+      .orderBy(desc(schema.adminIdentities.createdAt))
+      .limit(Math.min(Math.max(options.limit ?? 100, 1), 100));
+    return rows.map(({ identity, roleCode, activeSessions }) => ({
+      id: identity.id,
+      email: identity.email,
+      displayName: identity.displayName,
+      role: (roleCode as AdminRoleCode | null),
+      status: identity.status,
+      lastSignedIn: identity.lastSignedIn ? asIsoTimestamp(identity.lastSignedIn) : null,
+      lastActivityAt: identity.lastActivityAt ? asIsoTimestamp(identity.lastActivityAt) : null,
+      createdAt: asIsoTimestamp(identity.createdAt),
+      activeSessions: Number(activeSessions ?? 0),
+    }));
+  },
+
+  async getAdminIdentity(id: string) {
+    const db = getDb();
+    const rows = await db.select({
+      identity: schema.adminIdentities,
+      roleCode: schema.adminRoleAssignments.roleCode,
+      activeSessions: sql<number>`count(${schema.adminSessions.id})`,
+    }).from(schema.adminIdentities)
+      .leftJoin(schema.adminRoleAssignments, eq(schema.adminRoleAssignments.adminId, schema.adminIdentities.id))
+      .leftJoin(schema.adminSessions, and(eq(schema.adminSessions.adminId, schema.adminIdentities.id), isNull(schema.adminSessions.revokedAt), gt(schema.adminSessions.expiresAt, new Date())))
+      .where(eq(schema.adminIdentities.id, id))
+      .groupBy(schema.adminIdentities.id, schema.adminRoleAssignments.roleCode)
+      .limit(1);
+    const row = rows[0];
+    if (!row) return null;
+    return { id: row.identity.id, email: row.identity.email, displayName: row.identity.displayName, role: row.roleCode as AdminRoleCode | null, status: row.identity.status, lastSignedIn: row.identity.lastSignedIn ? asIsoTimestamp(row.identity.lastSignedIn) : null, lastActivityAt: row.identity.lastActivityAt ? asIsoTimestamp(row.identity.lastActivityAt) : null, createdAt: asIsoTimestamp(row.identity.createdAt), activeSessions: Number(row.activeSessions ?? 0) };
+  },
+
+  async createAdminIdentity(input: { email: string; displayName: string; role: AdminRoleCode }, actorId: string | null) {
+    const db = getDb();
+    const now = new Date();
+    const id = randomUUID();
+    const email = input.email.trim();
+    const displayName = input.displayName.trim();
+    if (!email || email.length > 320 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !displayName || displayName.length > 160 || !ADMIN_ROLE_CODES.includes(input.role)) {
+      const error = new Error("Invalid admin identity input");
+      error.name = "AdminInputError";
+      throw error;
+    }
+    const emailNormalized = email.toLowerCase();
+    await db.transaction(async (tx) => {
+      await tx.insert(schema.adminIdentities).values({ id, email, emailNormalized, displayName, status: "invited", createdAt: now, updatedAt: now });
+      await tx.insert(schema.adminRoleAssignments).values({ adminId: id, roleCode: input.role, assignedBy: actorId, assignedAt: now });
+      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "admin_identity", entityId: id, field: "record", oldValue: null, newValue: JSON.stringify({ role: input.role, status: "invited" }), action: "create_admin_identity", reason: null, createdAt: now });
+    });
+    return this.getAdminIdentity(id);
+  },
+
+  async updateAdminIdentity(id: string, input: { role?: AdminRoleCode; status?: "active" | "disabled"; email?: string; displayName?: string }, actorId: string | null) {
+    const db = getDb();
+    return db.transaction(async (tx) => {
+      const identityRows = await tx.select().from(schema.adminIdentities).where(eq(schema.adminIdentities.id, id)).limit(1);
+      const current = identityRows[0];
+      if (!current) return null;
+      const assignmentRows = await tx.select({ roleCode: schema.adminRoleAssignments.roleCode }).from(schema.adminRoleAssignments).where(eq(schema.adminRoleAssignments.adminId, id)).limit(1);
+      const currentRole = assignmentRows[0]?.roleCode as AdminRoleCode | undefined;
+      const nextRole = input.role ?? currentRole;
+      const nextStatus = input.status ?? current.status;
+      const nextEmail = input.email ?? current.email;
+      const nextDisplayName = input.displayName ?? current.displayName;
+      if (nextStatus === "active" && !current.passwordHash) {
+        const error = new Error("Admin activation requires a configured credential lifecycle");
+        error.name = "AdminConflictError";
+        throw error;
+      }
+      if (current.status === "active" && currentRole === "SUPER_ADMIN" && (nextRole !== "SUPER_ADMIN" || nextStatus === "disabled")) {
+        const superAdminRows = await tx.select({ id: schema.adminIdentities.id }).from(schema.adminIdentities).innerJoin(schema.adminRoleAssignments, eq(schema.adminRoleAssignments.adminId, schema.adminIdentities.id)).where(and(eq(schema.adminRoleAssignments.roleCode, "SUPER_ADMIN"), eq(schema.adminIdentities.status, "active")));
+        if (superAdminRows.length <= 1) {
+          const error = new Error("The final Super Admin cannot be disabled or demoted");
+          error.name = "AdminConflictError";
+          throw error;
+        }
+      }
+      const now = new Date();
+      await tx.update(schema.adminIdentities).set({ email: nextEmail, emailNormalized: nextEmail.toLowerCase(), displayName: nextDisplayName, status: nextStatus, updatedAt: now }).where(eq(schema.adminIdentities.id, id));
+      if (nextRole) {
+        await tx.insert(schema.adminRoleAssignments).values({ adminId: id, roleCode: nextRole, assignedBy: actorId, assignedAt: now }).onConflictDoUpdate({ target: schema.adminRoleAssignments.adminId, set: { roleCode: nextRole, assignedBy: actorId, assignedAt: now } });
+      }
+      if (current.status !== nextStatus) await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "admin_identity", entityId: id, field: "status", oldValue: current.status, newValue: nextStatus, action: "update_admin_status", reason: null, createdAt: now });
+      if (currentRole !== nextRole) await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "admin_identity", entityId: id, field: "role", oldValue: currentRole ?? null, newValue: nextRole ?? null, action: "update_admin_role", reason: null, createdAt: now });
+      if (current.email !== nextEmail) await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "admin_identity", entityId: id, field: "email", oldValue: current.email, newValue: nextEmail, action: "update_admin_email", reason: null, createdAt: now });
+      if (current.displayName !== nextDisplayName) await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "admin_identity", entityId: id, field: "display_name", oldValue: current.displayName, newValue: nextDisplayName, action: "update_admin_display_name", reason: null, createdAt: now });
+      return { id, status: nextStatus, role: nextRole ?? null };
+    });
+  },
+
+  async listAdminSessions(limit = 100): Promise<AdminSessionSummary[]> {
+    const db = getDb();
+    const rows = await db.select({ session: schema.adminSessions, adminName: schema.adminIdentities.displayName }).from(schema.adminSessions).innerJoin(schema.adminIdentities, eq(schema.adminSessions.adminId, schema.adminIdentities.id)).where(and(isNull(schema.adminSessions.revokedAt), gt(schema.adminSessions.expiresAt, new Date()))).orderBy(desc(schema.adminSessions.lastActivityAt)).limit(Math.min(Math.max(limit, 1), 100));
+    return rows.map(({ session, adminName }) => ({ id: session.id, adminId: session.adminId, adminName, createdAt: asIsoTimestamp(session.createdAt), lastActivityAt: asIsoTimestamp(session.lastActivityAt), expiresAt: asIsoTimestamp(session.expiresAt), userAgent: session.userAgent, ipAddress: session.ipAddress }));
+  },
+
+  async revokeAdminSession(id: string, actorId: string | null) {
+    const db = getDb();
+    return db.transaction(async (tx) => {
+      const now = new Date();
+      const rows = await tx.update(schema.adminSessions).set({ revokedAt: now }).where(and(eq(schema.adminSessions.id, id), isNull(schema.adminSessions.revokedAt))).returning({ id: schema.adminSessions.id });
+      if (!rows[0]) return false;
+      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "admin_session", entityId: id, field: "revoked_at", oldValue: null, newValue: now.toISOString(), action: "revoke_admin_session", reason: null, createdAt: now });
+      return true;
+    });
+  },
+
+  async revokeAllAdminSessions(adminId: string, actorId: string | null) {
+    const db = getDb();
+    return db.transaction(async (tx) => {
+      const now = new Date();
+      const rows = await tx.update(schema.adminSessions).set({ revokedAt: now }).where(and(eq(schema.adminSessions.adminId, adminId), isNull(schema.adminSessions.revokedAt))).returning({ id: schema.adminSessions.id });
+      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "admin_identity", entityId: adminId, field: "sessions", oldValue: String(rows.length), newValue: "0", action: "revoke_admin_sessions", reason: null, createdAt: now });
+      return rows.length;
+    });
+  },
+
+  async replaceRecord(id: string, record: PersonRecord, actorId: string | null = null) {
     const db = getDb();
     const currentRows = await db.select().from(schema.people).where(eq(schema.people.id, id)).limit(1);
     if (currentRows.length === 0) return null;
@@ -539,7 +741,7 @@ export const adminRepository = {
         await tx.insert(schema.education).values({ id: item.id, personId: id, institution: item.institution, field: item.field, dateRange: item.dateRange, description: item.description });
         if (item.sourceIds.length > 0) await tx.insert(schema.educationSources).values(item.sourceIds.map((sourceId) => ({ educationId: item.id, sourceId })));
       }
-      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_session", actorId: null, entityType: "person", entityId: id, field: "record", oldValue: currentRows[0].slug, newValue: record.person.slug, action: "update_person", reason: null });
+      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "person", entityId: id, field: "record", oldValue: currentRows[0].slug, newValue: record.person.slug, action: "update_person", reason: null });
     });
     return this.getEditorData(id);
   },

@@ -330,6 +330,38 @@ export type FoundationMessages = {
   adminNoUsers: string;
   adminPeopleRelated: string;
   adminProfilesRelated: string;
+  adminIdentityStatus: string;
+  adminStatusInvited: string;
+  adminStatusActive: string;
+  adminStatusDisabled: string;
+  adminRole: string;
+  adminRoleSuperAdmin: string;
+  adminRoleAdmin: string;
+  adminRoleEditor: string;
+  adminRoleModerator: string;
+  adminCreateIdentity: string;
+  adminIdentityName: string;
+  adminIdentityEmail: string;
+  adminIdentityRequiresActivation: string;
+  adminChangeRole: string;
+  adminDisable: string;
+  adminEnable: string;
+  adminSessions: string;
+  adminRevoke: string;
+  adminNoSessions: string;
+  adminSessionExpires: string;
+  adminSessionDevice: string;
+  adminSessionAddress: string;
+  adminRevokeUserSessions: string;
+  adminUserStatus: string;
+  adminUserActive: string;
+  adminUserDisabled: string;
+  adminNoAdminIdentities: string;
+  adminNoEditors: string;
+  adminPermissionMatrix: string;
+  adminPermissionMatrixDescription: string;
+  adminPermissionRole: string;
+  adminPermissionCode: string;
 };
 
 const ar: FoundationMessages = {
@@ -663,6 +695,38 @@ const ar: FoundationMessages = {
   adminNoUsers: "لا توجد حسابات مستخدمين في النطاق الحالي.",
   adminPeopleRelated: "شخصيات مرتبطة",
   adminProfilesRelated: "ملفات مرتبطة",
+  adminIdentityStatus: "حالة الهوية",
+  adminStatusInvited: "مدعو — يحتاج تفعيلًا",
+  adminStatusActive: "نشط",
+  adminStatusDisabled: "معطل",
+  adminRole: "الدور",
+  adminRoleSuperAdmin: "Super Admin",
+  adminRoleAdmin: "Admin",
+  adminRoleEditor: "Editor",
+  adminRoleModerator: "Moderator",
+  adminCreateIdentity: "إضافة هوية إدارية",
+  adminIdentityName: "الاسم المعروض",
+  adminIdentityEmail: "البريد الإداري",
+  adminIdentityRequiresActivation: "لا يوجد مسار دعوة أو تفعيل credentials في Phase 17.1؛ ستُحفظ الهوية كمدعو فقط.",
+  adminChangeRole: "تغيير الدور",
+  adminDisable: "تعطيل",
+  adminEnable: "تفعيل",
+  adminSessions: "الجلسات",
+  adminRevoke: "سحب",
+  adminNoSessions: "لا توجد جلسات Admin فعالة.",
+  adminSessionExpires: "تنتهي",
+  adminSessionDevice: "الجهاز",
+  adminSessionAddress: "العنوان الشبكي",
+  adminRevokeUserSessions: "سحب جلسات المستخدم",
+  adminUserStatus: "حالة الحساب",
+  adminUserActive: "نشط",
+  adminUserDisabled: "معطل",
+  adminNoAdminIdentities: "لا توجد هويات Admin في النطاق الحالي.",
+  adminNoEditors: "لا توجد هويات Editor في النطاق الحالي.",
+  adminPermissionMatrix: "مصفوفة الصلاحيات",
+  adminPermissionMatrixDescription: "مرجع للسياسة المركزية الحالية؛ لا تُعرض مربعات تعديل قبل توفر persisted permission assignment.",
+  adminPermissionRole: "الدور",
+  adminPermissionCode: "الصلاحية",
 };
 
 const en: FoundationMessages = {
@@ -996,6 +1060,38 @@ const en: FoundationMessages = {
   adminNoUsers: "There are no user accounts in the current scope.",
   adminPeopleRelated: "Related people",
   adminProfilesRelated: "Related profiles",
+  adminIdentityStatus: "Identity status",
+  adminStatusInvited: "Invited — activation required",
+  adminStatusActive: "Active",
+  adminStatusDisabled: "Disabled",
+  adminRole: "Role",
+  adminRoleSuperAdmin: "Super Admin",
+  adminRoleAdmin: "Admin",
+  adminRoleEditor: "Editor",
+  adminRoleModerator: "Moderator",
+  adminCreateIdentity: "Add admin identity",
+  adminIdentityName: "Display name",
+  adminIdentityEmail: "Admin email",
+  adminIdentityRequiresActivation: "No invitation or credential activation flow is enabled in Phase 17.1; the identity will remain invited.",
+  adminChangeRole: "Change role",
+  adminDisable: "Disable",
+  adminEnable: "Enable",
+  adminSessions: "Sessions",
+  adminRevoke: "Revoke",
+  adminNoSessions: "There are no active Admin sessions.",
+  adminSessionExpires: "Expires",
+  adminSessionDevice: "Device",
+  adminSessionAddress: "Network address",
+  adminRevokeUserSessions: "Revoke user sessions",
+  adminUserStatus: "Account status",
+  adminUserActive: "Active",
+  adminUserDisabled: "Disabled",
+  adminNoAdminIdentities: "There are no Admin identities in the current scope.",
+  adminNoEditors: "There are no Editor identities in the current scope.",
+  adminPermissionMatrix: "Permission matrix",
+  adminPermissionMatrixDescription: "Reference for the current centralized policy; edit checkboxes are not shown before persisted permission assignment is available.",
+  adminPermissionRole: "Role",
+  adminPermissionCode: "Permission",
 };
 
 export const messages: Record<Locale, FoundationMessages> = { ar, en };

@@ -1,4 +1,55 @@
-import type { Category, ContentStatus, Education, PersonRecord, Source, SourceType, TimelineEvent } from "@/lib/domain/a3lam";
+import type { Category, ContentStatus, Education, PersonRecord, ProfileStatus, ProfileVisibility, Source, SourceType, TimelineEvent } from "@/lib/domain/a3lam";
+
+export const ADMIN_ROLE_CODES = ["SUPER_ADMIN", "ADMIN", "EDITOR", "MODERATOR"] as const;
+export type AdminRoleCode = (typeof ADMIN_ROLE_CODES)[number];
+export const ADMIN_ACCOUNT_STATUSES = ["invited", "active", "disabled"] as const;
+export type AdminAccountStatus = (typeof ADMIN_ACCOUNT_STATUSES)[number];
+export type AdminPermissionCode = string;
+
+export type AdminIdentitySummary = {
+  id: string;
+  email: string;
+  displayName: string;
+  role: AdminRoleCode | null;
+  status: AdminAccountStatus;
+  lastSignedIn: string | null;
+  lastActivityAt: string | null;
+  createdAt: string;
+  activeSessions: number;
+};
+
+export type AdminSessionSummary = {
+  id: string;
+  adminId: string;
+  adminName: string;
+  createdAt: string;
+  lastActivityAt: string;
+  expiresAt: string;
+  userAgent: string | null;
+  ipAddress: string | null;
+};
+
+export type AdminPrincipal = {
+  id: string | null;
+  email: string | null;
+  displayName: string;
+  role: AdminRoleCode;
+  sessionId: string | null;
+  legacy: boolean;
+};
+
+export type AdminPermissionMatrixRow = {
+  role: AdminRoleCode;
+  permissions: AdminPermissionCode[];
+};
+
+export type AdminUserManagementSummary = AdminUserSummary & {
+  email: string;
+  accountStatus: "active" | "disabled";
+  activeSessions: number;
+  profileStatus: ProfileStatus | null;
+  visibility: ProfileVisibility | null;
+};
 
 export type AdminSourceInput = {
   id?: string;
@@ -109,6 +160,9 @@ export type AdminControlCenterSummary = {
   categories: number;
   users: number;
   profiles: { total: number; pendingReview: number; published: number; draft: number };
+  adminIdentities: number | null;
+  editors: number | null;
+  adminSessions: number | null;
 };
 
 export type AdminTimelineRecord = TimelineEvent;

@@ -39,6 +39,9 @@ export default async function AdminDashboardPage() {
     { label: copy.adminUsers, value: summary?.users ?? 0 },
     { label: copy.adminProfiles, value: summary?.profiles.total ?? 0 },
     { label: copy.adminReview, value: summary?.profiles.pendingReview ?? 0 },
+    { label: copy.adminAdministrators, value: summary?.adminIdentities ?? null },
+    { label: copy.adminEditors, value: summary?.editors ?? null },
+    { label: copy.adminSessions, value: summary?.adminSessions ?? null },
   ];
 
   return (
@@ -53,7 +56,7 @@ export default async function AdminDashboardPage() {
       </header>
       {unavailable ? <p className="admin-alert" role="alert">{copy.adminDatabaseError}</p> : null}
       <section className="admin-stat-grid admin-control-stat-grid" aria-label={copy.adminControlCenter}>
-        {stats.map((stat) => <div className={`admin-stat-card${stat.featured ? " admin-stat-featured" : ""}`} key={stat.label}><span>{stat.label}</span><strong>{summary ? stat.value : "—"}</strong></div>)}
+        {stats.map((stat) => <div className={`admin-stat-card${stat.featured ? " admin-stat-featured" : ""}`} key={stat.label}><span>{stat.label}</span><strong>{summary && stat.value !== null ? stat.value : "—"}</strong></div>)}
       </section>
       <section className="admin-panel" aria-labelledby="admin-status-title">
         <div className="admin-section-heading"><h2 id="admin-status-title">{copy.adminPeople}</h2><Link href="/admin/people">{copy.adminPeople}</Link></div>
