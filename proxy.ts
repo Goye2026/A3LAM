@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdminRequest } from "@/lib/admin/auth";
 import { personService } from "@/lib/services/personService";
+import { getUnlistedOrPublishedProfileBySlug } from "@/lib/user/profileRepository";
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -28,9 +29,15 @@ export async function proxy(request: NextRequest) {
   const [resource, slug] = segments;
   if (!slug || segments.length !== 2 || !SLUG_PATTERN.test(slug)) return NextResponse.next();
 
-  if (resource === "person") return NextResponse.next();
-
   try {
+    if (resource === "person") {
+      const [hasPublishedPerson, publicProfile] = await Promise.all([
+        personService.hasPublishedPersonSlug(slug),
+        getUnlistedOrPublishedProfileBySlug(slug),
+      ]);
+      return hasPublishedPerson || Boolean(publicProfile) ? NextResponse.next() : notFoundResponse(request);
+    }
+
     const exists = await personService.hasPublishedCategorySlug(slug);
     return exists ? NextResponse.next() : notFoundResponse(request);
   } catch {

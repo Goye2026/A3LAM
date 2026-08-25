@@ -30,6 +30,13 @@ describe("Phase 17.9 launch QA regressions", () => {
     expect(search).toContain("placeholder={copy.searchCountryPlaceholder}");
   });
 
+  it("keeps missing person routes behind a public existence gate", () => {
+    const proxy = readProjectFile("proxy.ts");
+    expect(proxy).toContain("personService.hasPublishedPersonSlug(slug)");
+    expect(proxy).toContain("getUnlistedOrPublishedProfileBySlug(slug)");
+    expect(proxy).toContain("return hasPublishedPerson || Boolean(publicProfile) ? NextResponse.next() : notFoundResponse(request);");
+  });
+
   it("keeps the admin profiles database error localized and generic", () => {
     const profiles = readProjectFile("app/admin/(protected)/profiles/page.tsx");
     expect(profiles).toContain("{copy.adminDatabaseError}");
