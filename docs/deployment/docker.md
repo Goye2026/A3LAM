@@ -24,7 +24,7 @@ For a new empty database, run the migration runner once from a controlled applic
 docker compose run --rm app pnpm db:migrate
 ```
 
-This command is for a new private deployment only. Do not run it against the existing Production database during Phase 17.7 and do not run seed commands in Production.
+This command is for a new private deployment only. Do not run it against the existing Production database during the current final launch freeze and do not run seed commands in Production.
 
 ## Operate
 
@@ -39,4 +39,4 @@ Use a reverse proxy for public HTTPS. Keep the application bound to the internal
 
 ## Verification state
 
-Docker CLI was unavailable in the Phase 17.7 development sandbox. Therefore `docker build .` and `docker compose config` are documented but must be executed by the deployment operator before a Docker release is marked READY.
+Docker CLI was unavailable in the current development sandbox. Therefore `docker build .` and `docker compose config` are documented but must be executed by the deployment operator before a Docker release is marked READY.

@@ -1,6 +1,6 @@
 # Custom Domain and HTTPS
 
-This document prepares a future custom domain without assuming that `a3lam.example` or any other domain is owned or available. No DNS record or domain cutover is performed by Phase 17.7.
+This document prepares a future custom domain without assuming that `a3lam.example` or any other domain is owned or available. No DNS record or domain cutover is performed by the current final launch freeze.
 
 ## Canonical policy
 

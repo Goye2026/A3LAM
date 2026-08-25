@@ -19,7 +19,7 @@ Check the process supervisor or Compose status, application logs without secrets
 
 ## Migration safety
 
-The migration runner is not a troubleshooting shortcut. Before any migration operation, inspect `schema_migrations`, the manifest, backup status, and the deployment plan. For the existing Production database in this project, Phase 17.7 explicitly performs no migration execution.
+The migration runner is not a troubleshooting shortcut. Before any migration operation, inspect `schema_migrations`, the manifest, backup status, and the deployment plan. For the existing Production database in this project, the current final launch freeze explicitly performs no migration execution.
 
 ## Incident boundary
 

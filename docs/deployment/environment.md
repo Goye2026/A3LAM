@@ -30,4 +30,4 @@ The committed `.env.example` contains placeholders only. Create `.env.local` for
 
 ## Rotation
 
-Rotate Admin and provider credentials through the host secret manager, then restart the application. Never record old or new values in Git history, logs, tickets, screenshots, or the release report. A secret rotation is an operational action and is not performed by Phase 17.7.
+Rotate Admin and provider credentials through the host secret manager, then restart the application. Never record old or new values in Git history, logs, tickets, screenshots, or the release report. A secret rotation is an operational action and is not performed by the current final launch freeze.

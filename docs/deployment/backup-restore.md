@@ -28,4 +28,4 @@ Run read-only checks for migration registry consistency, expected tables, public
 
 ## Recovery
 
-For an actual recovery, stop writes according to the incident plan, identify the approved restore point, preserve the failed database for investigation, restore to a controlled target, validate schema and access boundaries, and cut over only after explicit owner approval. Rotate credentials if compromise is suspected. Phase 17.7 does not perform recovery or credential rotation.
+For an actual recovery, stop writes according to the incident plan, identify the approved restore point, preserve the failed database for investigation, restore to a controlled target, validate schema and access boundaries, and cut over only after explicit owner approval. Rotate credentials if compromise is suspected. The current final launch freeze does not perform recovery or credential rotation.

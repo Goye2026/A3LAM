@@ -18,7 +18,7 @@ The existing `scripts/db-migrate.mjs` and shared migration runner are the only s
 
 ## Production safety
 
-Phase 17.7 does not execute migrations and does not change the existing Production database. For a future new private database, inspect the target and backup plan before running `pnpm db:migrate`. Never run `pnpm db:seed` in Production; the synthetic seed is development-only.
+The current final launch freeze does not execute migrations and does not change the existing Production database. For a future new private database, inspect the target and backup plan before running `pnpm db:migrate`. Never run `pnpm db:seed` in Production; the synthetic seed is development-only.
 
 ## Connection and pooling
 
