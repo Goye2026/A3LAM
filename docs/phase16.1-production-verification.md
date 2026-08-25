@@ -54,3 +54,11 @@
 ## Unavailable authenticated checks
 
 لم تُختبر registration/login/CV end-to-end أو owner preview أو real storage upload، لأن ذلك يتطلب حسابًا حقيقيًا وجلسة owner يزود بها المالك، وإعداد provider خارجي للرفع. لم تُستخدم أي credentials ولم تُرسل أي mutation.
+
+## Final deployment confirmation
+
+بعد commit التوثيق `9fed8c6b5e8dda5318e55c68a204741293292392` ظهر deployment `dpl_AzszEEKXjCcu8WGC6vkHsC91Z1tJ` على `main` بحالة `READY`، مع alias Production نفسه. إعادة فحص HTTP read-only على أحدث alias أعادت `200` للمسارات `/`, `/register`, `/login`, `/categories`, `/categories/history`, `/search`, `/person/ibn-khaldun`, `/sitemap.xml`, `/robots.txt`، و`/api/health`، مع content-types المتوقعة.
+
+فحص Vercel runtime errors للساعة الأخيرة أعاد: `No runtime errors found in the selected time range.`
+
+هذا التحقق لا يثبت E2E للمستخدم أو رفع التخزين؛ كلاهما بقي `NOT TESTED` لعدم توفر real owner session وprovider configuration.

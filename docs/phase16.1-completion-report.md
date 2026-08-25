@@ -130,7 +130,7 @@ Deployment المستخدم: `dpl_4bCGwFVXhPgK9294QX8uec13x8Qc`، حالته `RE
 
 ## Git
 
-دُفع commit التنفيذ `eb8db9f03d510cb5a13aed3db781715bb0449e87` إلى `main` دون force push أو reset أو rebase، وأنشأ deployment Production الجاهز المذكور أعلاه. أضيف أثر Production النهائي في commit توثيقي ثانٍ minimal فقط، وسيُدفع إلى `main` دون force push، ثم يُتحقق من تطابق `HEAD` و`origin/main` ونظافة working tree.
+دُفع commit التنفيذ `eb8db9f03d510cb5a13aed3db781715bb0449e87` إلى `main` دون force push أو reset أو rebase، وأنشأ deployment Production الجاهز المذكور أعلاه. أضيف أثر Production النهائي في commit توثيقي minimal لاحق، مع الحفاظ على جميع تغييرات التطبيق ضمن commit التنفيذ، ثم تم التحقق من تطابق `HEAD` و`origin/main` ونظافة working tree.
 
 ## Phase Boundary
 
