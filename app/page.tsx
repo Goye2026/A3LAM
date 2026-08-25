@@ -63,8 +63,8 @@ export default async function HomePage() {
   const displayPeopleAll = toDisplayPeople(people, categories);
   const displayPeople = homepage.featured.selectionMode === "selected" && homepage.featured.selectedPersonIds.length > 0 ? displayPeopleAll.filter((person) => homepage.featured.selectedPersonIds.includes(person.id)) : displayPeopleAll.slice(0, 6);
   const stats = [
-    { value: String(people.length).padStart(2, "0"), label: copy.statsPeople },
-    { value: String(categories.length).padStart(2, "0"), label: copy.statsCategories },
+    { value: dataUnavailable ? "—" : String(people.length).padStart(2, "0"), label: copy.statsPeople },
+    { value: dataUnavailable ? "—" : String(categories.length).padStart(2, "0"), label: copy.statsCategories },
     { value: "—", label: copy.statsCountries },
   ];
 
@@ -161,7 +161,7 @@ export default async function HomePage() {
             </div>
           ) : (
             <p className="empty-state" role={dataUnavailable ? "alert" : "status"}>
-              {dataUnavailable ? copy.dataUnavailable : copy.featuredEmpty}
+              {dataUnavailable ? copy.dataUnavailable : copy.categoryNoPeople}
             </p>
           )}
         </section> : null}

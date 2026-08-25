@@ -77,6 +77,7 @@ export type FoundationMessages = {
   searchLabel: string;
   searchPlaceholder: string;
   searchAction: string;
+  retryAction: string;
   searchHint: string;
   searchResults: string;
   searchEmpty: string;
@@ -91,7 +92,9 @@ export type FoundationMessages = {
   clearSearch: string;
   closeSearch: string;
   searchCity: string;
+  searchCityPlaceholder: string;
   searchCountry: string;
+  searchCountryPlaceholder: string;
   searchProfessional: string;
   searchEditorial: string;
   searchLocationLabel: string;
@@ -622,6 +625,7 @@ const ar: FoundationMessages = {
   searchLabel: "ابحث في أعلام",
   searchPlaceholder: "ابحث عن اسم، مهنة، أو مدينة...",
   searchAction: "بحث",
+  retryAction: "المحاولة مرة أخرى",
   searchHint: "جرّب اسمًا أو مجالًا لاكتشاف ملفات موثقة",
   searchResults: "نتائج البحث",
   searchEmpty: "لم نعثر على تطابق في السجلات المنشورة الحالية.",
@@ -636,7 +640,9 @@ const ar: FoundationMessages = {
   clearSearch: "مسح البحث",
   closeSearch: "إغلاق البحث",
   searchCity: "المدينة",
+  searchCityPlaceholder: "مثال: صنعاء",
   searchCountry: "الدولة",
+  searchCountryPlaceholder: "مثال: اليمن",
   searchProfessional: "ملف مهني",
   searchEditorial: "سجل تحريري",
   searchLocationLabel: "الموقع",
@@ -1167,6 +1173,7 @@ const en: FoundationMessages = {
   searchLabel: "Search A3LAM",
   searchPlaceholder: "Search a name, profession, or city...",
   searchAction: "Search",
+  retryAction: "Try again",
   searchHint: "Try a name or field to discover reviewed profiles",
   searchResults: "Search results",
   searchEmpty: "No match in the current published records.",
@@ -1181,7 +1188,9 @@ const en: FoundationMessages = {
   clearSearch: "Clear search",
   closeSearch: "Close search",
   searchCity: "City",
+  searchCityPlaceholder: "Example: Sana'a",
   searchCountry: "Country",
+  searchCountryPlaceholder: "Example: Yemen",
   searchProfessional: "Professional profile",
   searchEditorial: "Editorial record",
   searchLocationLabel: "Location",

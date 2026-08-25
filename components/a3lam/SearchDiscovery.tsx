@@ -74,8 +74,16 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const nextFilters = { query, categorySlug, city, country };
+    const hasFilters = query.trim() || categorySlug || city.trim() || country.trim();
+    if (!hasFilters) {
+      setResults([]);
+      setSearchState("idle");
+      setSubmittedFilters(nextFilters);
+      return;
+    }
     setSearchState("loading");
-    setSubmittedFilters({ query, categorySlug, city, country });
+    setSubmittedFilters(nextFilters);
   }
 
   return (
@@ -98,11 +106,11 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
         </label>
         <label className="search-field">
           <span>{copy.searchCity}</span>
-          <input id="a3lam-city" value={city} onChange={(event) => setCity(event.target.value)} placeholder="مثال: صنعاء" />
+          <input id="a3lam-city" value={city} onChange={(event) => setCity(event.target.value)} placeholder={copy.searchCityPlaceholder} />
         </label>
         <label className="search-field">
           <span>{copy.searchCountry}</span>
-          <input id="a3lam-country" value={country} onChange={(event) => setCountry(event.target.value)} placeholder="مثال: اليمن" />
+          <input id="a3lam-country" value={country} onChange={(event) => setCountry(event.target.value)} placeholder={copy.searchCountryPlaceholder} />
         </label>
         <button className="search-submit" type="submit"><span aria-hidden="true">⌕</span>{copy.searchAction}</button>
       </form>

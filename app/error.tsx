@@ -29,7 +29,7 @@ export default function Error({
           <p className="hero-lede">{copy.searchError}</p>
           <div className="state-actions">
             <button className="button button-primary" type="button" onClick={() => reset()}>
-              {copy.searchAction}
+              {copy.retryAction}
             </button>
             <Link className="button button-quiet" href="/">
               {copy.notFoundAction}

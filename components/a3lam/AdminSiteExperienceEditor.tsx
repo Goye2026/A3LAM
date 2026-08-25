@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AdminFoundationPanel } from "@/components/a3lam/AdminFoundationPanel";
 import type { FoundationMessages } from "@/lib/i18n/messages";
 import type { AdminSiteExperienceResource } from "@/lib/site-experience/repository";
 import {
@@ -72,8 +73,8 @@ export function AdminSiteExperienceEditor({ resource, title, copy, initial, unav
     } catch { setError(copy.adminDatabaseError); } finally { setBusy(false); }
   }
 
-  if (unavailable) return <div className="admin-route"><p className="admin-alert" role="alert">{copy.adminRequiresSchema}</p></div>;
-  if (!initial) return <div className="admin-route"><p className="admin-alert" role="alert">{copy.adminDatabaseError}</p></div>;
+  if (unavailable) return <div className="admin-route"><AdminFoundationPanel eyebrow={copy.adminProductGroup} title={title} description={copy.adminUnavailableDescription} status={copy.adminRequiresSchema} /></div>;
+  if (!initial) return <div className="admin-route"><AdminFoundationPanel eyebrow={copy.adminProductGroup} title={title} description={copy.adminUnavailableDescription} status={copy.adminDatabaseError} /></div>;
 
   return <div className="admin-route">
     <header className="admin-route-heading"><div><p className="eyebrow">{copy.adminProductGroup}</p><h1>{title}</h1><p className="route-description">{copy.adminSiteExperienceDescription}</p></div><div className="admin-heading-actions">{resource === "homepage" ? <a className="button button-quiet" href="/admin/homepage/preview">{copy.adminPreview}</a> : null}</div></header>
