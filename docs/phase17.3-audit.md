@@ -82,3 +82,7 @@
 ## 11. Final local validation snapshot
 
 بتاريخ 2026-08-25 تم تنفيذ `pnpm install --frozen-lockfile` باستخدام pnpm 11.21.0، ثم `pnpm typecheck` و`pnpm lint` و`pnpm test` و`pnpm build` و`git diff --check`. جميعها PASS. نتيجة Vitest: **48 tests عبر 7 test files**. أظهر build مسارات Admin الجديدة وAPI routes الجديدة ضمن Next.js 16.3.1. لم يُشغّل `pnpm db:migrate` ولم تُنشأ أي بيانات أو حسابات أو أسرار.
+
+## 12. Production read-only evidence
+
+بعد دفع commit `3d2cd77537c4fdc38db2c808d496f398c0c81357`، أصبح deployment `dpl_FQ9jAhXgc1PYsdqkjH57hYbC7xKg` بحالة READY على alias `https://a3-lam.vercel.app`. فحص GET على `/api/health` أعاد 200، وGET على `/` أعاد 200 مع `lang="ar"`, `dir="rtl"` وappearance data attributes، وGET غير موثق على `/api/admin/site-experience/homepage` أعاد 401 برسالة آمنة. لم تُرسل cookies ولم تُجرَ أي mutation أو migration.
