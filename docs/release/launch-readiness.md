@@ -8,7 +8,7 @@ This checklist is the release gate for Phase 17.7. It records only evidence avai
 
 | Area | Status | Evidence or limitation |
 |---|---|---|
-| Application | READY WITH LIMITATION | Existing Next.js application, local build, and current Production deployment are available; real-user E2E remains outside this sprint |
+| Application | READY WITH LIMITATION | Next.js application, local build, and Production deployment `dpl_3CyKAgDNG42yUaEtnX9o43M5EuCE` are READY on `a3-lam.vercel.app`; real-user E2E remains outside this sprint |
 | Database | READY WITH LIMITATION | PostgreSQL/Drizzle and migrations 0001–0006 are present and Production registry is consistent; private-host provisioning is documented, not executed here |
 | Authentication | READY WITH LIMITATION | Separate user/Admin sessions and protected routes exist; credential rotation and real-user E2E are owner operations |
 | RBAC | READY | Existing effective-permission path and server-side authorization remain the source of truth |
@@ -19,7 +19,7 @@ This checklist is the release gate for Phase 17.7. It records only evidence avai
 | Storage | REQUIRES CONFIGURATION | External object-storage provider is optional and safely unavailable until owner configuration |
 | Email | REQUIRES CONFIGURATION | No provider is configured; application must retain `PROVIDER_NOT_CONFIGURED` behavior |
 | Security | READY WITH LIMITATION | Server-side auth/RBAC, safe headers, public projection, same-origin mutations, and no-secret checks are present; external penetration testing is not part of this phase |
-| Performance | READY WITH LIMITATION | Bounded lists, standalone build, and health probe are available; production load testing is not performed |
+| Performance | READY WITH LIMITATION | Bounded lists, normal Node production build/server, and health probe are available; production load testing is not performed |
 | Docker | READY WITH LIMITATION | Dockerfile/Compose and handoff docs are present; Docker CLI was unavailable in the development sandbox, so image/config commands are `NOT TESTED` here |
 | VPS | READY WITH LIMITATION | Direct Node and Compose procedures plus Nginx guidance are documented; no external VPS was provisioned |
 | Domain | READY WITH LIMITATION | DNS/TLS/canonical runbook is documented; no real custom domain was supplied or changed |
@@ -35,6 +35,6 @@ This checklist is the release gate for Phase 17.7. It records only evidence avai
 
 ## Release gate
 
-The project may be treated as an **A3LAM Release Candidate with limitations** only after the required local validation passes and the current Vercel deployment remains healthy. Before a private-host or Android release, the owner must complete the items marked `READY WITH LIMITATION`, `REQUIRES CONFIGURATION`, or `NOT TESTED` in their target environment.
+The project may be treated as an **A3LAM Release Candidate with limitations**: local validation passed, Vercel production deployment `dpl_3CyKAgDNG42yUaEtnX9o43M5EuCE` is `READY`, public GET-only smoke passed, unauthenticated Admin API checks returned `401` where applicable, and authenticated Admin routes loaded in the existing session. Before a private-host or Android release, the owner must complete the items marked `READY WITH LIMITATION`, `REQUIRES CONFIGURATION`, or `NOT TESTED` in their target environment.
 
 No item in this document authorizes a migration, seed, Production data creation, credential change, provider setup, or domain cutover.

@@ -4,7 +4,7 @@
 
 Phase 17.7 prepares the existing A3LAM application as a Release Candidate with explicit limitations. The work focuses on final web readiness, private-hosting portability, Docker artifacts, Android wrapper boundaries, deployment handoff, backup guidance, health operations, and launch audit. It does not perform Population, seed data, new migrations, Production DML, provider setup, authentication redesign, RBAC redesign, database redesign, AI, semantic search, analytics, or Phase 18.
 
-The existing Vercel deployment remains the current deployment option. Private hosting and Android are prepared as documented future options, not silently assumed to be complete. The final status must remain **COMPLETE WITH LIMITATIONS** until the release commit is deployed and the permitted read-only Production checks are recorded.
+The existing Vercel deployment remains the current deployment option. Private hosting and Android are prepared as documented future options, not silently assumed to be complete. The final status is **COMPLETE WITH LIMITATIONS**. The release commit was deployed successfully and the permitted read-only Production checks were recorded below.
 
 ## Web Finalization
 
@@ -102,13 +102,29 @@ The new `tests/phase17.7.test.ts` covers placeholder-only environment templates,
 
 ## Production Verification
 
-Production verification is GET/HEAD-only and is performed after the release commit is deployed. The required checks are the public routes `/`, `/api/health`, `/categories`, `/search`, `/register`, `/login`, `/robots.txt`, and `/sitemap.xml`; unauthenticated Admin boundaries; and the authenticated Admin routes `/admin`, `/admin/users`, `/admin/administrators`, `/admin/editors`, `/admin/sessions`, `/admin/audit`, `/admin/people`, `/admin/categories`, `/admin/profiles`, `/admin/site`, and `/admin/system` when the existing session is available. No mutation is required or authorized for this phase.
+Production verification was GET/HEAD-only. No mutation button, form submission, migration action, publication action, archive action, session-revocation action, or filter application was activated. The deployed source commit was `4909f341b8be949dec26e5c303c5cb69332b696b`, deployment `dpl_3CyKAgDNG42yUaEtnX9o43M5EuCE`, target `production`, source `git`, and Vercel state `READY`. The deployment was aliased to `https://a3-lam.vercel.app`.
 
-At report preparation time, the new Phase 17.7 commit had not yet been deployed. The final report must record the actual deployment ID/state and actual read-only results rather than infer them.
+| Production check | Evidence | Result |
+|---|---|---|
+| Public routes `/`, `/categories`, `/categories/history`, `/search`, `/register`, `/login`, `/person/ibn-khaldun` | `phase17.7-production-public.txt` | PASS — HTTP 200 |
+| `/api/health` | `phase17.7-production-public.txt` | PASS — HTTP 200, body reports `status: ok` and `service: a3lam` |
+| `/robots.txt` and `/sitemap.xml` | `phase17.7-production-public.txt` | PASS — HTTP 200, valid content types and current HTTPS alias references |
+| Public privacy scan | `phase17.7-production-public.txt` and `phase17.7-production-seo.txt` | PASS — no `DATABASE_URL`, Admin token, Admin session, password hash, migration-control marker, or `Set-Cookie` leakage found |
+| Public SEO metadata | `phase17.7-production-seo.txt` | PASS within route scope — title, canonical, Open Graph, Twitter, and robots metadata were observed; person route returned 2 JSON-LD blocks |
+| Unauthenticated Admin APIs | `phase17.7-production-admin-api.txt` | PASS within route scope — protected collection/system endpoints returned `401`; `/api/admin/auth` returned `405` because GET is not an allowed method |
+| Authenticated Admin routes `/admin`, `/admin/users`, `/admin/administrators`, `/admin/editors`, `/admin/sessions`, `/admin/audit`, `/admin/people`, `/admin/categories`, `/admin/profiles`, `/admin/site`, `/admin/system` | `phase17.7-production-admin.txt` and browser page captures | PASS — all routes loaded in the existing Admin session |
+| Admin migration registry | `/admin/system` browser capture | PASS read-only — 6 applied, 0 pending, 6 expected, consistent |
+| Vercel runtime errors | Vercel grouped runtime-error query, last 1 hour | PASS — no runtime errors found in the selected window |
+
+The authenticated dashboard reported 9 people, 8 published and 1 draft, 10 categories, and the existing media/email configuration limitations. These are observations only; Phase 17.7 did not add or alter records. The full text artifacts remain outside the repository because they contain live operational observations and are not required as application assets.
+
+## Runtime Parity
+
+The Vercel project metadata reports Node.js `24.x`, while the locked portability baseline and Docker/VPS artifacts use Node.js `22.13.0`. The Vercel setting was not changed in this phase. Production is healthy on the observed deployment, but strict Vercel/Docker runtime parity remains **REQUIRES CONFIGURATION** if the owner requires Vercel to run exactly Node.js `22.13.0`; this is not silently claimed as complete.
 
 ## Launch Readiness
 
-The objective matrix is in `docs/release/launch-readiness.md`. The expected release state is **COMPLETE WITH LIMITATIONS** because Docker CLI, Android SDK/device testing, external browser/accessibility testing, real custom-domain cutover, external monitoring, email, storage, and real-user E2E are not all available in this environment.
+The objective matrix is in `docs/release/launch-readiness.md`. The release state is **COMPLETE WITH LIMITATIONS** because Docker CLI, Android SDK/device testing, external browser/accessibility testing, real custom-domain cutover, external monitoring, email, storage, strict Vercel Node.js 22.13.0 parity, and real-user E2E are not all available in this environment.
 
 ## Deferred Items
 
@@ -120,15 +136,15 @@ There is no schema or migration blocker for the implemented Phase 17.7 portabili
 
 ## Git
 
-The final report must record the actual pushed `main` commit, confirm `HEAD == origin/main`, and confirm a clean working tree. No force push, reset, rebase, or history rewrite is permitted.
+The Phase 17.7 implementation commit is `4909f341b8be949dec26e5c303c5cb69332b696b` and was pushed to `main` without force push, reset, rebase, or history rewrite. The report and launch-readiness documentation were then finalized in a normal follow-up documentation commit. The task closeout confirms a clean working tree and `HEAD == origin/main` after the final documentation push.
 
 ## Deployment
 
-The current Vercel alias is `https://a3-lam.vercel.app`. The final deployment ID, source commit, target, and `READY` state must be recorded after push. No Production migration execution is part of this phase.
+The current Vercel alias is `https://a3-lam.vercel.app`. Deployment `dpl_3CyKAgDNG42yUaEtnX9o43M5EuCE` is `READY`, production-targeted, sourced from Git commit `4909f341b8be949dec26e5c303c5cb69332b696b`. No Production migration execution is part of this phase.
 
 ## Final Status
 
-**PHASE 17.7 — COMPLETE WITH LIMITATIONS**, contingent on successful final local validation, release deployment, and the required read-only Production verification. The status must not be upgraded to `COMPLETE` while Docker/Android/external verification and owner configuration remain outstanding.
+**PHASE 17.7 — COMPLETE WITH LIMITATIONS**. Local validation passed, deployment `dpl_3CyKAgDNG42yUaEtnX9o43M5EuCE` is `READY`, public GET-only smoke passed, unauthenticated Admin boundaries held, authenticated Admin routes loaded, and no current Vercel runtime errors were returned for the selected one-hour window. The status is not upgraded to `COMPLETE` while Docker/Android/external verification and owner configuration remain outstanding.
 
 ## Mandatory Safety Counters
 
