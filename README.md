@@ -4,7 +4,7 @@
 
 ## الحالة الحالية
 
-المشروع في **Phase 17.7 — Release Preparation Sprint** فوق المراحل السابقة. تتضمن الحالة الحالية Admin Control Center عمليًا، Site Experience hub، نشرًا قائمًا على Vercel، مسارًا موثقًا لـDocker/VPS/PostgreSQL، وحدودًا صريحة لأساس Android. لا تتضمن هذه المرحلة Population أو seed إنتاجيًا أو AI أو semantic search أو analytics أو إعادة بناء Auth/RBAC/Database.
+المشروع في **Phase 17.8 — Final Launch & Portability Hardening** فوق المراحل السابقة. تتضمن الحالة الحالية Admin Control Center عمليًا، Site Experience hub، نشرًا قائمًا على Vercel، مسارًا موثقًا لـDocker/VPS/PostgreSQL، وحدودًا صريحة لأساس Android. لا تتضمن هذه المرحلة Population أو seed إنتاجيًا أو AI أو semantic search أو analytics أو إعادة بناء Auth/RBAC/Database.
 
 ## Toolchain
 
@@ -92,7 +92,7 @@ A3LAM_ALLOW_SYNTHETIC_SEED=true NODE_ENV=development pnpm db:seed
 
 ## Portability and release handoff
 
-توجد إجراءات التشغيل خارج Vercel في `docs/deployment/`، وتشمل Docker Compose وVPS وPostgreSQL والبيئة وdomain وbackup/restore وtroubleshooting. قائمة الجاهزية الموضوعية موجودة في `docs/release/launch-readiness.md`. أساس Android وحدوده الأمنية موثق في `android/README.md`، ولا تُعد نتائج Android أو Docker build ناجحة دون تشغيلها في بيئتها الفعلية.
+توجد إجراءات التشغيل خارج Vercel في `docs/deployment/`، وتشمل Docker Compose وVPS وPostgreSQL والبيئة وdomain وbackup/restore وtroubleshooting. كما توجد الوثائق العملية المختصرة في `docs/DEPLOYMENT.md` و`docs/SELF_HOSTING.md` و`docs/ENVIRONMENT.md` و`docs/PRODUCTION_RUNBOOK.md`، ونسخ الاستعادة في `docs/BACKUP.md` و`docs/RESTORE.md` و`docs/DISASTER_RECOVERY.md`. قائمة الجاهزية الموضوعية موجودة في `docs/LAUNCH_READINESS.md` و`docs/release/launch-readiness.md`. أساس Android وحدوده الأمنية وsigning handoff موثق في `android/README.md` و`docs/ANDROID_RELEASE.md`، ولا تُعد نتائج Android أو Docker build ناجحة دون تشغيلها في بيئتها الفعلية.
 
 ## التشغيل المحلي
 

@@ -31,5 +31,7 @@ COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/lib/db/migrations ./lib/db/migrations
 
+USER node
+
 EXPOSE 3000
 CMD ["pnpm", "start"]
