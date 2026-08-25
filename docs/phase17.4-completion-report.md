@@ -65,4 +65,4 @@ The implementation was committed on `main` as `805336e778ee1117c8f770d1b978b803b
 
 Production verification was **GET-only** and unauthenticated: `/`, `/api/health`, `/categories`, `/robots.txt`, and `/sitemap.xml` returned HTTP 200; Admin APIs `/api/admin/site-experience/homepage`, `/api/admin/people`, `/api/admin/profiles`, `/api/admin/sessions`, and `/api/admin/users` returned HTTP 401; `/admin/people`, `/admin/profiles`, and `/admin/system` redirected to the Admin login route. No Production mutation or migration was authorized or executed by this report.
 
-A final documentation-only update to this report and the audit record is pending after this deployment record is committed; the deployed feature commit itself remains the code release above.
+The final documentation commit is `190e099871f203c20db6362a176c1d3bb6fd09c1` (`docs: finalize phase 17.4 evidence`) and is pushed to `origin/main`. Its Vercel production deployment is `dpl_8Ltb9xWHXWiWyE1qGKzw8CPQvHib`, state `READY`, with alias `https://a3-lam.vercel.app`. The final deployed source is the GitHub `main` branch at that commit.

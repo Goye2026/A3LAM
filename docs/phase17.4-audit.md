@@ -88,3 +88,5 @@ Email provider وstorage provider غير مهيئين، وتبقى حالتهم�
 | `/admin/system` | HTTP 200 after redirect to `/admin/login?next=%2Fadmin%2Fsystem` |
 
 هذه checks تثبت availability العامة وunauthenticated boundary فقط؛ لا تثبت صلاحيات حساب Admin مصادق ولا قياسات viewport/WCAG أو سلوك database-backed configurations في Production، ولم تُنفذ أي mutation.
+
+بعد commit التوثيق `190e099871f203c20db6362a176c1d3bb6fd09c1`، deployment النهائي `dpl_8Ltb9xWHXWiWyE1qGKzw8CPQvHib` أصبح `READY` على `https://a3-lam.vercel.app`. أُعيدت فحوص GET-only النهائية بنفس matrix: public `/`, `/api/health`, `/categories`, `/robots.txt`, `/sitemap.xml` = HTTP 200؛ Admin APIs الخمسة = HTTP 401؛ `/admin/people`, `/admin/profiles`, `/admin/system` = redirect إلى Admin login. لا توجد production mutations.
