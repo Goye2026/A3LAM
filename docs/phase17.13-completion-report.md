@@ -91,9 +91,12 @@ Production scan فحص الردود العامة بحثًا عن connection stri
 
 | Item | Result |
 |---|---|
-| Deployment | `dpl_AhHxPni1r1Rg5jab3jVhXL6XwyCi` |
-| State | `READY` |
-| Commit | `d34839e68cfdd14bc657e75ce5dde2a5db8a7746` |
+| Implementation deployment | `dpl_AhHxPni1r1Rg5jab3jVhXL6XwyCi` |
+| Implementation state | `READY` |
+| Implementation commit | `d34839e68cfdd14bc657e75ce5dde2a5db8a7746` |
+| Final documentation deployment | `dpl_3vuand5WyAPyJarftvSSsZKztw9r` |
+| Final documentation state | `READY` |
+| Final documentation commit | `ea2df2feccda83af14cf8d6a740ef29b914b68bc` |
 | Alias | `https://a3-lam.vercel.app` |
 | Source | GitHub `Goye2026/A3LAM`, branch `main` |
 
@@ -140,7 +143,7 @@ Production browser inspection rendered the Arabic RTL Homepage, existing search 
 
 ## Git
 
-The implementation was committed and pushed normally on `main` as `d34839e68cfdd14bc657e75ce5dde2a5db8a7746` with message `feat: improve content readiness UX`. No reset, rebase, force push, or history rewrite was used. A documentation closeout commit will contain this report and the data-readiness audit.
+The implementation was committed and pushed normally on `main` as `d34839e68cfdd14bc657e75ce5dde2a5db8a7746` with message `feat: improve content readiness UX`. The documentation closeout was committed and pushed normally as `ea2df2feccda83af14cf8d6a740ef29b914b68bc` with message `docs: record phase 17.13 readiness`. No reset, rebase, force push, or history rewrite was used.
 
 ## Remaining Risks
 
