@@ -8,7 +8,7 @@ This checklist is the release gate for the current Phase 17.9 final launch freez
 
 | Area | Status | Evidence or limitation |
 |---|---|---|
-| Application | READY WITH LIMITATION | Next.js application, local build, and Production deployment `dpl_64XpT7GWCubEPswgynxx3VGNoLw3` are READY on `a3-lam.vercel.app`; real-user E2E remains outside this sprint |
+| Application | READY WITH LIMITATION | Next.js application, local build, and Production deployment `dpl_ErsjnQrfa1sS8ZDqTSv7rgYqN1tH` are READY on `a3-lam.vercel.app`; real-user E2E remains outside this sprint |
 | Database | READY WITH LIMITATION | PostgreSQL/Drizzle and migrations 0001–0006 are present and Production registry is consistent; private-host provisioning is documented, not executed here |
 | Authentication | READY WITH LIMITATION | Separate user/Admin sessions and protected routes exist; credential rotation and real-user E2E are owner operations |
 | RBAC | READY | Existing effective-permission path and server-side authorization remain the source of truth |
@@ -35,6 +35,6 @@ This checklist is the release gate for the current Phase 17.9 final launch freez
 
 ## Release gate
 
-The project may be treated as an **A3LAM Release Candidate with limitations**: local validation passed, Vercel production deployment `dpl_64XpT7GWCubEPswgynxx3VGNoLw3` is `READY`, public GET-only smoke passed, unauthenticated Admin API checks returned `401` where applicable, and authenticated Admin routes loaded in the existing session. Before a private-host or Android release, the owner must complete the items marked `READY WITH LIMITATION`, `REQUIRES CONFIGURATION`, or `NOT TESTED` in their target environment.
+The project may be treated as an **A3LAM Release Candidate with limitations**: local validation passed, Vercel production deployment `dpl_ErsjnQrfa1sS8ZDqTSv7rgYqN1tH` is `READY`, public GET-only smoke passed, unauthenticated Admin API checks returned `401` where applicable, and authenticated Admin routes loaded in the existing session. Before a private-host or Android release, the owner must complete the items marked `READY WITH LIMITATION`, `REQUIRES CONFIGURATION`, or `NOT TESTED` in their target environment.
 
 No item in this document authorizes a migration, seed, Production data creation, credential change, provider setup, or domain cutover.
