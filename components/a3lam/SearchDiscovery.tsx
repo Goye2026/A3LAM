@@ -14,6 +14,7 @@ import { PersonCard } from "./PersonCard";
   initialCategorySlug?: string;
   initialCity?: string;
   initialCountry?: string;
+  helperText?: string;
 };
 
 type PublicSearchResult = {
@@ -33,7 +34,7 @@ type PublicSearchResult = {
 type SearchState = "idle" | "loading" | "success" | "error";
 type SubmittedFilters = { query: string; categorySlug: string; city: string; country: string };
 
-export function SearchDiscovery({ copy, categories, initialQuery = "", initialCategorySlug = "", initialCity = "", initialCountry = "" }: SearchDiscoveryProps) {
+export function SearchDiscovery({ copy, categories, initialQuery = "", initialCategorySlug = "", initialCity = "", initialCountry = "", helperText }: SearchDiscoveryProps) {
   const [query, setQuery] = useState(initialQuery);
   const [categorySlug, setCategorySlug] = useState(initialCategorySlug);
   const [city, setCity] = useState(initialCity);
@@ -91,6 +92,7 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
       <div className="discovery-heading">
         <span className="eyebrow">{copy.searchLabel}</span>
         <h2 id="search-title">{copy.searchHint}</h2>
+        {helperText ? <p className="discovery-helper-text">{helperText}</p> : null}
       </div>
       <form className="discovery-form discovery-form-advanced" onSubmit={handleSubmit} role="search">
         <label className="search-field search-field-wide">

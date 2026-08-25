@@ -48,6 +48,17 @@ describe("Phase 17.11 homepage discovery regressions", () => {
     expect(messages).toContain('closeMenu: "إغلاق القائمة"');
   });
 
+  it("consumes existing homepage presentation settings without changing the search contract", () => {
+    const homepage = readProjectFile("app/page.tsx");
+    const search = readProjectFile("components/a3lam/SearchDiscovery.tsx");
+    const css = readProjectFile("app/globals.css");
+    expect(homepage).toContain("homepage.search.helperText");
+    expect(homepage).toContain("homepage.categories.displayMode");
+    expect(search).toContain("helperText?: string;");
+    expect(search).toContain("discovery-helper-text");
+    expect(css).toContain(".category-grid-list");
+  });
+
   it("keeps reduced motion and responsive hooks in the centralized stylesheet", () => {
     const css = readProjectFile("app/globals.css");
     expect(css).toContain("@media (prefers-reduced-motion: reduce)");

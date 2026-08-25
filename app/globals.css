@@ -3353,3 +3353,20 @@ textarea.admin-input { resize: vertical; }
     justify-content: center;
   }
 }
+
+
+.discovery-helper-text {
+  max-width: 42rem;
+  margin: var(--space-3) 0 0;
+  color: var(--color-ink-muted);
+  font-size: 0.88rem;
+  line-height: 1.8;
+}
+
+.category-grid-list {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.category-grid-list .category-card {
+  min-height: 0;
+}

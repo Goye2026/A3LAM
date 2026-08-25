@@ -32,6 +32,7 @@ type HomepageCopy = PublicMessages & {
   homeExplore: string;
   searchHint: string;
   searchPlaceholder: string;
+  searchHelperText: string;
   featuredTitle: string;
   featuredDescription: string;
   categoriesTitle: string;
@@ -62,6 +63,7 @@ function buildHomepageCopy(homepage: HomepageConfig, copy: ReturnType<typeof get
     homeExplore: homepage.hero.secondary.label || copy.homeExplore,
     searchHint: homepage.search.title || copy.searchHint,
     searchPlaceholder: homepage.search.placeholder || copy.searchPlaceholder,
+    searchHelperText: homepage.search.helperText || copy.searchNoResultsHint,
     featuredTitle: homepage.featured.sectionTitle || copy.featuredTitle,
     featuredDescription: homepage.featured.sectionDescription || copy.featuredDescription,
     categoriesTitle: homepage.categories.title || copy.categoriesTitle,
@@ -128,7 +130,7 @@ async function HomepageCatalogSections({ homepage, copy, publicCopy, homepageCop
   return (
     <div className="homepage-catalog-stream">
       <CatalogStats copy={copy} peopleCount={people.length} categoriesCount={categories.length} unavailable={dataUnavailable} />
-      {isVisible(homepage, "search") ? <SearchDiscovery copy={homepageCopy} categories={categories} /> : null}
+      {isVisible(homepage, "search") ? <SearchDiscovery copy={homepageCopy} categories={categories} helperText={homepageCopy.searchHelperText} /> : null}
       {isVisible(homepage, "featured") ? (
         <section className="section-block featured-section" id="featured" aria-labelledby="featured-title">
           <div className="section-header-row">
@@ -162,7 +164,7 @@ async function HomepageCatalogSections({ homepage, copy, publicCopy, homepageCop
             </div>
             <p className="section-description">{homepageCopy.categoriesDescription}</p>
             {displayCategories.length > 0 ? (
-              <div className="category-grid">
+              <div className={`category-grid category-grid-${homepage.categories.displayMode}`}>
                 {displayCategories.map((category) => <CategoryCard key={category.id} category={category} />)}
               </div>
             ) : (
@@ -180,7 +182,7 @@ function HomepageCatalogFallback({ homepage, copy, homepageCopy }: Pick<CatalogS
   return (
     <div className="homepage-catalog-stream">
       <CatalogStats copy={copy} unavailable />
-      {isVisible(homepage, "search") ? <SearchDiscovery copy={homepageCopy} categories={[]} /> : null}
+      {isVisible(homepage, "search") ? <SearchDiscovery copy={homepageCopy} categories={[]} helperText={homepageCopy.searchHelperText} /> : null}
       {isVisible(homepage, "featured") ? (
         <section className="section-block featured-section" aria-labelledby="featured-fallback-title">
           <div className="section-header-row"><div><p className="eyebrow">{homepageCopy.featuredEyebrow}</p><h2 id="featured-fallback-title">{homepageCopy.featuredTitle}</h2></div></div>
