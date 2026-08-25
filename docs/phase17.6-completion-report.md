@@ -104,11 +104,11 @@ There is no current Phase 17.6 deployment or verification blocker. The explicitl
 
 ## Git
 
-The Phase 17.6 implementation, public payload security fix, and factual closeout report are pushed to `main`. Final `HEAD` equals `origin/main` at `d099abc81fe586d170476a407ce681bdbe993eaa`, and the working tree is clean. No force push, reset, rebase, or history rewrite was used.
+The Phase 17.6 implementation, public payload security fix, and factual closeout report are pushed to `main`. The final delivery verification confirms `HEAD == origin/main` and a clean working tree. No force push, reset, rebase, or history rewrite was used.
 
 ## Deployment
 
-The final Production deployment is `dpl_Hj7v37bw5W38C3Y7uM6MHijxa14x`, target `production`, source commit `d099abc81fe586d170476a407ce681bdbe993eaa`, and state `READY`. The production alias is `https://a3-lam.vercel.app`. No Production migration execution is part of this deployment.
+The final code deployment containing the Phase 17.6 implementation and public-payload fix was `dpl_81Swn9CSdpbFViQLuCcyWgM5etR5`, target `production`, source commit `2e97303e4eaaae1bee1ff6f542c5e2a14c432ba8`, and state `READY`. Subsequent deployments were documentation-only and retained the same application code. The production alias is `https://a3-lam.vercel.app`. No Production migration execution is part of these deployments.
 
 ## Final Status
 
@@ -135,7 +135,7 @@ The final Production deployment is `dpl_Hj7v37bw5W38C3Y7uM6MHijxa14x`, target `p
 | Vercel configuration changes | 0 |
 | Temporary endpoints created | 0 |
 
-The initial `ad74bdf` deployment was followed by the evidence-based public localization fix commit `2e97303`, then the factual closeout report commit `d099abc`; the final deployment and final Git tip are `d099abc`.
+The initial `ad74bdf` deployment was followed by the evidence-based public localization fix commit `2e97303`, then documentation-only closeout commits. The final application behavior was verified after the public-payload fix; subsequent deployments changed documentation only.
 
 ## Phase Boundary
 
