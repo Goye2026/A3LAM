@@ -42,3 +42,7 @@ The exact viewport matrix 390×844, 393×852, 768×1024, and 1440×900 was not m
 ## Closure evidence
 
 The final documentation commit `57c420674e24f7ea643eab3eca11c0a0ebcb90a8` produced deployment `dpl_7r2PEJ84i86xqYgeC4sSVTSVyc7B`, which reached `READY` on the `production` target and was assigned to `a3-lam.vercel.app`. Vercel grouped runtime errors for the last hour and returned **No runtime errors found in the selected time range**. No Production mutation was performed.
+
+## Final alias check
+
+The final docs-only commit `55c495b9a097d894fb94bfb2a8aae9701e53ef70` produced deployment `dpl_38AVqJCX3ySfahj6RXBPicSxZQ5Q`, which reached `READY` for `production` and was assigned to `a3-lam.vercel.app`. A final GET-only smoke check returned `200` for the public pages, APIs, sitemap, and robots; protected Admin routes redirected to the Admin login boundary. No writes, account operations, uploads, or content mutations were made.
