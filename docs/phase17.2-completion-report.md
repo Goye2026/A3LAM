@@ -90,4 +90,4 @@ Role/permission catalog tables بقيت دون seed rows. مصفوفة الصل�
 
 ## Git and deployment
 
-تم دفع commit التنفيذ `e8718bf6443573ba7d369cd051635dbb5b4d4bc3` إلى `main`، ونجح deployment Production `dpl_Bb2wbrziiiZPsTQD8jzGiQEWZ1VX` بحالة `READY` على alias `https://a3-lam.vercel.app`. تحقق Production read-only أعطى `/` = 200، و`/api/health` = 200، و`/api/admin/users` دون Admin cookie = 401. لم تُرسل أي mutation إلى Production، ولا يوجد أي Production migration أو DML ضمن عملية النشر. سيتم تسجيل أي docs-only follow-up SHA في سجل Git النهائي إن وُجد.
+تم دفع commit التنفيذ `e8718bf6443573ba7d369cd051635dbb5b4d4bc3` ثم docs evidence commit `19a033079b40e8db4c62c913bf4dd91c9d23e3d6` إلى `main`. نجح deployment Production المرتبط بـ`19a0330`، وهو `dpl_8nGM8hc5LQkeFSXfvZzX3Xkg5nws`، بحالة `READY` على alias `https://a3-lam.vercel.app`. تحقق Production read-only أعطى `/` = 200، و`/api/health` = 200، و`/api/admin/users` دون Admin cookie = 401. لم تُرسل أي mutation إلى Production، ولا يوجد أي Production migration أو DML ضمن عملية النشر.
