@@ -59,6 +59,11 @@ export function ProfileEditor({ profile, categories, copy }: { profile: ProfileR
   const [isDirty, setIsDirty] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const completion = localCompletion(form);
+  const visibilityDetails = form.visibility === "published"
+    ? { label: copy.visibilityPublic, hint: copy.visibilityPublicHint }
+    : form.visibility === "unlisted"
+      ? { label: copy.visibilityUnlisted, hint: copy.visibilityUnlistedHint }
+      : { label: copy.visibilityPrivate, hint: copy.visibilityPrivateHint };
 
   useEffect(() => {
     if (!isDirty) return;
@@ -130,7 +135,7 @@ export function ProfileEditor({ profile, categories, copy }: { profile: ProfileR
         <label className="field-wide"><span>رابط الصورة إن كانت مستضافة في مصدر آمن</span><input value={form.imageUrl} onChange={(e) => setField("imageUrl", e.target.value)} type="url" dir="ltr" placeholder="https://" /></label>
       </div></section>
 
-      <section className="editor-section"><h2>التصنيف والظهور</h2><div className="form-grid"><label><span>التصنيفات</span><select multiple value={form.categoryIds} onChange={(e) => setField("categoryIds", Array.from(e.target.selectedOptions, (option) => option.value))}>{categories.map((category) => <option value={category.id} key={category.id}>{category.name}</option>)}</select><small>استخدم Ctrl أو Command لاختيار أكثر من تصنيف.</small></label><label><span>حالة الظهور المقصودة</span><select value={form.visibility} onChange={(e) => setField("visibility", e.target.value)}><option value="private">خاص</option><option value="unlisted">غير مدرج — رابط مباشر فقط</option><option value="published">عام — بعد الموافقة</option></select></label></div></section>
+      <section className="editor-section"><h2>التصنيف والظهور</h2><div className="form-grid"><label><span>التصنيفات</span><select multiple value={form.categoryIds} onChange={(e) => setField("categoryIds", Array.from(e.target.selectedOptions, (option) => option.value))}>{categories.map((category) => <option value={category.id} key={category.id}>{category.name}</option>)}</select><small>استخدم Ctrl أو Command لاختيار أكثر من تصنيف.</small></label><label><span>حالة الظهور المقصودة</span><select value={form.visibility} onChange={(e) => setField("visibility", e.target.value)}><option value="private">{copy.visibilityPrivate}</option><option value="unlisted">{copy.visibilityUnlisted}</option><option value="published">{copy.visibilityPublic} — بعد الموافقة</option></select><small className="visibility-help"><strong>{visibilityDetails.label}:</strong> {visibilityDetails.hint}</small></label></div></section>
 
       <section className="editor-section"><h2>المصدر الموثوق</h2><p className="section-help">يلزم مصدر واحد على الأقل قبل إرسال الملف للمراجعة. لا يُنشر المصدر قبل نشر الملف.</p><div className="form-grid"><label><span>عنوان المصدر</span><input value={form.source.title} onChange={(e) => setField("source", { ...form.source, title: e.target.value })} /></label><label><span>الناشر أو المؤسسة</span><input value={form.source.publisher} onChange={(e) => setField("source", { ...form.source, publisher: e.target.value })} /></label><label><span>الرابط</span><input value={form.source.url} onChange={(e) => setField("source", { ...form.source, url: e.target.value })} type="url" dir="ltr" /></label><label><span>نوع المصدر</span><select value={form.source.type} onChange={(e) => setField("source", { ...form.source, type: e.target.value })}><option value="official">رسمي</option><option value="institution">مؤسسة</option><option value="government">حكومي</option><option value="academic">أكاديمي</option><option value="professional">مهني</option><option value="media">إعلامي</option><option value="secondary">ثانوي موثوق</option></select></label></div></section>
 

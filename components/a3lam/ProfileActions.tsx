@@ -3,10 +3,11 @@
 import { useState } from "react";
 import type { FoundationMessages } from "@/lib/i18n/messages";
 
-type ProfileActionCopy = Pick<FoundationMessages, "profileShare" | "profilePrint" | "profileCopied" | "profileShareFailed">;
+type ProfileActionCopy = Pick<FoundationMessages, "profileShare" | "profileCopyLink" | "profilePrint" | "profileCopied" | "profileShareFailed">;
 
 const fallbackCopy: ProfileActionCopy = {
   profileShare: "مشاركة الملف",
+  profileCopyLink: "نسخ الرابط",
   profilePrint: "طباعة الملف",
   profileCopied: "تم نسخ رابط الملف",
   profileShareFailed: "تعذرت المشاركة؛ يمكنك نسخ الرابط يدويًا.",
@@ -52,7 +53,7 @@ export function ProfileActions({ title, copy = fallbackCopy }: { title: string; 
 
   return <div className="profile-actions" aria-label="أدوات الملف">
     <button className="button button-quiet" type="button" onClick={() => void share()}>{copy.profileShare}</button>
-    <button className="button button-quiet" type="button" onClick={() => void copyLink()}>{copy.profileCopied}</button>
+    <button className="button button-quiet" type="button" onClick={() => void copyLink()}>{copy.profileCopyLink}</button>
     <button className="button button-quiet" type="button" onClick={() => window.print()}>{copy.profilePrint}</button>
     <div className="profile-share-links" aria-label="مشاركة عبر المنصات">
       <button type="button" onClick={() => openShare("whatsapp")}>WhatsApp</button>

@@ -8,11 +8,11 @@ import type { FoundationMessages } from "@/lib/i18n/messages";
 
 const labels = { draft: "مسودة", pending_review: "قيد المراجعة", published: "منشور", archived: "مؤرشف" } as const;
 type StatusFilter = "" | keyof typeof labels;
-type SortMode = "updated" | "completion" | "name";
+type SortMode = "updated" | "oldest" | "completion" | "name";
 
 type ProfileModerationTableProps = {
   initialProfiles: ProfileRecord[];
-  copy?: Pick<FoundationMessages, "moderationSearchPlaceholder" | "moderationAllCategories" | "moderationSortLabel" | "moderationSortUpdated" | "moderationSortCompletion" | "moderationSortName" | "moderationShowing" | "moderationNoMatch">;
+  copy?: Pick<FoundationMessages, "moderationSearchPlaceholder" | "moderationAllCategories" | "moderationSortLabel" | "moderationSortUpdated" | "moderationSortOldest" | "moderationSortCompletion" | "moderationSortName" | "moderationShowing" | "moderationNoMatch" | "moderationAllVisibility" | "moderationAllCountries" | "moderationAllCities">;
 };
 
 const fallbackCopy = {
@@ -20,10 +20,14 @@ const fallbackCopy = {
   moderationAllCategories: "كل التصنيفات",
   moderationSortLabel: "ترتيب النتائج",
   moderationSortUpdated: "الأحدث تعديلًا",
+  moderationSortOldest: "الأقدم تعديلًا",
   moderationSortCompletion: "الأعلى اكتمالًا",
   moderationSortName: "الاسم أبجديًا",
   moderationShowing: "عرض",
   moderationNoMatch: "لا توجد ملفات تطابق أدوات التصفية الحالية.",
+  moderationAllVisibility: "كل أنماط الظهور",
+  moderationAllCountries: "كل الدول",
+  moderationAllCities: "كل المدن",
 } satisfies ProfileModerationTableProps["copy"];
 
 export function ProfileModerationTable({ initialProfiles, copy = fallbackCopy }: ProfileModerationTableProps) {
@@ -33,23 +37,29 @@ export function ProfileModerationTable({ initialProfiles, copy = fallbackCopy }:
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [visibilityFilter, setVisibilityFilter] = useState("");
+  const [countryFilter, setCountryFilter] = useState("");
+  const [cityFilter, setCityFilter] = useState("");
   const [sortMode, setSortMode] = useState<SortMode>("updated");
 
   const categoryOptions = useMemo(() => Array.from(new Set(profiles.flatMap((item) => item.categories.map((category) => category.name)))).sort((left, right) => left.localeCompare(right, "ar")), [profiles]);
+  const countryOptions = useMemo(() => Array.from(new Set(profiles.map((item) => item.profile.country).filter(Boolean))).sort((left, right) => left!.localeCompare(right!, "ar")) as string[], [profiles]);
+  const cityOptions = useMemo(() => Array.from(new Set(profiles.map((item) => item.profile.city).filter(Boolean))).sort((left, right) => left!.localeCompare(right!, "ar")) as string[], [profiles]);
   const filteredProfiles = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase("ar");
     return profiles
       .filter((item) => {
         const profile = item.profile;
         const searchable = [profile.nameArabic, profile.name, profile.professionalTitle, profile.city ?? "", profile.country ?? "", ...item.categories.map((category) => category.name)].join(" ").toLocaleLowerCase("ar");
-        return (!normalizedQuery || searchable.includes(normalizedQuery)) && (!statusFilter || profile.status === statusFilter) && (!categoryFilter || item.categories.some((category) => category.name === categoryFilter));
+        return (!normalizedQuery || searchable.includes(normalizedQuery)) && (!statusFilter || profile.status === statusFilter) && (!categoryFilter || item.categories.some((category) => category.name === categoryFilter)) && (!visibilityFilter || profile.visibility === visibilityFilter) && (!countryFilter || profile.country === countryFilter) && (!cityFilter || profile.city === cityFilter);
       })
       .sort((left, right) => {
         if (sortMode === "name") return left.profile.nameArabic.localeCompare(right.profile.nameArabic, "ar");
         if (sortMode === "completion") return calculateProfileCompletion(right).percent - calculateProfileCompletion(left).percent;
-        return new Date(right.profile.updatedAt).getTime() - new Date(left.profile.updatedAt).getTime();
+        const difference = new Date(right.profile.updatedAt).getTime() - new Date(left.profile.updatedAt).getTime();
+        return sortMode === "oldest" ? -difference : difference;
       });
-  }, [categoryFilter, profiles, query, sortMode, statusFilter]);
+  }, [categoryFilter, cityFilter, countryFilter, profiles, query, sortMode, statusFilter, visibilityFilter]);
 
   async function transition(id: string, status: "draft" | "published" | "archived") {
     setBusyId(id); setError("");
@@ -68,7 +78,10 @@ export function ProfileModerationTable({ initialProfiles, copy = fallbackCopy }:
       <label><span>بحث في الملفات</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={copy.moderationSearchPlaceholder} /></label>
       <label><span>الحالة</span><select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}><option value="">كل الحالات</option>{Object.entries(labels).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
       <label><span>التصنيف</span><select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}><option value="">{copy.moderationAllCategories}</option>{categoryOptions.map((category) => <option value={category} key={category}>{category}</option>)}</select></label>
-      <label><span>{copy.moderationSortLabel}</span><select value={sortMode} onChange={(event) => setSortMode(event.target.value as SortMode)}><option value="updated">{copy.moderationSortUpdated}</option><option value="completion">{copy.moderationSortCompletion}</option><option value="name">{copy.moderationSortName}</option></select></label>
+      <label><span>الظهور</span><select value={visibilityFilter} onChange={(event) => setVisibilityFilter(event.target.value)}><option value="">{copy.moderationAllVisibility}</option><option value="published">عام</option><option value="unlisted">غير مدرج</option><option value="private">خاص</option></select></label>
+      <label><span>الدولة</span><select value={countryFilter} onChange={(event) => setCountryFilter(event.target.value)}><option value="">{copy.moderationAllCountries}</option>{countryOptions.map((country) => <option value={country} key={country}>{country}</option>)}</select></label>
+      <label><span>المدينة</span><select value={cityFilter} onChange={(event) => setCityFilter(event.target.value)}><option value="">{copy.moderationAllCities}</option>{cityOptions.map((city) => <option value={city} key={city}>{city}</option>)}</select></label>
+      <label><span>{copy.moderationSortLabel}</span><select value={sortMode} onChange={(event) => setSortMode(event.target.value as SortMode)}><option value="updated">{copy.moderationSortUpdated}</option><option value="oldest">{copy.moderationSortOldest}</option><option value="completion">{copy.moderationSortCompletion}</option><option value="name">{copy.moderationSortName}</option></select></label>
     </div>
     {error ? <p className="admin-alert" role="alert">{error}</p> : null}
     {profiles.length === 0 ? <p className="admin-empty">لا توجد ملفات مستخدمين بعد.</p> : filteredProfiles.length === 0 ? <p className="admin-empty" role="status">{copy.moderationNoMatch}</p> : <div className="admin-profile-table" role="table" aria-label="ملفات المستخدمين"><div className="admin-profile-table-head" role="row"><span>الملف</span><span>التصنيف والموقع</span><span>الحالة</span><span>الإجراء</span></div>{filteredProfiles.map((item) => { const completion = calculateProfileCompletion(item); const location = [item.profile.city, item.profile.country].filter(Boolean).join("، "); return <div className="admin-profile-row" role="row" key={item.profile.id}><div><strong>{item.profile.nameArabic || "دون اسم"}</strong><small>{item.profile.professionalTitle || "دون مسمى مهني"}</small><small>{new Intl.DateTimeFormat("ar", { dateStyle: "medium" }).format(new Date(item.profile.updatedAt))}</small></div><div><small>{item.categories.map((category) => category.name).join("، ") || "دون تصنيف"}</small><small>{location || "دون موقع"}</small><small className="admin-completion">اكتمال {completion.percent}%</small></div><div><b className={`admin-status admin-status-${item.profile.status}`}>{labels[item.profile.status]}</b><small>{item.profile.visibility === "published" ? "عام" : item.profile.visibility === "unlisted" ? "غير مدرج" : "خاص"}</small></div><div className="profile-moderation-actions"><Link className="link-button" href={`/admin/profiles/${item.profile.id}`}>مراجعة</Link>{item.profile.status === "pending_review" ? <><button className="link-button" disabled={busyId === item.profile.id} onClick={() => void transition(item.profile.id, "published")}>موافقة ونشر</button><button className="link-button danger" disabled={busyId === item.profile.id} onClick={() => void transition(item.profile.id, "draft")}>إرجاع للمسودة</button></> : null}{item.profile.status === "published" ? <button className="link-button danger" disabled={busyId === item.profile.id} onClick={() => void transition(item.profile.id, "archived")}>أرشفة</button> : null}{item.profile.status === "archived" ? <button className="link-button" disabled={busyId === item.profile.id} onClick={() => void transition(item.profile.id, "draft")}>استعادة كمسودة</button> : null}</div></div>;})}</div>}

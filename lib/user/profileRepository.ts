@@ -103,7 +103,7 @@ async function hydrateProfile(db: Database, row: ProfileRow): Promise<ProfileRec
     db.select().from(schema.profileSkills).where(eq(schema.profileSkills.profileId, row.id)).orderBy(asc(schema.profileSkills.skill)),
     db.select().from(schema.profileCertifications).where(eq(schema.profileCertifications.profileId, row.id)).orderBy(desc(schema.profileCertifications.obtainedDate)),
     db.select().from(schema.profileLanguages).where(eq(schema.profileLanguages.profileId, row.id)).orderBy(asc(schema.profileLanguages.language)),
-    db.select().from(schema.profilePortfolioItems).where(eq(schema.profilePortfolioItems.profileId, row.id)).orderBy(asc(schema.profilePortfolioItems.title)),
+    db.select().from(schema.profilePortfolioItems).where(eq(schema.profilePortfolioItems.profileId, row.id)).orderBy(asc(schema.profilePortfolioItems.id)),
     db.select().from(schema.profileSocialLinks).where(eq(schema.profileSocialLinks.profileId, row.id)).orderBy(asc(schema.profileSocialLinks.id)),
     db.select().from(schema.profileFiles).where(eq(schema.profileFiles.profileId, row.id)).orderBy(desc(schema.profileFiles.createdAt)),
   ]);
@@ -219,7 +219,7 @@ export async function saveUserProfile(userId: string, input: ProfileInput, statu
     if (input.educations.length > 0) await tx.insert(schema.profileEducations).values(input.educations.map((item) => ({ id: randomUUID(), profileId, institution: item.institution, degree: item.degree, field: item.field, startDate: item.startDate || null, endDate: item.endDate || null, description: item.description })));
     if (input.certifications.length > 0) await tx.insert(schema.profileCertifications).values(input.certifications.map((item) => ({ id: randomUUID(), profileId, name: item.name, issuer: item.issuer, obtainedDate: item.obtainedDate || null, verificationUrl: item.verificationUrl || null })));
     if (input.languages.length > 0) await tx.insert(schema.profileLanguages).values(input.languages.map((item) => ({ id: randomUUID(), profileId, language: item.language, proficiency: item.proficiency })));
-    if (input.portfolio.length > 0) await tx.insert(schema.profilePortfolioItems).values(input.portfolio.map((item) => ({ id: randomUUID(), profileId, title: item.title, description: item.description, url: item.url || null, coverUrl: item.coverUrl || null, workType: item.workType })));
+    if (input.portfolio.length > 0) await tx.insert(schema.profilePortfolioItems).values(input.portfolio.map((item, index) => ({ id: `portfolio-${profileId}-${String(index).padStart(3, "0")}`, profileId, title: item.title, description: item.description, url: item.url || null, coverUrl: item.coverUrl || null, workType: item.workType })));
     if (input.socialLinks.length > 0) await tx.insert(schema.profileSocialLinks).values(input.socialLinks.map((item, index) => ({ id: `social-${profileId}-${String(index).padStart(3, "0")}`, profileId, platform: item.platform, url: item.url })));
   });
   return profileById(db, profileId);

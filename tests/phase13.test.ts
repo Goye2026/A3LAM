@@ -65,6 +65,16 @@ describe("Phase 13 public privacy projection", () => {
 });
 
 describe("Phase 14 profile UX contracts", () => {
+  it("includes existing identity and professional sections in the advisory checklist", () => {
+    const record = {
+      profile: { id: "p", userId: "u", slug: "profile", name: "Name", nameArabic: "اسم", professionalTitle: "باحث", professionalSummary: "نبذة", biography: "", city: null, country: null, contactEmail: "owner@example.com", phone: null, emailPublic: false, phonePublic: false, imageUrl: "https://example.com/photo.webp", status: "draft", visibility: "private", createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z" },
+      categories: [], source: { id: "s", title: "مصدر", publisher: "مؤسسة", url: "https://example.com", type: "official", status: "draft" }, skills: ["بحث"], experiences: [], educations: [], certifications: [{ id: "c", name: "شهادة", issuer: "جهة", obtainedDate: null, verificationUrl: null }], languages: [{ id: "l", language: "العربية", proficiency: "متقدم" }], portfolio: [], socialLinks: [], files: [],
+    } as ProfileRecord;
+    const completion = calculateProfileCompletion(record);
+    expect(completion.completed).toEqual(expect.arrayContaining(["الصورة الشخصية", "الشهادات", "اللغات", "وسيلة التواصل"]));
+    expect(completion.remaining).toContain("الأعمال");
+  });
+
   it("calculates an advisory completion percentage without changing publication requirements", () => {
     const empty = calculateProfileCompletion(null);
     expect(empty.percent).toBe(0);

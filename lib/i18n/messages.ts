@@ -55,9 +55,22 @@ export type FoundationMessages = {
   moderationShowing: string;
   moderationNoMatch: string;
   profileShare: string;
+  profileCopyLink: string;
   profilePrint: string;
   profileCopied: string;
   profileShareFailed: string;
+  profileContact: string;
+  profileContactHint: string;
+  visibilityPublic: string;
+  visibilityPublicHint: string;
+  visibilityUnlisted: string;
+  visibilityUnlistedHint: string;
+  visibilityPrivate: string;
+  visibilityPrivateHint: string;
+  moderationAllVisibility: string;
+  moderationAllCountries: string;
+  moderationAllCities: string;
+  moderationSortOldest: string;
   accountWelcomeTitle: string;
   accountWelcomeDescription: string;
   menuLabel: string;
@@ -342,9 +355,22 @@ const ar: FoundationMessages = {
   moderationShowing: "عرض",
   moderationNoMatch: "لا توجد ملفات تطابق أدوات التصفية الحالية.",
   profileShare: "مشاركة الملف",
+  profileCopyLink: "نسخ الرابط",
   profilePrint: "طباعة الملف",
   profileCopied: "تم نسخ رابط الملف",
   profileShareFailed: "تعذرت المشاركة؛ يمكنك نسخ الرابط يدويًا.",
+  profileContact: "تواصل مهنيًا",
+  profileContactHint: "تُفتح وسيلة التواصل التي اختار صاحب الملف إتاحتها فقط.",
+  visibilityPublic: "عام",
+  visibilityPublicHint: "يمكن لأي شخص العثور على ملفك عبر البحث والتصنيفات.",
+  visibilityUnlisted: "غير مدرج",
+  visibilityUnlistedHint: "يمكن لمن يملك الرابط مشاهدة ملفك، لكنه لا يظهر في البحث.",
+  visibilityPrivate: "خاص",
+  visibilityPrivateHint: "ملفك غير متاح للعامة.",
+  moderationAllVisibility: "كل أنماط الظهور",
+  moderationAllCountries: "كل الدول",
+  moderationAllCities: "كل المدن",
+  moderationSortOldest: "الأقدم تعديلًا",
   accountWelcomeTitle: "مرحبًا بك في أعلام",
   accountWelcomeDescription: "الخطوة التالية واضحة: أنشئ ملفك المهني وشارك خبرتك مع الآخرين.",
   menuLabel: "فتح القائمة",
@@ -629,9 +655,22 @@ const en: FoundationMessages = {
   moderationShowing: "Showing",
   moderationNoMatch: "No profiles match the current filters.",
   profileShare: "Share profile",
+  profileCopyLink: "Copy link",
   profilePrint: "Print profile",
   profileCopied: "Profile link copied",
   profileShareFailed: "Sharing failed; you can copy the link manually.",
+  profileContact: "Contact professionally",
+  profileContactHint: "Only a contact method explicitly enabled by the profile owner is opened.",
+  visibilityPublic: "Public",
+  visibilityPublicHint: "Anyone can find your profile through search and categories.",
+  visibilityUnlisted: "Unlisted",
+  visibilityUnlistedHint: "Anyone with the link can view your profile, but it will not appear in search.",
+  visibilityPrivate: "Private",
+  visibilityPrivateHint: "Your profile is not available publicly.",
+  moderationAllVisibility: "All visibility modes",
+  moderationAllCountries: "All countries",
+  moderationAllCities: "All cities",
+  moderationSortOldest: "Oldest update",
   accountWelcomeTitle: "Welcome to A3LAM",
   accountWelcomeDescription: "Your next step is clear: create your professional profile and share your experience.",
   menuLabel: "Open menu",

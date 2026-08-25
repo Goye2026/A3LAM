@@ -2430,3 +2430,26 @@ textarea.admin-input { resize: vertical; }
   .profile-preview .profile-actions { display: none !important; }
   .preview-private-section { break-inside: avoid; }
 }
+
+/* Phase 16: migration-free profile clarity and portfolio presentation */
+.visibility-help { display: block; max-width: 34rem; color: var(--color-ink-muted); line-height: 1.65; }
+.visibility-help strong { color: var(--color-ink); }
+.portfolio-grid { display: grid; gap: var(--space-4); margin-block-start: var(--space-5); }
+.portfolio-card { display: grid; overflow: hidden; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); box-shadow: var(--shadow-soft); }
+.portfolio-card > img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--color-surface-muted); }
+.portfolio-card-body { display: grid; gap: var(--space-2); padding: var(--space-4); }
+.portfolio-card-body h3 { margin: 0; }
+.portfolio-card-body p { margin: 0; color: var(--color-ink-muted); }
+.portfolio-card-body a { justify-self: start; color: var(--color-brand-deep); font-size: 0.85rem; font-weight: 800; }
+.portfolio-type { justify-self: start; color: var(--color-brand); font-family: var(--font-latin); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.profile-contact-block { display: grid; gap: var(--space-2); }
+.profile-contact-block .contact-hint { margin: 0; color: var(--color-ink-muted); font-size: 0.82rem; line-height: 1.6; }
+.contact-cta { justify-self: start; }
+@media (min-width: 40rem) {
+  .portfolio-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media print {
+  .portfolio-card { box-shadow: none; break-inside: avoid; }
+  .portfolio-card > img { max-height: 10rem; }
+  .profile-contact-block { display: none !important; }
+}
