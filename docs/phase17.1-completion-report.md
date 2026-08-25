@@ -99,7 +99,7 @@
 
 ## Git
 
-تم دفع commit التنفيذ إلى `main` بالرسالة `feat: establish server-side admin identity and RBAC` وSHA `e22c89c8424216ceb196b02d15ddf287591a2ca9`. أُضيفت أدلة Production read-only الحالية إلى التقرير وملف الأدلة في commit توثيقي لاحق قبل التحقق النهائي من `HEAD == origin/main`، دون force push أو reset أو rebase.
+تم دفع commit التنفيذ إلى `main` بالرسالة `feat: establish server-side admin identity and RBAC` وSHA `e22c89c8424216ceb196b02d15ddf287591a2ca9`. تلاه commit توثيقي `3b2b26be719930d4dadcac957ff8673258e65c4a`، وسيُدفع الآن تحديث evidence النهائي في commit توثيقي إضافي. بعد ذلك يُتحقق من `HEAD == origin/main` وworking tree النظيف، دون force push أو reset أو rebase.
 
 ## Final Status
 
