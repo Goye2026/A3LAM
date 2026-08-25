@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Category, ContentStatus, PersonRecord, SourceType } from "@/lib/domain/a3lam";
@@ -10,6 +10,7 @@ import type { FoundationMessages } from "@/lib/i18n/messages";
 type FormState = AdminPersonInput;
 
 const sourceTypes: SourceType[] = ["official", "institution", "government", "media", "professional", "academic", "secondary"];
+const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 function newId() {
   return typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `editor-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -17,6 +18,22 @@ function newId() {
 
 function blankForm(): FormState {
   return { name: "", nameArabic: "", slug: "", shortBio: "", biography: "", birthDate: "", deathDate: "", birthPlace: "", deathPlace: "", image: "", status: "draft", categoryIds: [], occupations: [], sources: [], timeline: [], education: [] };
+}
+
+function getReadiness(form: FormState, categories: Category[]) {
+  const selectedCategories = categories.filter((category) => form.categoryIds.includes(category.id));
+  const categoriesExist = form.categoryIds.length > 0 && selectedCategories.length === form.categoryIds.length;
+  const publishedCategories = categoriesExist && selectedCategories.every((category) => category.status === "published");
+  const items = [
+    { key: "identity", label: "identity", ready: Boolean(form.nameArabic.trim() && form.name.trim()) },
+    { key: "slug", label: "slug", ready: SLUG_PATTERN.test(form.slug.trim()) },
+    { key: "categories", label: "categories", ready: categoriesExist },
+    { key: "biography", label: "biography", ready: Boolean(form.shortBio.trim() && form.biography.trim()) },
+    { key: "source", label: "source", ready: form.sources.some((source) => Boolean(source.title.trim() && source.publisher.trim() && source.url.trim() && source.accessedAt.trim())) },
+  ] as const;
+  const reviewReady = items.every((item) => item.ready);
+  const publishReady = reviewReady && publishedCategories;
+  return { items, reviewReady, publishReady, publishedCategories };
 }
 
 function fromRecord(record: PersonRecord): FormState {
@@ -45,8 +62,18 @@ export function AdminPersonForm({ copy, categories, record, personId }: { copy: 
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [error, setError] = useState("");
+  const [savedSnapshot, setSavedSnapshot] = useState(() => JSON.stringify(record ? fromRecord(record) : blankForm()));
   const router = useRouter();
   const sourceOptions = useMemo(() => form.sources.filter((source) => source.id), [form.sources]);
+  const readiness = useMemo(() => getReadiness(form, categories), [form, categories]);
+  const isDirty = JSON.stringify(form) !== savedSnapshot;
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const warnBeforeLeaving = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
+    window.addEventListener("beforeunload", warnBeforeLeaving);
+    return () => window.removeEventListener("beforeunload", warnBeforeLeaving);
+  }, [isDirty]);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -56,7 +83,18 @@ export function AdminPersonForm({ copy, categories, record, personId }: { copy: 
     event.preventDefault();
     const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
     const requestedStatus = submitter?.dataset.status as ContentStatus | undefined;
-    const payload = { ...form, status: requestedStatus ?? form.status };
+    const targetStatus = requestedStatus ?? form.status;
+    if (targetStatus === "review" && !readiness.reviewReady) {
+      setFeedback("");
+      setError(copy.adminReadinessBlocked);
+      return;
+    }
+    if (targetStatus === "published" && !readiness.publishReady) {
+      setFeedback("");
+      setError(copy.adminReadinessBlocked);
+      return;
+    }
+    const payload = { ...form, status: targetStatus };
     setBusy(true);
     setError("");
     setFeedback("");
@@ -73,6 +111,8 @@ export function AdminPersonForm({ copy, categories, record, personId }: { copy: 
         }
         const result = await response.json() as { person?: { id: string } };
         setFeedback(copy.adminSaved);
+        setForm(payload);
+        setSavedSnapshot(JSON.stringify(payload));
         if (!personId && result.person?.id) router.push(`/admin/people/${encodeURIComponent(result.person.id)}`);
       } catch {
         setError(copy.adminDatabaseError);
@@ -113,6 +153,19 @@ export function AdminPersonForm({ copy, categories, record, personId }: { copy: 
         </div>
       </section>
 
+      <section className="admin-form-section admin-readiness-panel" aria-labelledby="admin-readiness-title">
+        <div className="admin-section-heading"><h2 id="admin-readiness-title">{copy.adminReadinessTitle}</h2><span className={`admin-readiness-badge ${readiness.publishReady ? "is-ready" : form.status === "draft" ? "is-incomplete" : "is-blocked"}`} role="status">{form.status === "draft" ? copy.adminDraft : readiness.publishReady ? copy.adminReadinessReady : copy.adminReadinessBlockedLabel}</span></div>
+        <p className="admin-field-hint">{copy.adminReadinessPublishHint}</p>
+        <ul className="admin-readiness-list">
+          {readiness.items.map((item) => {
+            const labels = { identity: `${copy.adminArabicName} / ${copy.adminEnglishName}`, slug: copy.adminSlug, categories: copy.adminCategories, biography: `${copy.adminShortBio} / ${copy.adminBiography}`, source: copy.adminSources };
+            return <li className={item.ready ? "is-ready" : "is-incomplete"} key={item.key}><span aria-hidden="true">{item.ready ? "✓" : "—"}</span><span>{labels[item.label]}</span><strong>{item.ready ? copy.adminReadinessReady : copy.adminReadinessIncomplete}</strong></li>;
+          })}
+        </ul>
+        {form.status !== "draft" && !readiness.publishReady ? <p className="admin-alert" role="alert">{copy.adminReadinessBlocked}</p> : null}
+        {readiness.reviewReady && !readiness.publishedCategories ? <p className="admin-field-hint">{copy.adminReadinessBlocked}</p> : null}
+      </section>
+
       <section className="admin-form-section" aria-labelledby="admin-categories-title">
         <div className="admin-section-heading"><h2 id="admin-categories-title">{copy.adminCategories}</h2></div>
         {categories.length > 0 ? <div className="admin-check-grid">{categories.map((category) => <label className="admin-check" key={category.id}><input type="checkbox" checked={form.categoryIds.includes(category.id)} onChange={(event) => update("categoryIds", event.target.checked ? [...form.categoryIds, category.id] : form.categoryIds.filter((id) => id !== category.id))} /><span>{category.name}</span></label>)}</div> : <p className="admin-empty">{copy.adminNoCategories} <Link href="/admin/categories">{copy.adminManageCategories}</Link></p>}
@@ -138,7 +191,7 @@ export function AdminPersonForm({ copy, categories, record, personId }: { copy: 
         <button className="button button-quiet" type="submit" data-status="review" disabled={busy}>{copy.adminSendReview}</button>
         <button className="button button-primary" type="submit" data-status="published" disabled={busy}>{copy.adminPublish}</button>
         {personId ? <button className="button button-danger" type="submit" data-status="archived" disabled={busy}>{copy.adminArchive}</button> : null}
-        <span aria-live="polite" className="admin-form-feedback">{busy ? copy.adminSaving : feedback || error}</span>
+        <span aria-live="polite" className={`admin-form-feedback${isDirty ? " is-dirty" : ""}`}>{busy ? copy.adminSaving : feedback || error || (isDirty ? copy.editorUnsaved : "")}</span>
       </div>
     </form>
   );

@@ -3370,3 +3370,106 @@ textarea.admin-input { resize: vertical; }
 .category-grid-list .category-card {
   min-height: 0;
 }
+
+
+.admin-readiness-panel {
+  background: var(--color-surface-muted);
+}
+
+.admin-readiness-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.admin-readiness-badge.is-ready,
+.admin-readiness-list li.is-ready {
+  color: var(--color-success);
+}
+
+.admin-readiness-badge.is-ready {
+  background: #e4f2ed;
+}
+
+.admin-readiness-badge.is-incomplete,
+.admin-readiness-list li.is-incomplete {
+  color: var(--color-warning);
+}
+
+.admin-readiness-badge.is-incomplete {
+  background: #f4ead7;
+}
+
+.admin-readiness-list {
+  display: grid;
+  gap: 0.5rem;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-readiness-list li {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr auto;
+  align-items: center;
+  gap: var(--space-2);
+  border-block-start: 1px solid var(--color-border);
+  padding-block: 0.65rem;
+  font-size: 0.82rem;
+}
+
+.admin-readiness-list li > span:first-child {
+  font-family: var(--font-latin);
+  font-weight: 900;
+}
+
+.admin-readiness-list strong {
+  font-size: 0.72rem;
+}
+
+@media (max-width: 38rem) {
+  .admin-readiness-list li {
+    grid-template-columns: 1.25rem 1fr;
+  }
+
+  .admin-readiness-list strong {
+    grid-column: 2;
+  }
+}
+
+
+.admin-readiness-badge.is-blocked {
+  background: #f8e8e8;
+  color: var(--color-danger);
+}
+
+
+.editor-readiness {
+  margin-block-end: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  padding: var(--space-4);
+}
+
+.editor-readiness h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.editor-readiness strong.is-ready {
+  color: var(--color-success);
+}
+
+.editor-readiness strong.is-incomplete {
+  color: var(--color-warning);
+}
+
+.editor-readiness > p:not(.section-help) {
+  margin-block: var(--space-3) 0;
+  color: var(--color-ink-soft);
+  line-height: 1.7;
+}

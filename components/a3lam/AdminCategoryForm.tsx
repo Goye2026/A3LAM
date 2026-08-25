@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Category } from "@/lib/domain/a3lam";
 import type { FoundationMessages } from "@/lib/i18n/messages";
@@ -24,8 +24,17 @@ export function AdminCategoryForm({ copy, category, canEdit = true }: { copy: Fo
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [error, setError] = useState("");
+  const [savedSnapshot, setSavedSnapshot] = useState(() => JSON.stringify(initialState(category)));
   const router = useRouter();
   const isEditing = Boolean(category?.id);
+  const isDirty = JSON.stringify(form) !== savedSnapshot;
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const warnBeforeLeaving = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
+    window.addEventListener("beforeunload", warnBeforeLeaving);
+    return () => window.removeEventListener("beforeunload", warnBeforeLeaving);
+  }, [isDirty]);
 
   function update(field: keyof CategoryFormState, value: string) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -49,6 +58,7 @@ export function AdminCategoryForm({ copy, category, canEdit = true }: { copy: Fo
         }
         const result = await response.json() as { category?: Category };
         setFeedback(copy.adminCategorySaved);
+        setSavedSnapshot(JSON.stringify(form));
         if (!isEditing && result.category?.id) router.push(`/admin/categories?edit=${encodeURIComponent(result.category.id)}`);
         else router.refresh();
       } catch {
@@ -73,7 +83,7 @@ export function AdminCategoryForm({ copy, category, canEdit = true }: { copy: Fo
       <p className="admin-field-hint">{copy.adminCategoryPublicNote}</p>
       {canEdit ? <div className="admin-form-actions">
         <button className="button button-primary" type="submit" disabled={busy}>{busy ? copy.adminSaving : isEditing ? copy.adminUpdateCategory : copy.adminCreateCategory}</button>
-        <span aria-live="polite" className="admin-form-feedback">{feedback || error}</span>
+        <span aria-live="polite" className={`admin-form-feedback${isDirty ? " is-dirty" : ""}`}>{feedback || error || (isDirty ? copy.editorUnsaved : "")}</span>
       </div> : <p className="admin-readonly-note">{copy.adminReadOnly}</p>}
     </form>
   );

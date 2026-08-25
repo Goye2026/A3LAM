@@ -22,9 +22,24 @@ type FormState = {
 const emptyState: FormState = { name: "", nameArabic: "", slug: "", professionalTitle: "", professionalSummary: "", biography: "", city: "", country: "اليمن", contactEmail: "", phone: "", emailPublic: false, phonePublic: false, visibility: "private", imageUrl: "", categoryIds: [], source: { title: "", publisher: "", url: "", type: "official" }, skills: [], experiences: [], educations: [], certifications: [], languages: [], portfolio: [], socialLinks: [] };
 
 const editorSteps = ["المعلومات الأساسية", "النبذة والمسمى", "الخبرات", "التعليم", "المهارات", "الشهادات", "اللغات", "الأعمال والمشاريع", "الروابط المهنية", "الاتصال والخصوصية", "المصدر", "المعاينة والإرسال"];
+function completionChecks(form: FormState) {
+  return [
+    { label: editorSteps[0], complete: Boolean(form.name.trim() && form.nameArabic.trim() && form.slug.trim()) },
+    { label: editorSteps[1], complete: Boolean(form.professionalTitle.trim() && (form.professionalSummary.trim() || form.biography.trim())) },
+    { label: editorSteps[2], complete: form.experiences.length > 0 },
+    { label: editorSteps[3], complete: form.educations.length > 0 },
+    { label: editorSteps[4], complete: form.skills.length > 0 },
+    { label: editorSteps[5], complete: form.certifications.length > 0 },
+    { label: editorSteps[6], complete: form.languages.length > 0 },
+    { label: editorSteps[7], complete: form.portfolio.length > 0 },
+    { label: editorSteps[8], complete: form.socialLinks.length > 0 },
+    { label: editorSteps[9], complete: Boolean(form.contactEmail.trim() || form.phone.trim()) },
+    { label: editorSteps[10], complete: Boolean(form.source.title.trim() && form.source.url.trim()) },
+  ];
+}
 function localCompletion(form: FormState) {
-  const checks = [Boolean(form.name.trim() && form.nameArabic.trim() && form.slug.trim()), Boolean(form.professionalTitle.trim() && (form.professionalSummary.trim() || form.biography.trim())), form.experiences.length > 0, form.educations.length > 0, form.skills.length > 0, form.certifications.length > 0, form.languages.length > 0, form.portfolio.length > 0, form.socialLinks.length > 0, Boolean(form.contactEmail.trim() || form.phone.trim()), Boolean(form.source.title.trim() && form.source.url.trim())];
-  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+  const checks = completionChecks(form);
+  return Math.round((checks.filter((check) => check.complete).length / checks.length) * 100);
 }
 
 function initialState(profile: ProfileRecord | null): FormState {
@@ -59,6 +74,8 @@ export function ProfileEditor({ profile, categories, copy }: { profile: ProfileR
   const [isDirty, setIsDirty] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const completion = localCompletion(form);
+  const completionItems = completionChecks(form);
+  const remainingCompletionItems = completionItems.filter((item) => !item.complete);
   const visibilityDetails = form.visibility === "published"
     ? { label: copy.visibilityPublic, hint: copy.visibilityPublicHint }
     : form.visibility === "unlisted"
@@ -125,6 +142,7 @@ export function ProfileEditor({ profile, categories, copy }: { profile: ProfileR
       </div>
       <div className={`editor-save-state${isDirty ? " is-dirty" : ""}`} role="status" aria-live="polite"><span className="save-state-dot" aria-hidden="true" />{busy ? copy.editorSaving : isDirty ? copy.editorUnsaved : lastSavedAt ? `${copy.editorSaved} · ${new Intl.DateTimeFormat("ar", { timeStyle: "short" }).format(lastSavedAt)}` : copy.editorSaveHint}</div>
       <nav className="editor-progress" aria-label="مراحل إنشاء الملف"><div className="editor-progress-heading"><span className="eyebrow">مسار الإنشاء</span><strong>{completion}% مكتمل إرشاديًا</strong></div><ol>{editorSteps.map((step, index) => <li className={index < Math.round((completion / 100) * 11) ? "is-complete" : ""} key={step}><span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>{step}</li>)}</ol><div className="completion-track" role="progressbar" aria-label="اكتمال الملف" aria-valuenow={completion} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${completion}%` }} /></div></nav>
+      <section className="editor-readiness" aria-labelledby="editor-readiness-title"><div className="editor-progress-heading"><h2 id="editor-readiness-title">{copy.editorReadinessTitle}</h2><strong className={remainingCompletionItems.length === 0 ? "is-ready" : "is-incomplete"}>{remainingCompletionItems.length === 0 ? copy.editorReady : copy.editorIncomplete}</strong></div>{remainingCompletionItems.length > 0 ? <p>{copy.editorMissing}: {remainingCompletionItems.map((item) => item.label).join("، ")}</p> : <p>{copy.editorReady}</p>}<p className="section-help">{copy.editorReadinessAdvisory}</p></section>
       <section className="editor-live-preview" aria-labelledby="live-preview-title"><div><p className="eyebrow">معاينة مباشرة</p><h2 id="live-preview-title">{form.nameArabic || "اسمك المهني"}</h2><p className="profile-latin-name">{form.name || "الاسم اللاتيني"}</p><p className="profile-role">{form.professionalTitle || "المسمى المهني"}</p>{form.city || form.country ? <p className="profile-meta">{[form.city, form.country].filter(Boolean).join("، ")}</p> : null}</div><div><span className="status-badge status-draft">{form.visibility === "published" ? "عام بعد المراجعة" : form.visibility === "unlisted" ? "غير مدرج بعد المراجعة" : "مسودة خاصة"}</span>{form.skills.length > 0 ? <div className="skill-list">{form.skills.slice(0, 5).map((skill) => <span key={skill}>{skill}</span>)}</div> : <p className="section-help">أضف مهارات لتظهر هنا في شكلها العام.</p>}</div></section>
       {notice ? <p className="form-success" role="status">{notice}</p> : null}
       {error ? <p className="form-error" role="alert">{error}</p> : null}

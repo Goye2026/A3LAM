@@ -31,7 +31,7 @@ type PublicSearchResult = {
   source: "editorial" | "professional";
 };
 
-type SearchState = "idle" | "loading" | "success" | "error";
+type SearchState = "idle" | "loading" | "success" | "error" | "empty";
 type SubmittedFilters = { query: string; categorySlug: string; city: string; country: string };
 
 export function SearchDiscovery({ copy, categories, initialQuery = "", initialCategorySlug = "", initialCity = "", initialCountry = "", helperText }: SearchDiscoveryProps) {
@@ -73,13 +73,18 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
     setResults([]); setSearchState("idle");
   }
 
+  function handleRetry() {
+    setSearchState("loading");
+    setSubmittedFilters({ ...submittedFilters });
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextFilters = { query, categorySlug, city, country };
     const hasFilters = query.trim() || categorySlug || city.trim() || country.trim();
     if (!hasFilters) {
       setResults([]);
-      setSearchState("idle");
+      setSearchState("empty");
       setSubmittedFilters(nextFilters);
       return;
     }
@@ -116,9 +121,10 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
         </label>
         <button className="search-submit" type="submit"><span aria-hidden="true">⌕</span>{copy.searchAction}</button>
       </form>
-      <div className="search-result-region" aria-live="polite" aria-atomic="true">
+      <div className="search-result-region" aria-live="polite" aria-atomic="true" aria-busy={searchState === "loading"}>
         {searchState === "loading" ? <p className="search-empty" role="status">{copy.searchLoading}</p> : null}
-        {searchState === "error" ? <p className="search-empty" role="alert">{copy.searchError}</p> : null}
+        {searchState === "empty" ? <p className="search-empty" role="status">{copy.searchEmptyQuery}</p> : null}
+        {searchState === "error" ? <div className="search-empty-block"><p className="search-empty" role="alert">{copy.searchError}</p><button className="search-reset" type="button" onClick={handleRetry}>{copy.retryAction}</button></div> : null}
         {searchState === "success" ? results.length > 0 ? (
           <div className="search-results">
             <div className="search-results-header"><p className="search-results-label">{copy.searchResults} · {results.length}</p><button className="search-reset" type="button" onClick={handleClear}>{copy.clearSearch}</button></div>

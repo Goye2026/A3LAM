@@ -46,6 +46,11 @@ export type FoundationMessages = {
   editorSaved: string;
   editorSaving: string;
   editorSaveHint: string;
+  editorReadinessTitle: string;
+  editorReady: string;
+  editorIncomplete: string;
+  editorMissing: string;
+  editorReadinessAdvisory: string;
   moderationSearchPlaceholder: string;
   moderationAllCategories: string;
   moderationSortLabel: string;
@@ -90,6 +95,7 @@ export type FoundationMessages = {
   searchPageDescription: string;
   searchPageBack: string;
   searchNoResultsHint: string;
+  searchEmptyQuery: string;
   clearSearch: string;
   closeSearch: string;
   searchCity: string;
@@ -309,6 +315,12 @@ export type FoundationMessages = {
   adminBackToEdit: string;
   adminDatabaseError: string;
   adminValidationError: string;
+  adminReadinessTitle: string;
+  adminReadinessReady: string;
+  adminReadinessIncomplete: string;
+  adminReadinessBlockedLabel: string;
+  adminReadinessPublishHint: string;
+  adminReadinessBlocked: string;
   adminUnauthorized: string;
   adminStatusLabel: string;
   adminStatusTransitionError: string;
@@ -609,6 +621,11 @@ const ar: FoundationMessages = {
   editorSaved: "تم حفظ المسودة",
   editorSaving: "جارٍ حفظ المسودة…",
   editorSaveHint: "احفظ المسودة قبل مغادرة الصفحة حتى لا تفقد عملك.",
+  editorReadinessTitle: "جاهزية الملف",
+  editorReady: "جاهز للمراجعة",
+  editorIncomplete: "يحتاج استكمالًا",
+  editorMissing: "المتبقي",
+  editorReadinessAdvisory: "نسبة الاكتمال إرشادية ولا تغيّر قواعد المراجعة أو النشر.",
   moderationSearchPlaceholder: "ابحث بالاسم أو المسمى أو المدينة…",
   moderationAllCategories: "كل التصنيفات",
   moderationSortLabel: "ترتيب النتائج",
@@ -653,6 +670,7 @@ const ar: FoundationMessages = {
   searchPageDescription: "ابحث في السجلات المنشورة، ثم تابع إلى الملف المرتبط بمصادره.",
   searchPageBack: "العودة إلى الاستكشاف",
   searchNoResultsHint: "جرّب اسمًا أقصر، أو اختر مجالًا مختلفًا من التصنيفات.",
+  searchEmptyQuery: "اكتب اسمًا أو اختر مرشحًا واحدًا على الأقل لبدء البحث.",
   clearSearch: "مسح البحث",
   closeSearch: "إغلاق البحث",
   searchCity: "المدينة",
@@ -872,6 +890,12 @@ const ar: FoundationMessages = {
   adminBackToEdit: "العودة إلى التحرير",
   adminDatabaseError: "تعذر الوصول إلى قاعدة البيانات الآن.",
   adminValidationError: "راجع الحقول المطلوبة والقيم غير الصالحة.",
+  adminReadinessTitle: "جاهزية السجل",
+  adminReadinessReady: "جاهز (READY)",
+  adminReadinessIncomplete: "غير مكتمل (INCOMPLETE)",
+  adminReadinessBlockedLabel: "محجوب (BLOCKED)",
+  adminReadinessPublishHint: "للنشر: يلزم استكمال الاسم، الرابط، التصنيف، السيرة، ومصدر واحد على الأقل.",
+  adminReadinessBlocked: "لا يمكن متابعة هذه الحالة قبل استكمال عناصر الجاهزية الظاهرة.",
   adminUnauthorized: "ليست لديك صلاحية الوصول إلى هذه المساحة.",
   adminStatusLabel: "حالة النشر",
   adminStatusTransitionError: "لا يسمح مسار التحرير بهذا الانتقال.",
@@ -1172,6 +1196,11 @@ const en: FoundationMessages = {
   editorSaved: "Draft saved",
   editorSaving: "Saving draft…",
   editorSaveHint: "Save your draft before leaving so you do not lose your work.",
+  editorReadinessTitle: "Profile readiness",
+  editorReady: "Ready for review",
+  editorIncomplete: "Needs completion",
+  editorMissing: "Remaining",
+  editorReadinessAdvisory: "The completion percentage is advisory and does not change review or publication rules.",
   moderationSearchPlaceholder: "Search by name, title, or city…",
   moderationAllCategories: "All categories",
   moderationSortLabel: "Sort results",
@@ -1216,6 +1245,7 @@ const en: FoundationMessages = {
   searchPageDescription: "Search published records and continue to profiles with clear source attribution.",
   searchPageBack: "Back to discovery",
   searchNoResultsHint: "Try a shorter name or choose a different field from the categories.",
+  searchEmptyQuery: "Enter a name or choose at least one filter to start searching.",
   clearSearch: "Clear search",
   closeSearch: "Close search",
   searchCity: "City",
@@ -1435,6 +1465,12 @@ const en: FoundationMessages = {
   adminBackToEdit: "Back to editing",
   adminDatabaseError: "The database is unavailable right now.",
   adminValidationError: "Review required fields and invalid values.",
+  adminReadinessTitle: "Record readiness",
+  adminReadinessReady: "Ready (READY)",
+  adminReadinessIncomplete: "Needs completion (INCOMPLETE)",
+  adminReadinessBlockedLabel: "Blocked (BLOCKED)",
+  adminReadinessPublishHint: "To publish: complete the name, slug, category, biography, and at least one source.",
+  adminReadinessBlocked: "This status cannot continue until the readiness items above are complete.",
   adminUnauthorized: "You are not authorized to access this space.",
   adminStatusLabel: "Publication status",
   adminStatusTransitionError: "This editorial transition is not allowed.",
