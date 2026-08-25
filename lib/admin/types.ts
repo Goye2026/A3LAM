@@ -84,5 +84,32 @@ export type AdminPersonEditorData = {
   categories: Category[];
 };
 
+export type AdminUserSummary = {
+  id: string;
+  name: string;
+  createdAt: string;
+  lastSignedIn: string | null;
+  profile: { id: string; nameArabic: string; status: string; visibility: string } | null;
+};
+
+export type AdminAuditLogItem = {
+  id: string;
+  actorType: string;
+  entityType: string;
+  entityId: string;
+  field: string;
+  action: string;
+  createdAt: string;
+};
+
+export type AdminCategorySummary = Category & { peopleCount: number; profileCount: number };
+
+export type AdminControlCenterSummary = {
+  people: number;
+  categories: number;
+  users: number;
+  profiles: { total: number; pendingReview: number; published: number; draft: number };
+};
+
 export type AdminTimelineRecord = TimelineEvent;
 export type AdminEducationRecord = Education;

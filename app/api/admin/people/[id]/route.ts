@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { adminErrorResponse, requireAdmin } from "@/lib/admin/http";
+import { adminErrorResponse, requirePermission } from "@/lib/admin/http";
 import { parseAdminStatus, buildPersonRecord, parseAdminPersonInput } from "@/lib/admin/records";
 import { adminRepository } from "@/lib/data/adminRepository";
 import { safeErrors } from "@/lib/errors/taxonomy";
@@ -9,11 +9,12 @@ export const runtime = "nodejs";
 type RouteProps = { params: Promise<{ id: string }> };
 
 export async function PATCH(request: Request, { params }: RouteProps) {
-  const denied = requireAdmin(request);
+  const body = await request.clone().json() as { status?: unknown };
+  const permission = body.status === "published" ? "people.publish" : "people.update";
+  const denied = requirePermission(request, permission);
   if (denied) return denied;
   try {
     const { id } = await params;
-    const body = await request.json() as { status?: unknown };
     const updated = await adminRepository.transitionStatus(id, parseAdminStatus(body.status));
     if (!updated) return NextResponse.json({ error: safeErrors.NOT_FOUND.code, message: safeErrors.NOT_FOUND.publicMessage }, { status: safeErrors.NOT_FOUND.status });
     return NextResponse.json({ ok: true, person: { id, slug: updated.record.person.slug, status: updated.record.person.status } });
@@ -23,7 +24,7 @@ export async function PATCH(request: Request, { params }: RouteProps) {
 }
 
 export async function PUT(request: Request, { params }: RouteProps) {
-  const denied = requireAdmin(request);
+  const denied = requirePermission(request, "people.update");
   if (denied) return denied;
   try {
     const { id } = await params;

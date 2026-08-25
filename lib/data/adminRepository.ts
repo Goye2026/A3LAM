@@ -17,9 +17,9 @@ import {
   validateSource,
   validateTimelineEvent,
 } from "@/lib/domain/a3lam";
-import type { ContentStatus } from "@/lib/domain/a3lam";
+import type { ContentStatus, ProfileStatus } from "@/lib/domain/a3lam";
 import { normalizeArabic } from "@/lib/domain/search";
-import type { AdminCategoryInput, AdminDashboardData, AdminPeoplePage, AdminPersonEditorData, AdminPersonListItem } from "@/lib/admin/types";
+import type { AdminAuditLogItem, AdminCategoryInput, AdminCategorySummary, AdminControlCenterSummary, AdminDashboardData, AdminPeoplePage, AdminPersonEditorData, AdminPersonListItem, AdminUserSummary } from "@/lib/admin/types";
 
 export const ADMIN_PAGE_SIZE = 20;
 
@@ -226,6 +226,30 @@ async function listCategoriesForPeople(db: Database, personIds: string[]) {
 }
 
 export const adminRepository = {
+  async getControlCenterSummary(): Promise<AdminControlCenterSummary> {
+    const db = getDb();
+    const [peopleRows, categoryRows, userRows, profileRows] = await Promise.all([
+      db.select({ count: sql<string>`count(*)` }).from(schema.people),
+      db.select({ count: sql<string>`count(*)` }).from(schema.categories),
+      db.select({ count: sql<string>`count(*)` }).from(schema.userAccounts),
+      db.select({ status: schema.profiles.status, count: sql<string>`count(*)` }).from(schema.profiles).groupBy(schema.profiles.status),
+    ]);
+    const profiles = { total: 0, pendingReview: 0, published: 0, draft: 0 };
+    for (const row of profileRows) {
+      const count = Number(row.count);
+      profiles.total += count;
+      if (row.status === "pending_review") profiles.pendingReview = count;
+      if (row.status === "published") profiles.published = count;
+      if (row.status === "draft") profiles.draft = count;
+    }
+    return {
+      people: Number(peopleRows[0]?.count ?? 0),
+      categories: Number(categoryRows[0]?.count ?? 0),
+      users: Number(userRows[0]?.count ?? 0),
+      profiles,
+    };
+  },
+
   async getDashboard(): Promise<AdminDashboardData> {
     const db = getDb();
     const countRows = await db
@@ -239,7 +263,7 @@ export const adminRepository = {
     return { counts, recent: recentRows.map((row) => listItem(row, categoryMap.get(row.id) ?? [])) };
   },
 
-  async listPeople(options: { page?: number; pageSize?: number; query?: string; status?: ContentStatus | "" } = {}): Promise<AdminPeoplePage> {
+  async listPeople(options: { page?: number; pageSize?: number; query?: string; status?: ContentStatus | ""; categoryId?: string; sort?: "updated_desc" | "updated_asc" | "name" } = {}): Promise<AdminPeoplePage> {
     const db = getDb();
     const pageSize = Math.min(Math.max(options.pageSize ?? ADMIN_PAGE_SIZE, 1), 100);
     const page = Math.max(options.page ?? 1, 1);
@@ -250,9 +274,11 @@ export const adminRepository = {
       conditions.push(sql`(${ilike(schema.people.searchNameArabic, pattern)} OR ${ilike(schema.people.searchName, pattern)} OR ${ilike(schema.people.slug, pattern)})`);
     }
     if (options.status) conditions.push(eq(schema.people.status, options.status));
+    if (options.categoryId) conditions.push(sql`exists (select 1 from ${schema.personCategories} pc where pc.person_id = ${schema.people.id} and pc.category_id = ${options.categoryId})`);
     const where = conditions.length > 0 ? and(...conditions) : undefined;
+    const orderBy = options.sort === "name" ? asc(schema.people.nameArabic) : options.sort === "updated_asc" ? asc(schema.people.updatedAt) : desc(schema.people.updatedAt);
     const [rows, totalRows] = await Promise.all([
-      db.select().from(schema.people).where(where).orderBy(desc(schema.people.updatedAt)).limit(pageSize).offset((page - 1) * pageSize),
+      db.select().from(schema.people).where(where).orderBy(orderBy).limit(pageSize).offset((page - 1) * pageSize),
       db.select({ count: sql<string>`count(*)` }).from(schema.people).where(where),
     ]);
     const categoryMap = await listCategoriesForPeople(db, rows.map((row) => row.id));
@@ -283,6 +309,23 @@ export const adminRepository = {
     return rows.map(categoryFromRow);
   },
 
+  async listCategorySummaries(options: { query?: string; status?: ContentStatus | "" } = {}): Promise<AdminCategorySummary[]> {
+    const db = getDb();
+    const conditions = [];
+    const query = options.query?.trim();
+    if (query) conditions.push(sql`(${ilike(schema.categories.name, `%${query}%`)} OR ${ilike(schema.categories.slug, `%${query}%`)})`);
+    if (options.status) conditions.push(eq(schema.categories.status, options.status));
+    const where = conditions.length > 0 ? and(...conditions) : undefined;
+    const [categoryRows, peopleCounts, profileCounts] = await Promise.all([
+      db.select().from(schema.categories).where(where).orderBy(asc(schema.categories.name)),
+      db.select({ categoryId: schema.personCategories.categoryId, count: sql<string>`count(*)` }).from(schema.personCategories).groupBy(schema.personCategories.categoryId),
+      db.select({ categoryId: schema.profileCategories.categoryId, count: sql<string>`count(*)` }).from(schema.profileCategories).groupBy(schema.profileCategories.categoryId),
+    ]);
+    const peopleMap = new Map(peopleCounts.map((row) => [row.categoryId, Number(row.count)]));
+    const profileMap = new Map(profileCounts.map((row) => [row.categoryId, Number(row.count)]));
+    return categoryRows.map((row) => ({ ...categoryFromRow(row), peopleCount: peopleMap.get(row.id) ?? 0, profileCount: profileMap.get(row.id) ?? 0 }));
+  },
+
   async getCategory(id: string) {
     const db = getDb();
     const rows = await db.select().from(schema.categories).where(eq(schema.categories.id, id)).limit(1);
@@ -293,7 +336,10 @@ export const adminRepository = {
     const category: Category = { id: randomUUID(), slug: input.slug, name: input.name, description: input.description, status: input.status };
     assertCategory(category);
     const db = getDb();
-    await db.insert(schema.categories).values({ id: category.id, slug: category.slug, name: category.name, description: category.description, status: category.status });
+    await db.transaction(async (tx) => {
+      await tx.insert(schema.categories).values({ id: category.id, slug: category.slug, name: category.name, description: category.description, status: category.status });
+      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_session", actorId: null, entityType: "category", entityId: category.id, field: "record", oldValue: null, newValue: category.slug, action: "create_category", reason: null });
+    });
     return category;
   },
 
@@ -303,8 +349,59 @@ export const adminRepository = {
     const category: Category = { id, slug: input.slug, name: input.name, description: input.description, status: current.status };
     assertCategory(category);
     const db = getDb();
-    await db.update(schema.categories).set({ slug: category.slug, name: category.name, description: category.description, updatedAt: new Date() }).where(eq(schema.categories.id, id));
+    await db.transaction(async (tx) => {
+      await tx.update(schema.categories).set({ slug: category.slug, name: category.name, description: category.description, updatedAt: new Date() }).where(eq(schema.categories.id, id));
+      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_session", actorId: null, entityType: "category", entityId: id, field: "record", oldValue: current.slug, newValue: category.slug, action: "update_category", reason: null });
+    });
     return category;
+  },
+
+  async listUserSummaries(options: { query?: string; profileStatus?: ProfileStatus | ""; limit?: number } = {}): Promise<AdminUserSummary[]> {
+    const db = getDb();
+    const limit = Math.min(Math.max(options.limit ?? 50, 1), 100);
+    const query = options.query?.trim();
+    const conditions = [];
+    if (query) conditions.push(ilike(schema.userAccounts.name, `%${query}%`));
+    if (options.profileStatus) conditions.push(eq(schema.profiles.status, options.profileStatus));
+    const where = conditions.length > 0 ? and(...conditions) : undefined;
+    const rows = await db
+      .select({ user: schema.userAccounts, profile: schema.profiles })
+      .from(schema.userAccounts)
+      .leftJoin(schema.profiles, eq(schema.profiles.userId, schema.userAccounts.id))
+      .where(where)
+      .orderBy(desc(schema.userAccounts.createdAt))
+      .limit(limit);
+    return rows.map(({ user, profile }) => ({
+      id: user.id,
+      name: user.name,
+      createdAt: asIsoTimestamp(user.createdAt),
+      lastSignedIn: user.lastSignedIn ? asIsoTimestamp(user.lastSignedIn) : null,
+      profile: profile ? { id: profile.id, nameArabic: profile.nameArabic, status: profile.status, visibility: profile.visibility } : null,
+    }));
+  },
+
+  async listAuditLogs(limit = 100): Promise<AdminAuditLogItem[]> {
+    const db = getDb();
+    const rows = await db.select({
+      id: schema.auditLogs.id,
+      actorType: schema.auditLogs.actorType,
+      entityType: schema.auditLogs.entityType,
+      entityId: schema.auditLogs.entityId,
+      field: schema.auditLogs.field,
+      action: schema.auditLogs.action,
+      createdAt: schema.auditLogs.createdAt,
+    }).from(schema.auditLogs).orderBy(desc(schema.auditLogs.createdAt)).limit(Math.min(Math.max(limit, 1), 100));
+    return rows.map((row) => ({ ...row, createdAt: asIsoTimestamp(row.createdAt) }));
+  },
+
+  async getSystemStatus() {
+    try {
+      const db = getDb();
+      await db.execute(sql`select 1`);
+      return { database: "available" as const };
+    } catch {
+      return { database: "unavailable" as const };
+    }
   },
 
   async getPersonStatus(id: string) {
@@ -361,6 +458,7 @@ export const adminRepository = {
         await tx.insert(schema.education).values({ id: item.id, personId: record.person.id, institution: item.institution, field: item.field, dateRange: item.dateRange, description: item.description });
         if (item.sourceIds.length > 0) await tx.insert(schema.educationSources).values(item.sourceIds.map((sourceId) => ({ educationId: item.id, sourceId })));
       }
+      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_session", actorId: null, entityType: "person", entityId: record.person.id, field: "record", oldValue: null, newValue: record.person.slug, action: "create_person", reason: null });
     });
     return this.getEditorData(record.person.id);
   },
@@ -381,6 +479,7 @@ export const adminRepository = {
       if (nextStatus === "published" && editor.record.sources.length > 0) {
         await tx.update(schema.sources).set({ status: "published", updatedAt: new Date() }).where(inArray(schema.sources.id, editor.record.sources.map((source) => source.id)));
       }
+      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_session", actorId: null, entityType: "person", entityId: id, field: "status", oldValue: editor.record.person.status, newValue: nextStatus, action: "transition_person", reason: null });
     });
     return this.getEditorData(id);
   },
@@ -440,6 +539,7 @@ export const adminRepository = {
         await tx.insert(schema.education).values({ id: item.id, personId: id, institution: item.institution, field: item.field, dateRange: item.dateRange, description: item.description });
         if (item.sourceIds.length > 0) await tx.insert(schema.educationSources).values(item.sourceIds.map((sourceId) => ({ educationId: item.id, sourceId })));
       }
+      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_session", actorId: null, entityType: "person", entityId: id, field: "record", oldValue: currentRows[0].slug, newValue: record.person.slug, action: "update_person", reason: null });
     });
     return this.getEditorData(id);
   },

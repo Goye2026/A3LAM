@@ -218,6 +218,11 @@ export type FoundationMessages = {
   adminSearch: string;
   adminFilterStatus: string;
   adminAllStatuses: string;
+  adminAllCategories: string;
+  adminSort: string;
+  adminSortNewest: string;
+  adminSortOldest: string;
+  adminSortName: string;
   adminFilterAction: string;
   adminEdit: string;
   adminPreview: string;
@@ -297,6 +302,34 @@ export type FoundationMessages = {
   adminPagePrevious: string;
   adminPageNext: string;
   adminUpdated: string;
+  adminControlCenter: string;
+  adminControlCenterDescription: string;
+  adminPeopleGroup: string;
+  adminOperationsGroup: string;
+  adminProductGroup: string;
+  adminSystemGroup: string;
+  adminUsers: string;
+  adminProfiles: string;
+  adminAdministrators: string;
+  adminEditors: string;
+  adminContent: string;
+  adminHomepage: string;
+  adminAppearance: string;
+  adminMedia: string;
+  adminSeo: string;
+  adminAudit: string;
+  adminSystem: string;
+  adminSettings: string;
+  adminUnavailableTitle: string;
+  adminUnavailableDescription: string;
+  adminRequiresSchema: string;
+  adminReadOnly: string;
+  adminDatabaseStatus: string;
+  adminAvailable: string;
+  adminUnavailable: string;
+  adminNoUsers: string;
+  adminPeopleRelated: string;
+  adminProfilesRelated: string;
 };
 
 const ar: FoundationMessages = {
@@ -518,6 +551,11 @@ const ar: FoundationMessages = {
   adminSearch: "بحث داخلي",
   adminFilterStatus: "تصفية حسب الحالة",
   adminAllStatuses: "كل الحالات",
+  adminAllCategories: "كل التصنيفات",
+  adminSort: "الفرز",
+  adminSortNewest: "الأحدث تحديثًا",
+  adminSortOldest: "الأقدم تحديثًا",
+  adminSortName: "الاسم الأبجدي",
   adminFilterAction: "تطبيق التصفية",
   adminEdit: "تحرير",
   adminPreview: "معاينة",
@@ -597,6 +635,34 @@ const ar: FoundationMessages = {
   adminPagePrevious: "السابق",
   adminPageNext: "التالي",
   adminUpdated: "آخر تحديث",
+  adminControlCenter: "مركز التحكم",
+  adminControlCenterDescription: "مساحة تشغيل موحدة لإدارة المحتوى والملفات المهنية وإعدادات المنتج بأمان.",
+  adminPeopleGroup: "المحتوى التحريري",
+  adminOperationsGroup: "التشغيل والمراجعة",
+  adminProductGroup: "التحكم بالمنتج",
+  adminSystemGroup: "النظام",
+  adminUsers: "المستخدمون",
+  adminProfiles: "الملفات المهنية",
+  adminAdministrators: "المديرون",
+  adminEditors: "المحررون",
+  adminContent: "كل المحتوى",
+  adminHomepage: "الصفحة الرئيسية",
+  adminAppearance: "المظهر",
+  adminMedia: "الوسائط والملفات",
+  adminSeo: "تحسين الظهور",
+  adminAudit: "سجل التدقيق",
+  adminSystem: "حالة النظام",
+  adminSettings: "الإعدادات",
+  adminUnavailableTitle: "هذه الوظيفة غير مفعلة بعد",
+  adminUnavailableDescription: "تحتاج هذه المساحة إلى بنية بيانات أو إعداد خارجي غير متاح في الإصدار الحالي.",
+  adminRequiresSchema: "تحتاج تهيئة بنية البيانات",
+  adminReadOnly: "للقراءة فقط",
+  adminDatabaseStatus: "حالة قاعدة البيانات",
+  adminAvailable: "متاحة",
+  adminUnavailable: "غير متاحة",
+  adminNoUsers: "لا توجد حسابات مستخدمين في النطاق الحالي.",
+  adminPeopleRelated: "شخصيات مرتبطة",
+  adminProfilesRelated: "ملفات مرتبطة",
 };
 
 const en: FoundationMessages = {
@@ -818,6 +884,11 @@ const en: FoundationMessages = {
   adminSearch: "Internal search",
   adminFilterStatus: "Filter by status",
   adminAllStatuses: "All statuses",
+  adminAllCategories: "All categories",
+  adminSort: "Sort",
+  adminSortNewest: "Newest update",
+  adminSortOldest: "Oldest update",
+  adminSortName: "Alphabetical name",
   adminFilterAction: "Apply filters",
   adminEdit: "Edit",
   adminPreview: "Preview",
@@ -897,6 +968,34 @@ const en: FoundationMessages = {
   adminPagePrevious: "Previous",
   adminPageNext: "Next",
   adminUpdated: "Updated",
+  adminControlCenter: "Control center",
+  adminControlCenterDescription: "A unified operational space for content, professional profiles, and safe product controls.",
+  adminPeopleGroup: "Editorial content",
+  adminOperationsGroup: "Operations and review",
+  adminProductGroup: "Product controls",
+  adminSystemGroup: "System",
+  adminUsers: "Users",
+  adminProfiles: "Professional profiles",
+  adminAdministrators: "Administrators",
+  adminEditors: "Editors",
+  adminContent: "All content",
+  adminHomepage: "Homepage",
+  adminAppearance: "Appearance",
+  adminMedia: "Media and files",
+  adminSeo: "SEO",
+  adminAudit: "Audit log",
+  adminSystem: "System status",
+  adminSettings: "Settings",
+  adminUnavailableTitle: "This function is not enabled yet",
+  adminUnavailableDescription: "This area requires a data structure or external configuration that is not available in the current release.",
+  adminRequiresSchema: "Requires schema configuration",
+  adminReadOnly: "Read-only",
+  adminDatabaseStatus: "Database status",
+  adminAvailable: "Available",
+  adminUnavailable: "Unavailable",
+  adminNoUsers: "There are no user accounts in the current scope.",
+  adminPeopleRelated: "Related people",
+  adminProfilesRelated: "Related profiles",
 };
 
 export const messages: Record<Locale, FoundationMessages> = { ar, en };

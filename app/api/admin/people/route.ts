@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { adminErrorResponse, requireAdmin } from "@/lib/admin/http";
+import { adminErrorResponse, requirePermission } from "@/lib/admin/http";
 import { adminRepository } from "@/lib/data/adminRepository";
 import { buildPersonRecord, parseAdminPersonInput } from "@/lib/admin/records";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const denied = requireAdmin(request);
+  const denied = requirePermission(request, "people.create");
   if (denied) return denied;
   try {
     const input = parseAdminPersonInput(await request.json());

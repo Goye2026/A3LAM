@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { requireAdmin, adminErrorResponse } from "@/lib/admin/http";
+import { requirePermission, adminErrorResponse } from "@/lib/admin/http";
 import { listAdminProfiles } from "@/lib/user/profileRepository";
 import type { ProfileStatus } from "@/lib/domain/a3lam";
 
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
-  const unauthorized = requireAdmin(request);
+  const unauthorized = requirePermission(request, "profiles.read");
   if (unauthorized) return unauthorized;
   try {
     const statusValue = new URL(request.url).searchParams.get("status");

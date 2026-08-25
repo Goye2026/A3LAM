@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
 import { isAdminRequest } from "@/lib/admin/auth";
 import { safeErrors } from "@/lib/errors/taxonomy";
+import { requireAdminPermission as resolveAdminPermission, type AdminPermission } from "@/lib/admin/rbac";
 
 export function requireAdmin(request: Request) {
   if (!isAdminRequest(request)) {
+    return NextResponse.json({ error: safeErrors.UNAUTHORIZED.code, message: safeErrors.UNAUTHORIZED.publicMessage }, { status: safeErrors.UNAUTHORIZED.status });
+  }
+  return null;
+}
+
+export function requirePermission(request: Request, permission: AdminPermission) {
+  const principal = resolveAdminPermission(request, permission);
+  if (!principal) {
     return NextResponse.json({ error: safeErrors.UNAUTHORIZED.code, message: safeErrors.UNAUTHORIZED.publicMessage }, { status: safeErrors.UNAUTHORIZED.status });
   }
   return null;

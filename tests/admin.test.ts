@@ -2,12 +2,40 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createAdminSession, isAdminAccessConfigured, isAdminRequest, isValidAdminSession } from "@/lib/admin/auth";
 import { buildPersonRecord, parseAdminCategoryInput, parseAdminPersonInput } from "@/lib/admin/records";
 import type { Category } from "@/lib/domain/a3lam";
+import { canAdminRoleManageRole, hasAdminPermission, isFinalSuperAdminDeletionAllowed, permissionsForRole } from "@/lib/admin/rbac";
+import { requirePermission } from "@/lib/admin/http";
 
 const token = "phase-11-local-admin-token-012345678901234567890";
 const category: Category = { id: "media", slug: "media", name: "الإعلام", description: "تصنيف اختباري.", status: "published" };
 
 afterEach(() => {
   vi.unstubAllEnvs();
+});
+
+describe("Phase 17 centralized RBAC policy", () => {
+  it("gives only the Super Admin policy all permissions", () => {
+    expect(hasAdminPermission("SUPER_ADMIN", "settings.manage")).toBe(true);
+    expect(hasAdminPermission("EDITOR", "settings.manage")).toBe(false);
+    expect(permissionsForRole("USER").size).toBe(0);
+  });
+
+  it("prevents role escalation and deleting the final Super Admin", () => {
+    expect(canAdminRoleManageRole("ADMIN", "SUPER_ADMIN")).toBe(false);
+    expect(canAdminRoleManageRole("SUPER_ADMIN", "ADMIN")).toBe(true);
+    expect(canAdminRoleManageRole("SUPER_ADMIN", "SUPER_ADMIN")).toBe(false);
+    expect(isFinalSuperAdminDeletionAllowed(1)).toBe(false);
+    expect(isFinalSuperAdminDeletionAllowed(2)).toBe(true);
+  });
+
+  it("enforces permissions on the server-side gate", () => {
+    vi.stubEnv("A3LAM_ADMIN_ACCESS_TOKEN", token);
+    vi.stubEnv("NODE_ENV", "test");
+    const denied = requirePermission(new Request("http://localhost"), "settings.manage");
+    expect(denied?.status).toBe(401);
+    const session = createAdminSession();
+    const allowed = requirePermission(new Request("http://localhost", { headers: { cookie: `a3lam_admin_session=${encodeURIComponent(session)}` } }), "settings.manage");
+    expect(allowed).toBeNull();
+  });
 });
 
 describe("Phase 11 admin authentication", () => {

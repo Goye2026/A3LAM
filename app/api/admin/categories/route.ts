@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { adminErrorResponse, requireAdmin } from "@/lib/admin/http";
+import { adminErrorResponse, requirePermission } from "@/lib/admin/http";
 import { parseAdminCategoryInput } from "@/lib/admin/records";
 import { adminRepository } from "@/lib/data/adminRepository";
 
 export async function POST(request: Request) {
-  const unauthorized = requireAdmin(request);
+  const unauthorized = requirePermission(request, "categories.create");
   if (unauthorized) return unauthorized;
 
   try {

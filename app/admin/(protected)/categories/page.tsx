@@ -19,11 +19,13 @@ export default async function AdminCategoriesPage({ searchParams }: PageProps) {
   const copy = getMessages(defaultLocale);
   const params = await searchParams;
   const editId = first(params.edit);
-  let categories: Awaited<ReturnType<typeof adminRepository.listCategoryOptions>> = [];
+  const query = first(params.q);
+  const status = ["draft", "review", "published", "archived"].includes(first(params.status)) ? first(params.status) as ContentStatus : "";
+  let categories: Awaited<ReturnType<typeof adminRepository.listCategorySummaries>> = [];
   let unavailable = false;
 
   try {
-    categories = await adminRepository.listCategoryOptions();
+    categories = await adminRepository.listCategorySummaries({ query, status });
   } catch {
     unavailable = true;
   }
@@ -41,7 +43,8 @@ export default async function AdminCategoriesPage({ searchParams }: PageProps) {
       {editId && !editing && !unavailable ? <p className="admin-alert" role="alert">{copy.adminNotFound}</p> : null}
       <section className="admin-panel" aria-labelledby="admin-categories-table-title">
         <div className="admin-section-heading"><h2 id="admin-categories-table-title">{copy.adminCategories}</h2><span className="admin-muted">{categories.length}</span></div>
-        {categories.length === 0 ? <p className="admin-empty">{copy.adminNoCategories}</p> : <div className="admin-table-wrap"><table className="admin-table"><caption className="sr-only">{copy.adminCategories}</caption><thead><tr><th scope="col">{copy.adminCategoryName}</th><th scope="col">{copy.adminSlug}</th><th scope="col">{copy.adminStatusLabel}</th><th scope="col">{copy.adminCategoryDescription}</th><th scope="col">{copy.adminEdit}</th></tr></thead><tbody>{categories.map((category) => <tr key={category.id}><th scope="row">{category.name}</th><td dir="ltr">{category.slug}</td><td><b className={`admin-status admin-status-${category.status}`}>{statusLabel(category.status, copy)}</b></td><td>{category.description}</td><td><Link className="admin-table-action" href={`/admin/categories?edit=${encodeURIComponent(category.id)}`}>{copy.adminEdit}</Link></td></tr>)}</tbody></table></div>}
+        <form className="admin-inline-filter" method="get"><label htmlFor="admin-category-query">{copy.adminSearch}</label><input id="admin-category-query" name="q" defaultValue={query} /><label htmlFor="admin-category-status">{copy.adminFilterStatus}</label><select id="admin-category-status" name="status" defaultValue={status}><option value="">{copy.adminAllStatuses}</option><option value="draft">{copy.adminDraft}</option><option value="review">{copy.adminReview}</option><option value="published">{copy.adminPublished}</option><option value="archived">{copy.adminArchived}</option></select><button className="button button-quiet" type="submit">{copy.adminFilterAction}</button></form>
+        {categories.length === 0 ? <p className="admin-empty">{copy.adminNoCategories}</p> : <div className="admin-table-wrap"><table className="admin-table"><caption className="sr-only">{copy.adminCategories}</caption><thead><tr><th scope="col">{copy.adminCategoryName}</th><th scope="col">{copy.adminSlug}</th><th scope="col">{copy.adminStatusLabel}</th><th scope="col">{copy.adminPeopleRelated}</th><th scope="col">{copy.adminProfilesRelated}</th><th scope="col">{copy.adminCategoryDescription}</th><th scope="col">{copy.adminEdit}</th></tr></thead><tbody>{categories.map((category) => <tr key={category.id}><th scope="row">{category.name}</th><td dir="ltr">{category.slug}</td><td><b className={`admin-status admin-status-${category.status}`}>{statusLabel(category.status, copy)}</b></td><td>{category.peopleCount}</td><td>{category.profileCount}</td><td>{category.description}</td><td><Link className="admin-table-action" href={`/admin/categories?edit=${encodeURIComponent(category.id)}`}>{copy.adminEdit}</Link></td></tr>)}</tbody></table></div>}
       </section>
     </div>
   );
