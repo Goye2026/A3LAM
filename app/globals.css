@@ -2085,6 +2085,7 @@ a {
 .admin-back-link:hover { color: var(--color-accent); }
 
 .admin-stat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin-block-end: var(--space-8); }
+.admin-stat-grid-compact { margin-block-end: var(--space-5); }
 .admin-stat-card { display: grid; gap: var(--space-2); min-height: 7rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); padding: var(--space-4); }
 .admin-stat-card span { color: var(--color-ink-muted); font-size: 0.78rem; }
 .admin-stat-card strong { color: var(--color-brand); font-family: var(--font-latin), var(--font-arabic); font-size: 2rem; line-height: 1; }
@@ -2101,6 +2102,9 @@ a {
 .admin-form-section { border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); padding: clamp(1rem, 3vw, 1.5rem); }
 .admin-form-section + .admin-form-section { margin-block-start: var(--space-5); }
 .admin-section-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.admin-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); margin-block-end: var(--space-5); }
+.admin-panel-heading h2 { margin: 0; color: var(--color-ink); font-size: 1.25rem; }
+.admin-panel-heading .route-description { margin-block-start: var(--space-2); }
 .admin-section-heading h2 { margin: 0; color: var(--color-ink); font-size: 1.25rem; }
 .admin-muted { color: var(--color-ink-muted); font-family: var(--font-latin), var(--font-arabic); font-size: 0.8rem; }
 .admin-empty { margin: var(--space-5) 0 0; border-block: 1px dashed var(--color-border-strong); color: var(--color-ink-muted); padding-block: var(--space-5); }
@@ -2132,6 +2136,9 @@ textarea.admin-input { resize: vertical; }
 .admin-status-review { border-color: rgb(169 107 25 / 0.35); background: var(--color-accent-pale); color: var(--color-warning); }
 .admin-status-published { border-color: rgb(24 116 90 / 0.3); background: rgb(24 116 90 / 0.1); color: var(--color-success); }
 .admin-status-archived { border-color: rgb(169 68 68 / 0.3); background: rgb(169 68 68 / 0.1); color: var(--color-danger); }
+.status-applied, .status-healthy { border-color: rgb(24 116 90 / 0.25); background: rgb(24 116 90 / 0.1); color: var(--color-success); }
+.status-pending { border-color: rgb(169 107 25 / 0.35); background: var(--color-accent-pale); color: var(--color-warning); }
+.status-unexpected, .status-inconsistent, .status-unavailable { border-color: rgb(169 68 68 / 0.3); background: rgb(169 68 68 / 0.1); color: var(--color-danger); }
 .admin-pagination { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-block-start: var(--space-4); color: var(--color-ink-muted); font-size: 0.78rem; }
 
 .admin-editor-form { display: grid; gap: var(--space-5); }

@@ -422,6 +422,22 @@ export type FoundationMessages = {
   adminSiteExperienceStatus: string;
   adminAppliedMigrations: string;
   adminPendingMigrations: string;
+  adminExpectedMigrations: string;
+  adminMigrationRegistryTitle: string;
+  adminMigrationRegistryDescription: string;
+  adminMigrationVersion: string;
+  adminMigrationRowStatus: string;
+  adminMigrationAppliedAt: string;
+  adminMigrationApplied: string;
+  adminMigrationPending: string;
+  adminMigrationUnexpected: string;
+  adminMigrationInconsistent: string;
+  adminMigrationUnavailable: string;
+  adminMigrationRegistryHealthy: string;
+  adminMigrationRegistryPending: string;
+  adminMigrationRegistryInconsistent: string;
+  adminMigrationRegistryUnavailable: string;
+  adminMigrationNoAppliedAt: string;
   adminPublishedResources: string;
   adminDraftResources: string;
   adminAvailable: string;
@@ -928,6 +944,22 @@ const ar: FoundationMessages = {
   adminSiteExperienceStatus: "إعدادات تجربة الموقع",
   adminAppliedMigrations: "migrations مطبقة",
   adminPendingMigrations: "migrations معلقة",
+  adminExpectedMigrations: "إجمالي migrations المتوقعة",
+  adminMigrationRegistryTitle: "سجل الترحيلات",
+  adminMigrationRegistryDescription: "حالة بنية قاعدة البيانات مقارنة بملفات المشروع.",
+  adminMigrationVersion: "Migration",
+  adminMigrationRowStatus: "الحالة",
+  adminMigrationAppliedAt: "تاريخ التطبيق",
+  adminMigrationApplied: "مطبقة",
+  adminMigrationPending: "معلقة",
+  adminMigrationUnexpected: "غير متوقعة",
+  adminMigrationInconsistent: "غير متسقة",
+  adminMigrationUnavailable: "غير متاحة",
+  adminMigrationRegistryHealthy: "سجل الترحيلات متوافق",
+  adminMigrationRegistryPending: "توجد migrations معلقة",
+  adminMigrationRegistryInconsistent: "سجل الترحيلات غير متسق",
+  adminMigrationRegistryUnavailable: "تعذر قراءة سجل migrations الآن.",
+  adminMigrationNoAppliedAt: "—",
   adminPublishedResources: "موارد منشورة",
   adminDraftResources: "موارد مسودة",
   adminAvailable: "متاحة",
@@ -1434,6 +1466,22 @@ const en: FoundationMessages = {
   adminSiteExperienceStatus: "Site Experience settings",
   adminAppliedMigrations: "Applied migrations",
   adminPendingMigrations: "Pending migrations",
+  adminExpectedMigrations: "Expected migrations",
+  adminMigrationRegistryTitle: "Migration registry",
+  adminMigrationRegistryDescription: "Database schema status compared with the project migration files.",
+  adminMigrationVersion: "Migration",
+  adminMigrationRowStatus: "Status",
+  adminMigrationAppliedAt: "Applied at",
+  adminMigrationApplied: "Applied",
+  adminMigrationPending: "Pending",
+  adminMigrationUnexpected: "Unexpected",
+  adminMigrationInconsistent: "Inconsistent",
+  adminMigrationUnavailable: "Unavailable",
+  adminMigrationRegistryHealthy: "Migration registry is consistent",
+  adminMigrationRegistryPending: "Pending migrations exist",
+  adminMigrationRegistryInconsistent: "Migration registry is inconsistent",
+  adminMigrationRegistryUnavailable: "The migration registry could not be read.",
+  adminMigrationNoAppliedAt: "—",
   adminPublishedResources: "Published resources",
   adminDraftResources: "Draft resources",
   adminAvailable: "Available",
