@@ -2,7 +2,7 @@
 
 ## Executive status
 
-**Phase 17.4 — Implementation and local validation complete; commit/deployment verification pending.** This pass is limited to operational coherence and security hardening of the existing Admin/RBAC/Site Experience foundation. It does not start Population, Phase 17.5, or Phase 18.
+**Phase 17.4 — Implementation, local validation, commit, and read-only deployment verification complete.** This pass is limited to operational coherence and security hardening of the existing Admin/RBAC/Site Experience foundation. It does not start Population, Phase 17.5, or Phase 18.
 
 No Production migration, DDL, DML, seed, account creation, content creation, role/permission change, session mutation, secret change, or POST/PUT/PATCH/DELETE request was executed during this Phase 17.4 pass. Migrations `0004_phase17_1_admin_identity.sql`, `0005_phase17_2_rbac_management.sql`, and `0006_phase17_3_site_experience.sql` remain **NOT APPLIED**. No local database was created or used for writes.
 
@@ -61,4 +61,8 @@ Admin identity creation remains invited-only and does not create credentials or 
 
 ## Git and deployment record
 
-To be completed after the final validation run, normal commit/push, and Vercel READY verification. Production checks, if performed, must remain GET/HEAD-only. No Production mutation or migration is authorized by this report.
+The implementation was committed on `main` as `805336e778ee1117c8f770d1b978b803b9ebebe0` (`feat: harden admin operations foundation`) and pushed normally to `origin/main`; no force push, reset, rebase, or history rewrite was used. Vercel deployment `dpl_J58tjfNAyfU1Bwghu6v3Zb88Nmc8` reached `READY` for project `a3-lam`, with public alias `https://a3-lam.vercel.app`.
+
+Production verification was **GET-only** and unauthenticated: `/`, `/api/health`, `/categories`, `/robots.txt`, and `/sitemap.xml` returned HTTP 200; Admin APIs `/api/admin/site-experience/homepage`, `/api/admin/people`, `/api/admin/profiles`, `/api/admin/sessions`, and `/api/admin/users` returned HTTP 401; `/admin/people`, `/admin/profiles`, and `/admin/system` redirected to the Admin login route. No Production mutation or migration was authorized or executed by this report.
+
+A final documentation-only update to this report and the audit record is pending after this deployment record is committed; the deployed feature commit itself remains the code release above.

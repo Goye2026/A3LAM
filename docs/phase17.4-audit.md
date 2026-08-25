@@ -66,3 +66,25 @@ Email provider وstorage provider غير مهيئين، وتبقى حالتهم�
 ## Admin route sweep result
 
 شمل sweep كل ملفات `app/admin/(protected)/**/page.tsx`. صفحات البيانات People/Categories/Profiles/Users/Admin entities/Audit/Sessions/System تستخدم gates server-side، بينما Site Experience wrappers تفوض gate إلى المكون المركزي. `/admin/content` أصبح shortcut permission-aware لا يعرض إلا مسارات القراءة المسموح بها ويرفض غياب أي صلاحية محتوى.
+
+## Production read-only verification
+
+بعد دفع commit `805336e778ee1117c8f770d1b978b803b9ebebe0` أصبح deployment `dpl_J58tjfNAyfU1Bwghu6v3Zb88Nmc8` بحالة `READY` على alias `https://a3-lam.vercel.app`. أُجريت طلبات GET فقط عبر `curl`، بلا cookies أو credentials وبلا POST/PUT/PATCH/DELETE.
+
+| Route | Evidence |
+|---|---|
+| `/` | HTTP 200 |
+| `/api/health` | HTTP 200 |
+| `/categories` | HTTP 200 |
+| `/robots.txt` | HTTP 200 |
+| `/sitemap.xml` | HTTP 200 |
+| `/api/admin/site-experience/homepage` | HTTP 401 |
+| `/api/admin/people` | HTTP 401 |
+| `/api/admin/profiles` | HTTP 401 |
+| `/api/admin/sessions` | HTTP 401 |
+| `/api/admin/users` | HTTP 401 |
+| `/admin/people` | HTTP 200 after redirect to `/admin/login?next=%2Fadmin%2Fpeople` |
+| `/admin/profiles` | HTTP 200 after redirect to `/admin/login?next=%2Fadmin%2Fprofiles` |
+| `/admin/system` | HTTP 200 after redirect to `/admin/login?next=%2Fadmin%2Fsystem` |
+
+هذه checks تثبت availability العامة وunauthenticated boundary فقط؛ لا تثبت صلاحيات حساب Admin مصادق ولا قياسات viewport/WCAG أو سلوك database-backed configurations في Production، ولم تُنفذ أي mutation.
