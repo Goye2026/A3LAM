@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { getAdminPrincipal, ADMIN_SESSION_COOKIE } from "@/lib/admin/auth";
 import { hasEffectiveAdminPermission } from "@/lib/admin/rbac";
-import { getMigrationRegistryStatus } from "@/lib/admin/migrationRegistry";
+import { getMigrationPreflight, getMigrationRegistryStatus } from "@/lib/admin/migrationRegistry";
 import { getSystemHealthSnapshot } from "@/lib/admin/systemHealth";
+import { AdminMigrationControl } from "@/components/a3lam/AdminMigrationControl";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 
@@ -13,7 +14,7 @@ export default async function AdminSystemPage() {
   const copy = getMessages(defaultLocale);
   const principal = await getAdminPrincipal((await cookies()).get(ADMIN_SESSION_COOKIE)?.value);
   if (!principal || !(await hasEffectiveAdminPermission(principal, "system.read"))) return <div className="admin-route"><p className="admin-alert" role="alert">{copy.adminUnauthorized}</p></div>;
-  const [health, registry] = await Promise.all([getSystemHealthSnapshot(), getMigrationRegistryStatus()]);
+  const [health, registry, preflight, canExecute] = await Promise.all([getSystemHealthSnapshot(), getMigrationRegistryStatus(), getMigrationPreflight(), hasEffectiveAdminPermission(principal, "system.migrations.execute")]);
   const status = (value: string) => value === "available" || value === "ready" ? copy.adminAvailable : value === "requires_configuration" ? copy.adminRequiresConfiguration : value === "requires_migration" ? copy.adminRequiresMigration : value === "requires_schema" ? copy.adminRequiresSchema : copy.adminUnavailable;
   const count = (value: number | null) => value === null ? "—" : String(value);
   const registryStatus = registry.status === "healthy" ? copy.adminMigrationRegistryHealthy : registry.status === "pending" ? copy.adminMigrationRegistryPending : registry.status === "inconsistent" ? copy.adminMigrationRegistryInconsistent : copy.adminMigrationRegistryUnavailable;
@@ -42,6 +43,7 @@ export default async function AdminSystemPage() {
         <div className="admin-table-wrap"><table className="admin-table"><caption className="sr-only">{copy.adminMigrationRegistryTitle}</caption><thead><tr><th scope="col">{copy.adminMigrationVersion}</th><th scope="col">{copy.adminMigrationRowStatus}</th><th scope="col">{copy.adminMigrationAppliedAt}</th></tr></thead><tbody>{registry.items.map((item) => <tr key={`${item.source}:${item.version}`}><th scope="row" dir="ltr">{item.version}</th><td><span className={`status-badge status-${item.state.toLowerCase()}`}>{rowStatus(item.state)}</span></td><td dir="ltr">{formatAppliedAt(item.appliedAt)}</td></tr>)}</tbody></table></div>
       </>}
     </section>
+    <AdminMigrationControl initialPreflight={preflight} canExecute={canExecute} copy={copy} />
     <p className="admin-field-hint">{copy.adminRequiresConfiguration}: {copy.adminCredentialLifecycleDeferred}</p>
   </div>;
 }

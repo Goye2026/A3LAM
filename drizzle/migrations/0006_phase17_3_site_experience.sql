@@ -37,7 +37,7 @@ ALTER TABLE admin_permission_overrides
     'seo.read', 'seo.update',
     'audit.read',
     'settings.read', 'settings.manage',
-    'system.read'
+    'system.read', 'system.migrations.execute'
   ));
 
 CREATE INDEX IF NOT EXISTS site_experience_configs_updated_idx

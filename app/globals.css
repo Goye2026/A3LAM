@@ -2136,9 +2136,9 @@ textarea.admin-input { resize: vertical; }
 .admin-status-review { border-color: rgb(169 107 25 / 0.35); background: var(--color-accent-pale); color: var(--color-warning); }
 .admin-status-published { border-color: rgb(24 116 90 / 0.3); background: rgb(24 116 90 / 0.1); color: var(--color-success); }
 .admin-status-archived { border-color: rgb(169 68 68 / 0.3); background: rgb(169 68 68 / 0.1); color: var(--color-danger); }
-.status-applied, .status-healthy { border-color: rgb(24 116 90 / 0.25); background: rgb(24 116 90 / 0.1); color: var(--color-success); }
+.status-applied, .status-healthy, .status-eligible, .status-consistent { border-color: rgb(24 116 90 / 0.25); background: rgb(24 116 90 / 0.1); color: var(--color-success); }
 .status-pending { border-color: rgb(169 107 25 / 0.35); background: var(--color-accent-pale); color: var(--color-warning); }
-.status-unexpected, .status-inconsistent, .status-unavailable { border-color: rgb(169 68 68 / 0.3); background: rgb(169 68 68 / 0.1); color: var(--color-danger); }
+.status-unexpected, .status-inconsistent, .status-unavailable, .status-blocked { border-color: rgb(169 68 68 / 0.3); background: rgb(169 68 68 / 0.1); color: var(--color-danger); }
 .admin-pagination { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-block-start: var(--space-4); color: var(--color-ink-muted); font-size: 0.78rem; }
 
 .admin-editor-form { display: grid; gap: var(--space-5); }
@@ -2512,6 +2512,14 @@ textarea.admin-input { resize: vertical; }
 .admin-button-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .admin-readonly-note { color: var(--color-ink-muted); font-size: 0.75rem; }
 .admin-success { color: var(--color-success); background: color-mix(in srgb, var(--color-success) 10%, transparent); border: 1px solid color-mix(in srgb, var(--color-success) 26%, transparent); border-radius: var(--radius-sm); padding: var(--space-3); }
+.admin-migration-prerequisites { margin-block-start: var(--space-5); border-block-start: 1px solid var(--color-border); padding-block-start: var(--space-4); }
+.admin-migration-prerequisites h3 { margin: 0; color: var(--color-ink); font-size: 0.95rem; }
+.admin-migration-prerequisites ul { display: grid; gap: var(--space-2); margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+.admin-migration-prerequisites li { display: flex; align-items: center; gap: var(--space-2); color: var(--color-ink-soft); font-family: var(--font-latin), var(--font-arabic); font-size: 0.78rem; }
+.admin-migration-prerequisites li span { color: var(--color-success); font-weight: 700; }
+.admin-migration-execution { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); margin-block-start: var(--space-5); border-block-start: 1px solid var(--color-border); padding-block-start: var(--space-4); }
+.admin-migration-execution label { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--color-ink-soft); font-size: 0.78rem; font-weight: 700; }
+.admin-migration-execution input { accent-color: var(--color-brand); }
 .admin-status-invited { color: var(--color-ink-muted); }
 .admin-status-active { color: var(--color-success); }
 .admin-status-disabled { color: var(--color-danger); }

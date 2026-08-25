@@ -40,6 +40,14 @@ describe("Phase 17 centralized RBAC policy", () => {
     expect(canRevokeSuperAdminSession(null, 1)).toBe(true);
   });
 
+  it("keeps migration execution restricted to Super Admin by default", () => {
+    expect(hasAdminPermission("SUPER_ADMIN", "system.migrations.execute")).toBe(true);
+    expect(hasAdminPermission("ADMIN", "system.migrations.execute")).toBe(false);
+    expect(hasAdminPermission("EDITOR", "system.migrations.execute")).toBe(false);
+    expect(hasAdminPermission("MODERATOR", "system.migrations.execute")).toBe(false);
+    expect(hasAdminPermission("USER", "system.migrations.execute")).toBe(false);
+  });
+
   it("keeps the role matrix explicit and least-privilege for editors", () => {
     expect(hasAdminPermission("EDITOR", "people.update")).toBe(true);
     expect(hasAdminPermission("EDITOR", "admins.manage")).toBe(false);

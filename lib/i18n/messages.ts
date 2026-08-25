@@ -438,6 +438,26 @@ export type FoundationMessages = {
   adminMigrationRegistryInconsistent: string;
   adminMigrationRegistryUnavailable: string;
   adminMigrationNoAppliedAt: string;
+  adminMigrationControlTitle: string;
+  adminMigrationControlDescription: string;
+  adminMigrationPreflight: string;
+  adminMigrationPrerequisites: string;
+  adminMigrationNext: string;
+  adminMigrationAuthorization: string;
+  adminMigrationExecution: string;
+  adminMigrationDatabase: string;
+  adminMigrationRegistry: string;
+  adminMigrationAuthorized: string;
+  adminMigrationNotAuthorized: string;
+  adminMigrationReady: string;
+  adminMigrationBlocked: string;
+  adminMigrationPrerequisiteMissing: string;
+  adminMigrationNoPending: string;
+  adminMigrationExecuteButton: string;
+  adminMigrationConfirmPrompt: string;
+  adminMigrationSuccess: string;
+  adminMigrationFailure: string;
+  adminMigrationStopped: string;
   adminPublishedResources: string;
   adminDraftResources: string;
   adminAvailable: string;
@@ -960,6 +980,26 @@ const ar: FoundationMessages = {
   adminMigrationRegistryInconsistent: "سجل الترحيلات غير متسق",
   adminMigrationRegistryUnavailable: "تعذر قراءة سجل migrations الآن.",
   adminMigrationNoAppliedAt: "—",
+  adminMigrationControlTitle: "التحكم في الترحيلات",
+  adminMigrationControlDescription: "تشغيل ترحيل واحد فقط بعد فحص الخوادم والمتطلبات، باستخدام runner المعتمد.",
+  adminMigrationPreflight: "الفحص المسبق",
+  adminMigrationPrerequisites: "المتطلبات",
+  adminMigrationNext: "الترحيل التالي",
+  adminMigrationAuthorization: "التفويض",
+  adminMigrationExecution: "التنفيذ",
+  adminMigrationDatabase: "قاعدة البيانات",
+  adminMigrationRegistry: "السجل",
+  adminMigrationAuthorized: "مصرح",
+  adminMigrationNotAuthorized: "غير مصرح",
+  adminMigrationReady: "جاهز للتنفيذ",
+  adminMigrationBlocked: "التنفيذ محظور",
+  adminMigrationPrerequisiteMissing: "التنفيذ محظور حتى اكتمال المتطلبات السابقة.",
+  adminMigrationNoPending: "لا توجد migrations معلقة.",
+  adminMigrationExecuteButton: "تشغيل الترحيل التالي",
+  adminMigrationConfirmPrompt: "أؤكد تشغيل الترحيل التالي فقط",
+  adminMigrationSuccess: "تم تشغيل الترحيل التالي وتسجيله.",
+  adminMigrationFailure: "تعذر تنفيذ الترحيل. تم إيقاف التنفيذ.",
+  adminMigrationStopped: "لم يتم اعتماد التغيير.",
   adminPublishedResources: "موارد منشورة",
   adminDraftResources: "موارد مسودة",
   adminAvailable: "متاحة",
@@ -1482,6 +1522,26 @@ const en: FoundationMessages = {
   adminMigrationRegistryInconsistent: "Migration registry is inconsistent",
   adminMigrationRegistryUnavailable: "The migration registry could not be read.",
   adminMigrationNoAppliedAt: "—",
+  adminMigrationControlTitle: "Migration control",
+  adminMigrationControlDescription: "Run one migration only after server-side preflight, using the approved runner.",
+  adminMigrationPreflight: "Preflight",
+  adminMigrationPrerequisites: "Prerequisites",
+  adminMigrationNext: "Next migration",
+  adminMigrationAuthorization: "Authorization",
+  adminMigrationExecution: "Execution",
+  adminMigrationDatabase: "Database",
+  adminMigrationRegistry: "Registry",
+  adminMigrationAuthorized: "Authorized",
+  adminMigrationNotAuthorized: "Not authorized",
+  adminMigrationReady: "Ready to execute",
+  adminMigrationBlocked: "Execution blocked",
+  adminMigrationPrerequisiteMissing: "Execution is blocked until prerequisites are complete.",
+  adminMigrationNoPending: "No pending migrations.",
+  adminMigrationExecuteButton: "Run next migration",
+  adminMigrationConfirmPrompt: "I confirm running only the next migration",
+  adminMigrationSuccess: "The next migration was executed and recorded.",
+  adminMigrationFailure: "The migration could not be executed. Execution stopped.",
+  adminMigrationStopped: "The change was not committed.",
   adminPublishedResources: "Published resources",
   adminDraftResources: "Draft resources",
   adminAvailable: "Available",

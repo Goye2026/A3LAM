@@ -15,14 +15,18 @@ function getMaxConnections() {
   return Number.isFinite(value) && value > 0 ? value : 5;
 }
 
-export function getDb() {
+export function getSqlClient() {
   if (!sqlClient) {
     sqlClient = postgres(getDatabaseUrl(), {
       max: getMaxConnections(),
       prepare: false,
     });
   }
-  return drizzle(sqlClient, { schema });
+  return sqlClient;
+}
+
+export function getDb() {
+  return drizzle(getSqlClient(), { schema });
 }
 
 export async function closeDb() {

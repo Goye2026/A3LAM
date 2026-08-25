@@ -3,15 +3,9 @@ import { getDb } from "@/lib/db/client";
 import { profileFiles, siteExperienceConfigs } from "@/lib/db/schema";
 import { isAdminAccessConfigured } from "@/lib/admin/auth";
 import { getStorageStatus } from "@/lib/storage/provider";
+import { MIGRATION_VERSIONS } from "@/lib/db/migrations/manifest.mjs";
 
-const REQUIRED_MIGRATIONS = [
-  "0001_a3lam_core.sql",
-  "0002_a3lam_integrity.sql",
-  "0003_phase13_profiles.sql",
-  "0004_phase17_1_admin_identity.sql",
-  "0005_phase17_2_rbac_management.sql",
-  "0006_phase17_3_site_experience.sql",
-] as const;
+const REQUIRED_MIGRATIONS = MIGRATION_VERSIONS;
 
 type Availability = "available" | "unavailable" | "requires_configuration" | "requires_schema" | "requires_migration";
 

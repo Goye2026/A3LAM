@@ -47,7 +47,7 @@ export function adminErrorResponse(error: unknown) {
   if (error instanceof Error && (error.name === "AdminInputError" || error.name === "AdminValidationError")) {
     return NextResponse.json({ error: safeErrors.INVALID_INPUT.code, message: safeErrors.INVALID_INPUT.publicMessage }, { status: safeErrors.INVALID_INPUT.status });
   }
-  if (error instanceof Error && error.name === "AdminConflictError") {
+  if (error instanceof Error && ["AdminConflictError", "MigrationRegistryInconsistentError", "MigrationAlreadyAppliedError", "MigrationPrerequisiteError", "MigrationStateChangedError"].includes(error.name)) {
     return NextResponse.json({ error: safeErrors.CONFLICT.code, message: safeErrors.CONFLICT.publicMessage }, { status: safeErrors.CONFLICT.status });
   }
   if (typeof error === "object" && error !== null && "code" in error && (error as { code?: unknown }).code === "23505") {

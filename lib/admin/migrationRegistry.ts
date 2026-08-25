@@ -1,6 +1,8 @@
 import { sql } from "drizzle-orm";
+import { access } from "node:fs/promises";
+import path from "node:path";
 import { getDb } from "@/lib/db/client";
-import { REQUIRED_MIGRATIONS } from "@/lib/admin/systemHealth";
+import { MIGRATION_VERSIONS } from "@/lib/db/migrations/manifest.mjs";
 
 export type MigrationRegistryItem = {
   version: string;
@@ -16,6 +18,17 @@ export type MigrationRegistryStatus = {
   pendingCount: number;
   expectedCount: number;
   items: MigrationRegistryItem[];
+};
+
+export type MigrationPreflight = {
+  database: "available" | "unavailable";
+  registry: "consistent" | "inconsistent" | "unavailable";
+  files: "available" | "unavailable";
+  prerequisites: Array<{ version: string; applied: boolean }>;
+  nextMigration: string | null;
+  execution: "eligible" | "blocked";
+  reason: "NONE" | "DATABASE_UNAVAILABLE" | "REGISTRY_UNAVAILABLE" | "REGISTRY_INCONSISTENT" | "MIGRATION_FILES_UNAVAILABLE" | "PREREQUISITE_MISSING" | "NO_PENDING_MIGRATION";
+  registrySnapshot: MigrationRegistryStatus;
 };
 
 type AppliedMigrationRow = { version: string; appliedAt: Date | string | null };
@@ -74,17 +87,26 @@ function normalizeAppliedAt(value: Date | string | null) {
   return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
 }
 
-async function getRepositoryMigrationVersions() {
-  return [...REQUIRED_MIGRATIONS];
-}
-
 function isMissingMigrationRegistry(error: unknown) {
   return typeof error === "object" && error !== null && "code" in error && (error as { code?: unknown }).code === "42P01";
 }
 
+export function getRepositoryMigrationVersions() {
+  return [...MIGRATION_VERSIONS];
+}
+
+async function areMigrationFilesAvailable(versions: string[]) {
+  try {
+    await Promise.all(versions.map((version) => access(path.join(process.cwd(), "drizzle", "migrations", version))));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function getMigrationRegistryStatus(): Promise<MigrationRegistryStatus> {
   try {
-    const expectedVersions = await getRepositoryMigrationVersions();
+    const expectedVersions = getRepositoryMigrationVersions();
     const db = getDb();
     const table = await db.execute(sql<{ name: string | null }>`select to_regclass('public.schema_migrations') as name`);
     if (!table[0]?.name) {
@@ -106,4 +128,43 @@ export async function getMigrationRegistryStatus(): Promise<MigrationRegistrySta
   }
 }
 
-export { getRepositoryMigrationVersions };
+export function evaluateMigrationPreflight({ registrySnapshot, databaseAvailable, filesAvailable }: { registrySnapshot: MigrationRegistryStatus; databaseAvailable: boolean; filesAvailable: boolean }): MigrationPreflight {
+  const expectedVersions = getRepositoryMigrationVersions();
+  const registry = registrySnapshot.status === "unavailable" ? "unavailable" : registrySnapshot.status === "inconsistent" ? "inconsistent" : "consistent";
+  const prerequisites = expectedVersions.slice(0, 3).map((version) => ({ version, applied: registrySnapshot.items.some((item) => item.version === version && item.state === "APPLIED") }));
+  const nextMigration = registrySnapshot.items.find((item) => item.state === "PENDING")?.version ?? null;
+
+  let reason: MigrationPreflight["reason"] = "NONE";
+  if (!databaseAvailable) reason = "DATABASE_UNAVAILABLE";
+  else if (registry === "unavailable") reason = "REGISTRY_UNAVAILABLE";
+  else if (registry === "inconsistent") reason = "REGISTRY_INCONSISTENT";
+  else if (!filesAvailable) reason = "MIGRATION_FILES_UNAVAILABLE";
+  else if (!prerequisites.every((item) => item.applied)) reason = "PREREQUISITE_MISSING";
+  else if (!nextMigration) reason = "NO_PENDING_MIGRATION";
+
+  return {
+    database: databaseAvailable ? "available" : "unavailable",
+    registry,
+    files: filesAvailable ? "available" : "unavailable",
+    prerequisites,
+    nextMigration,
+    execution: reason === "NONE" ? "eligible" : "blocked",
+    reason,
+    registrySnapshot,
+  };
+}
+
+export async function getMigrationPreflight(): Promise<MigrationPreflight> {
+  const expectedVersions = getRepositoryMigrationVersions();
+  const filesAvailable = await areMigrationFilesAvailable(expectedVersions);
+  let databaseAvailable = true;
+  try {
+    await getDb().execute(sql`select 1`);
+  } catch {
+    databaseAvailable = false;
+  }
+
+  const unavailableRegistry: MigrationRegistryStatus = { status: "unavailable", appliedCount: 0, pendingCount: 0, expectedCount: expectedVersions.length, items: [] };
+  const registrySnapshot = databaseAvailable ? await getMigrationRegistryStatus() : unavailableRegistry;
+  return evaluateMigrationPreflight({ registrySnapshot, databaseAvailable, filesAvailable });
+}

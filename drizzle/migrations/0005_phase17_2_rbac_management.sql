@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS admin_permission_overrides (
     'seo.read', 'seo.update',
     'audit.read',
     'settings.read', 'settings.manage',
-    'system.read'
+    'system.read', 'system.migrations.execute'
   )),
   PRIMARY KEY (admin_id, permission_code)
 );

@@ -13,6 +13,11 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  outputFileTracingIncludes: {
+    "/admin/system": ["./drizzle/migrations/*.sql"],
+    "/api/admin/system/migrations/preflight": ["./drizzle/migrations/*.sql"],
+    "/api/admin/system/migrations/execute": ["./drizzle/migrations/*.sql"],
+  },
   async headers() {
     return [
       {
