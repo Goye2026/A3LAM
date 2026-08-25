@@ -221,7 +221,7 @@ All checks below were **GET/HEAD-only or read-only browser checks**. No POST, PU
 | Representative published person route | HTTP 200; Arabic title, canonical, one Person JSON-LD marker, no sensitive scan matches |
 | Migration registry projection | 0001–0006 applied; pending 0; expected 6; consistent; runner not executed |
 
-A read-only Vercel runtime-error query for the last 24 hours returned three single-occurrence groups associated with prior deployments: two Phase 13 migration errors including an `ENOENT` migrations-path sample, and one historical `[UserAuth] registration failed` group. The current `dpl_7E1...` deployment was not listed. These results are retained as a limitation and are not represented as “zero runtime errors.” No secret or credential data was captured.
+A read-only Vercel runtime-error query for the last 24 hours returned three single-occurrence groups associated with prior deployments: two Phase 13 migration errors including an `ENOENT` migrations-path sample, and one historical `[UserAuth] registration failed` group. The current `dpl_H2H...` deployment was not listed. These results are retained as a limitation and are not represented as “zero runtime errors.” No secret or credential data was captured.
 
 ## Tests
 
