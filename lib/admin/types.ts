@@ -15,6 +15,7 @@ export type AdminIdentitySummary = {
   lastSignedIn: string | null;
   lastActivityAt: string | null;
   createdAt: string;
+  updatedAt: string;
   activeSessions: number;
 };
 
@@ -25,6 +26,8 @@ export type AdminSessionSummary = {
   createdAt: string;
   lastActivityAt: string;
   expiresAt: string;
+  status: "active" | "revoked" | "expired";
+  revokedAt: string | null;
   userAgent: string | null;
   ipAddress: string | null;
 };
@@ -43,12 +46,48 @@ export type AdminPermissionMatrixRow = {
   permissions: AdminPermissionCode[];
 };
 
+export type AdminPermissionOverrideSummary = {
+  permissionCode: AdminPermissionCode;
+  effect: "allow" | "deny";
+  assignedBy: string | null;
+  assignedAt: string;
+};
+
+export type AdminEffectivePermissions = {
+  adminId: string;
+  role: AdminRoleCode | null;
+  defaults: AdminPermissionCode[];
+  overrides: AdminPermissionOverrideSummary[];
+  effective: AdminPermissionCode[];
+};
+
 export type AdminUserManagementSummary = AdminUserSummary & {
   email: string;
   accountStatus: "active" | "disabled";
   activeSessions: number;
+  completionPercent: number | null;
   profileStatus: ProfileStatus | null;
   visibility: ProfileVisibility | null;
+};
+
+export type AdminUserDetail = {
+  id: string;
+  name: string;
+  email: string;
+  accountStatus: "active" | "disabled";
+  createdAt: string;
+  lastSignedIn: string | null;
+  profile: {
+    id: string;
+    slug: string;
+    name: string;
+    nameArabic: string;
+    status: string;
+    visibility: string;
+    completion: { percent: number; completed: string[]; remaining: string[] };
+  } | null;
+  sessions: { id: string; createdAt: string; expiresAt: string }[];
+  audit: AdminAuditLogItem[];
 };
 
 export type AdminSourceInput = {
@@ -146,6 +185,7 @@ export type AdminUserSummary = {
 export type AdminAuditLogItem = {
   id: string;
   actorType: string;
+  actorId: string | null;
   entityType: string;
   entityId: string;
   field: string;
@@ -159,10 +199,12 @@ export type AdminControlCenterSummary = {
   people: number;
   categories: number;
   users: number;
+  activeUsers: number;
   profiles: { total: number; pendingReview: number; published: number; draft: number };
   adminIdentities: number | null;
   editors: number | null;
   adminSessions: number | null;
+  recentAudit: AdminAuditLogItem[];
 };
 
 export type AdminTimelineRecord = TimelineEvent;

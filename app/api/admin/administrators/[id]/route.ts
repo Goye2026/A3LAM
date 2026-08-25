@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { getAdminPrincipalFromRequest } from "@/lib/admin/auth";
-import { adminErrorResponse, requireAdminAsync, requirePermissionPrincipal } from "@/lib/admin/http";
+import { adminErrorResponse, forbiddenResponse, requireAdminAsync, requirePermissionPrincipal } from "@/lib/admin/http";
 import { parseAdminIdentityUpdateBody, parseId } from "@/lib/admin/input";
-import { hasAdminPermission } from "@/lib/admin/rbac";
 import { adminRepository } from "@/lib/data/adminRepository";
 import { isSameOriginMutation } from "@/lib/user/requestSecurity";
 
@@ -28,15 +26,21 @@ export async function PATCH(request: Request, context: Context) {
   if (authenticated) return authenticated;
   if (!isSameOriginMutation(request)) return NextResponse.json({ error: "INVALID_INPUT", message: "The submitted value is invalid." }, { status: 400 });
   try {
+    let gate = await requirePermissionPrincipal(request, "admins.manage");
+    const hasAdminManagement = !gate.response;
+    if (gate.response) {
+      gate = await requirePermissionPrincipal(request, "editors.manage");
+      if (gate.response) return gate.response;
+    }
     const { id: rawId } = await context.params;
     const id = parseId(rawId);
     const current = await adminRepository.getAdminIdentity(id);
     if (!current) return NextResponse.json({ error: "NOT_FOUND", message: "The requested resource was not found." }, { status: 404 });
     const input = parseAdminIdentityUpdateBody(await request.json());
-    const editorScoped = current.role === "EDITOR" && (!input.role || input.role === "EDITOR");
-    const permission = editorScoped ? "editors.manage" : "admins.manage";
-    const principal = await getAdminPrincipalFromRequest(request);
-    if (!principal || !hasAdminPermission(principal.role, permission)) return NextResponse.json({ error: "FORBIDDEN", message: "You do not have permission to perform this action." }, { status: 403 });
+    if ((!hasAdminManagement && current.role !== "EDITOR") || (!hasAdminManagement && input.role && input.role !== "EDITOR")) return forbiddenResponse();
+    const principal = gate.principal;
+    if (!principal) return forbiddenResponse();
+    if ((current.role === "SUPER_ADMIN" || input.role === "SUPER_ADMIN") && principal.role !== "SUPER_ADMIN") return forbiddenResponse();
     const item = await adminRepository.updateAdminIdentity(id, input, principal.id);
     return NextResponse.json({ item });
   } catch (error) {

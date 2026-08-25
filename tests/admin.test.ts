@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createAdminSession, isAdminAccessConfigured, isAdminRequest, isValidAdminSession } from "@/lib/admin/auth";
 import { buildPersonRecord, parseAdminCategoryInput, parseAdminPersonInput } from "@/lib/admin/records";
-import { parseAdminIdentityCreateBody, parseAdminIdentityUpdateBody } from "@/lib/admin/input";
+import { parseAdminIdentityCreateBody, parseAdminIdentityUpdateBody, parsePermissionOverridesBody } from "@/lib/admin/input";
 import type { Category } from "@/lib/domain/a3lam";
-import { canAdminRoleManageRole, hasAdminPermission, isFinalSuperAdminDeletionAllowed, permissionsForRole } from "@/lib/admin/rbac";
+import { applyPermissionOverrides, canAdminRoleManageRole, canSoleSuperAdminRetainCorePermissions, effectivePermissionsForPrincipal, hasAdminPermission, isFinalSuperAdminDeletionAllowed, permissionsForRole } from "@/lib/admin/rbac";
 import { requirePermission } from "@/lib/admin/http";
 
 const token = "phase-11-local-admin-token-012345678901234567890";
@@ -26,13 +26,33 @@ describe("Phase 17 centralized RBAC policy", () => {
     expect(canAdminRoleManageRole("SUPER_ADMIN", "SUPER_ADMIN")).toBe(false);
     expect(isFinalSuperAdminDeletionAllowed(1)).toBe(false);
     expect(isFinalSuperAdminDeletionAllowed(2)).toBe(true);
+    expect(canSoleSuperAdminRetainCorePermissions("SUPER_ADMIN", 1, new Set(["admins.manage", "permissions.assign", "system.read"]))).toBe(true);
+    expect(canSoleSuperAdminRetainCorePermissions("SUPER_ADMIN", 1, new Set(["admins.manage", "system.read"]))).toBe(false);
+    expect(canSoleSuperAdminRetainCorePermissions("SUPER_ADMIN", 2, new Set())).toBe(true);
   });
 
   it("keeps the role matrix explicit and least-privilege for editors", () => {
     expect(hasAdminPermission("EDITOR", "people.update")).toBe(true);
     expect(hasAdminPermission("EDITOR", "admins.manage")).toBe(false);
+    expect(hasAdminPermission("EDITOR", "sessions.revoke")).toBe(false);
+    expect(hasAdminPermission("ADMIN", "sessions.read")).toBe(true);
     expect(hasAdminPermission("ADMIN", "roles.update")).toBe(false);
     expect(hasAdminPermission("SUPER_ADMIN", "roles.update")).toBe(true);
+  });
+
+  it("applies allow and deny overrides without mutating role defaults", () => {
+    const defaults = permissionsForRole("EDITOR");
+    const effective = applyPermissionOverrides("EDITOR", [{ permissionCode: "categories.update", effect: "allow" }, { permissionCode: "people.publish", effect: "deny" }]);
+    expect(effective.has("categories.update")).toBe(true);
+    expect(effective.has("people.publish")).toBe(false);
+    expect(defaults.has("categories.update")).toBe(false);
+    expect(defaults.has("people.publish")).toBe(true);
+  });
+
+  it("falls back to the centralized policy for the legacy principal", async () => {
+    const permissions = await effectivePermissionsForPrincipal({ id: null, email: null, displayName: "Legacy Admin", role: "SUPER_ADMIN", sessionId: null, legacy: true });
+    expect(permissions.has("system.read")).toBe(true);
+    expect(permissions.has("sessions.revoke")).toBe(true);
   });
 
   it("enforces permissions on the server-side gate", async () => {
@@ -40,6 +60,8 @@ describe("Phase 17 centralized RBAC policy", () => {
     vi.stubEnv("NODE_ENV", "test");
     const denied = await requirePermission(new Request("http://localhost"), "settings.manage");
     expect(denied?.status).toBe(401);
+    const publicUserDenied = await requirePermission(new Request("http://localhost", { headers: { cookie: "a3lam_user_session=opaque-public-user-session" } }), "users.read");
+    expect(publicUserDenied?.status).toBe(401);
     const session = createAdminSession();
     const allowed = await requirePermission(new Request("http://localhost", { headers: { cookie: `a3lam_admin_session=${encodeURIComponent(session)}` } }), "settings.manage");
     expect(allowed).toBeNull();
@@ -56,6 +78,12 @@ describe("Phase 17.1 admin identity input", () => {
     expect(() => parseAdminIdentityCreateBody({ email: "not-an-email", displayName: "Admin", role: "ADMIN" })).toThrow(/email/);
     expect(() => parseAdminIdentityCreateBody({ email: "admin@example.com", displayName: "Admin", role: "ROOT" })).toThrow(/role/);
     expect(() => parseAdminIdentityUpdateBody({})).toThrow(/fields/);
+  });
+
+  it("accepts only bounded permission override entries", () => {
+    expect(parsePermissionOverridesBody({ overrides: [{ permissionCode: "categories.update", effect: "allow" }] })).toEqual({ overrides: [{ permissionCode: "categories.update", effect: "allow" }] });
+    expect(() => parsePermissionOverridesBody({ overrides: [{ permissionCode: "root.access", effect: "allow" }] })).toThrow(/permission/);
+    expect(() => parsePermissionOverridesBody({ overrides: [{ permissionCode: "categories.update", effect: "allow" }, { permissionCode: "categories.update", effect: "deny" }] })).toThrow(/permission/);
   });
 });
 

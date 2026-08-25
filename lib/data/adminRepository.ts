@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, desc, eq, gt, ilike, inArray, isNull, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, gte, ilike, inArray, isNotNull, isNull, lte, or, sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { getDb } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
@@ -19,7 +19,9 @@ import {
 } from "@/lib/domain/a3lam";
 import type { ContentStatus, ProfileStatus } from "@/lib/domain/a3lam";
 import { normalizeArabic } from "@/lib/domain/search";
-import { ADMIN_ROLE_CODES, type AdminAccountStatus, type AdminAuditLogItem, type AdminCategoryInput, type AdminCategorySummary, type AdminControlCenterSummary, type AdminDashboardData, type AdminIdentitySummary, type AdminPeoplePage, type AdminPersonEditorData, type AdminPersonListItem, type AdminRoleCode, type AdminSessionSummary, type AdminUserSummary } from "@/lib/admin/types";
+import { ADMIN_PERMISSIONS, applyPermissionOverrides, canSoleSuperAdminRetainCorePermissions, permissionListForRole } from "@/lib/admin/rbac";
+import { calculateProfileCompletion, getProfileForUser } from "@/lib/user/profileRepository";
+import { ADMIN_ROLE_CODES, type AdminAccountStatus, type AdminAuditLogItem, type AdminCategoryInput, type AdminCategorySummary, type AdminControlCenterSummary, type AdminDashboardData, type AdminEffectivePermissions, type AdminIdentitySummary, type AdminPermissionCode, type AdminUserDetail, type AdminPermissionOverrideSummary, type AdminPeoplePage, type AdminPersonEditorData, type AdminPersonListItem, type AdminRoleCode, type AdminSessionSummary, type AdminUserSummary } from "@/lib/admin/types";
 
 export const ADMIN_PAGE_SIZE = 20;
 
@@ -228,11 +230,13 @@ async function listCategoriesForPeople(db: Database, personIds: string[]) {
 export const adminRepository = {
   async getControlCenterSummary(): Promise<AdminControlCenterSummary> {
     const db = getDb();
-    const [peopleRows, categoryRows, userRows, profileRows] = await Promise.all([
+    const [peopleRows, categoryRows, userRows, activeUserRows, profileRows, recentAuditRows] = await Promise.all([
       db.select({ count: sql<string>`count(*)` }).from(schema.people),
       db.select({ count: sql<string>`count(*)` }).from(schema.categories),
       db.select({ count: sql<string>`count(*)` }).from(schema.userAccounts),
+      db.select({ count: sql<string>`count(*)` }).from(schema.userAccounts).where(isNull(schema.userAccounts.disabledAt)),
       db.select({ status: schema.profiles.status, count: sql<string>`count(*)` }).from(schema.profiles).groupBy(schema.profiles.status),
+      db.select({ id: schema.auditLogs.id, actorType: schema.auditLogs.actorType, actorId: schema.auditLogs.actorId, entityType: schema.auditLogs.entityType, entityId: schema.auditLogs.entityId, field: schema.auditLogs.field, action: schema.auditLogs.action, createdAt: schema.auditLogs.createdAt }).from(schema.auditLogs).orderBy(desc(schema.auditLogs.createdAt)).limit(5),
     ]);
     let adminIdentities: number | null = null;
     let editors: number | null = null;
@@ -261,10 +265,12 @@ export const adminRepository = {
       people: Number(peopleRows[0]?.count ?? 0),
       categories: Number(categoryRows[0]?.count ?? 0),
       users: Number(userRows[0]?.count ?? 0),
+      activeUsers: Number(activeUserRows[0]?.count ?? 0),
       profiles,
       adminIdentities,
       editors,
       adminSessions,
+      recentAudit: recentAuditRows.map((row) => ({ ...row, createdAt: asIsoTimestamp(row.createdAt) })),
     };
   },
 
@@ -398,17 +404,25 @@ export const adminRepository = {
     }));
   },
 
-  async listAuditLogs(limit = 100): Promise<AdminAuditLogItem[]> {
+  async listAuditLogs(options: { actor?: string; action?: string; entityType?: string; entityId?: string; from?: string; to?: string; limit?: number } = {}): Promise<AdminAuditLogItem[]> {
     const db = getDb();
+    const conditions = [];
+    if (options.actor?.trim()) conditions.push(or(eq(schema.auditLogs.actorId, options.actor.trim()), eq(schema.auditLogs.actorType, options.actor.trim())));
+    if (options.action?.trim()) conditions.push(ilike(schema.auditLogs.action, `%${options.action.trim()}%`));
+    if (options.entityType?.trim()) conditions.push(eq(schema.auditLogs.entityType, options.entityType.trim()));
+    if (options.entityId?.trim()) conditions.push(eq(schema.auditLogs.entityId, options.entityId.trim()));
+    if (options.from && !Number.isNaN(new Date(options.from).getTime())) conditions.push(gte(schema.auditLogs.createdAt, new Date(options.from)));
+    if (options.to && !Number.isNaN(new Date(options.to).getTime())) conditions.push(lte(schema.auditLogs.createdAt, new Date(options.to)));
     const rows = await db.select({
       id: schema.auditLogs.id,
       actorType: schema.auditLogs.actorType,
+      actorId: schema.auditLogs.actorId,
       entityType: schema.auditLogs.entityType,
       entityId: schema.auditLogs.entityId,
       field: schema.auditLogs.field,
       action: schema.auditLogs.action,
       createdAt: schema.auditLogs.createdAt,
-    }).from(schema.auditLogs).orderBy(desc(schema.auditLogs.createdAt)).limit(Math.min(Math.max(limit, 1), 100));
+    }).from(schema.auditLogs).where(conditions.length > 0 ? and(...conditions) : undefined).orderBy(desc(schema.auditLogs.createdAt)).limit(Math.min(Math.max(options.limit ?? 100, 1), 100));
     return rows.map((row) => ({ ...row, createdAt: asIsoTimestamp(row.createdAt) }));
   },
 
@@ -502,19 +516,38 @@ export const adminRepository = {
     return this.getEditorData(id);
   },
 
-  async listAdminUsers(options: { query?: string; disabled?: "active" | "disabled" | ""; limit?: number } = {}) {
+  async listAdminUsers(options: { query?: string; disabled?: "active" | "disabled" | ""; profileStatus?: ProfileStatus | ""; visibility?: "private" | "unlisted" | "published" | ""; hasProfile?: "yes" | "no" | ""; limit?: number } = {}) {
     const db = getDb();
     const conditions = [];
     const query = options.query?.trim();
-    if (query) conditions.push(or(ilike(schema.userAccounts.name, `%${query}%`), ilike(schema.userAccounts.email, `%${query}%`)));
+    if (query) conditions.push(or(ilike(schema.userAccounts.name, `%${query}%`), ilike(schema.userAccounts.email, `%${query}%`), ilike(schema.profiles.slug, `%${query}%`), ilike(schema.profiles.professionalTitle, `%${query}%`)));
     if (options.disabled === "active") conditions.push(isNull(schema.userAccounts.disabledAt));
     if (options.disabled === "disabled") conditions.push(sql`${schema.userAccounts.disabledAt} IS NOT NULL`);
+    if (options.profileStatus) conditions.push(eq(schema.profiles.status, options.profileStatus));
+    if (options.visibility) conditions.push(eq(schema.profiles.visibility, options.visibility));
+    if (options.hasProfile === "yes") conditions.push(isNotNull(schema.profiles.id));
+    if (options.hasProfile === "no") conditions.push(isNull(schema.profiles.id));
+    const completionPercent = sql<number>`round((
+      (case when ${schema.profiles.name} <> '' and ${schema.profiles.nameArabic} <> '' and ${schema.profiles.slug} <> '' then 1 else 0 end) +
+      (case when ${schema.profiles.imageUrl} is not null and ${schema.profiles.imageUrl} <> '' then 1 else 0 end) +
+      (case when ${schema.profiles.professionalTitle} <> '' and (${schema.profiles.professionalSummary} <> '' or ${schema.profiles.biography} <> '') then 1 else 0 end) +
+      (case when exists (select 1 from profile_experiences pe where pe.profile_id = ${schema.profiles.id}) then 1 else 0 end) +
+      (case when exists (select 1 from profile_educations ped where ped.profile_id = ${schema.profiles.id}) then 1 else 0 end) +
+      (case when exists (select 1 from profile_skills ps where ps.profile_id = ${schema.profiles.id}) then 1 else 0 end) +
+      (case when exists (select 1 from profile_certifications pc where pc.profile_id = ${schema.profiles.id}) then 1 else 0 end) +
+      (case when exists (select 1 from profile_languages pl where pl.profile_id = ${schema.profiles.id}) then 1 else 0 end) +
+      (case when exists (select 1 from profile_portfolio_items pp where pp.profile_id = ${schema.profiles.id}) then 1 else 0 end) +
+      (case when exists (select 1 from profile_social_links psl where psl.profile_id = ${schema.profiles.id}) then 1 else 0 end) +
+      (case when ${schema.profiles.contactEmail} is not null or ${schema.profiles.phone} is not null or exists (select 1 from profile_social_links psl2 where psl2.profile_id = ${schema.profiles.id}) then 1 else 0 end) +
+      (case when exists (select 1 from profile_source_records psr where psr.profile_id = ${schema.profiles.id}) then 1 else 0 end)
+    ) * 100 / 12)`;
     const rows = await db.select({
       user: schema.userAccounts,
       profileId: schema.profiles.id,
       profileNameArabic: schema.profiles.nameArabic,
       profileStatus: schema.profiles.status,
       profileVisibility: schema.profiles.visibility,
+      completionPercent,
       activeSessions: sql<number>`count(${schema.userSessions.id})`,
     }).from(schema.userAccounts)
       .leftJoin(schema.profiles, eq(schema.profiles.userId, schema.userAccounts.id))
@@ -523,7 +556,30 @@ export const adminRepository = {
       .groupBy(schema.userAccounts.id, schema.profiles.id)
       .orderBy(desc(schema.userAccounts.createdAt))
       .limit(Math.min(Math.max(options.limit ?? 100, 1), 100));
-    return rows.map(({ user, profileId, profileNameArabic, profileStatus, profileVisibility, activeSessions }) => ({ id: user.id, name: user.name, email: user.email, createdAt: asIsoTimestamp(user.createdAt), lastSignedIn: user.lastSignedIn ? asIsoTimestamp(user.lastSignedIn) : null, accountStatus: user.disabledAt ? "disabled" as const : "active" as const, activeSessions: Number(activeSessions ?? 0), profileStatus: profileStatus ?? null, visibility: profileVisibility ?? null, profile: profileId ? { id: profileId, nameArabic: profileNameArabic ?? "", status: profileStatus ?? "draft", visibility: profileVisibility ?? "private" } : null }));
+    return rows.map(({ user, profileId, profileNameArabic, profileStatus, profileVisibility, completionPercent, activeSessions }) => ({ id: user.id, name: user.name, email: user.email, createdAt: asIsoTimestamp(user.createdAt), lastSignedIn: user.lastSignedIn ? asIsoTimestamp(user.lastSignedIn) : null, accountStatus: user.disabledAt ? "disabled" as const : "active" as const, activeSessions: Number(activeSessions ?? 0), profileStatus: profileStatus ?? null, visibility: profileVisibility ?? null, completionPercent: profileId ? Number(completionPercent ?? 0) : null, profile: profileId ? { id: profileId, nameArabic: profileNameArabic ?? "", status: profileStatus ?? "draft", visibility: profileVisibility ?? "private" } : null }));
+  },
+
+  async getAdminUserDetail(id: string): Promise<AdminUserDetail | null> {
+    const db = getDb();
+    const userRows = await db.select().from(schema.userAccounts).where(eq(schema.userAccounts.id, id)).limit(1);
+    const user = userRows[0];
+    if (!user) return null;
+    const profile = await getProfileForUser(user.id);
+    const [sessionRows, auditRows] = await Promise.all([
+      db.select({ id: schema.userSessions.id, createdAt: schema.userSessions.createdAt, expiresAt: schema.userSessions.expiresAt }).from(schema.userSessions).where(and(eq(schema.userSessions.userId, user.id), isNull(schema.userSessions.revokedAt), gt(schema.userSessions.expiresAt, new Date()))).orderBy(desc(schema.userSessions.createdAt)).limit(100),
+      db.select({ id: schema.auditLogs.id, actorType: schema.auditLogs.actorType, actorId: schema.auditLogs.actorId, entityType: schema.auditLogs.entityType, entityId: schema.auditLogs.entityId, field: schema.auditLogs.field, action: schema.auditLogs.action, createdAt: schema.auditLogs.createdAt }).from(schema.auditLogs).where(profile ? or(and(eq(schema.auditLogs.entityType, "user_account"), eq(schema.auditLogs.entityId, user.id)), and(eq(schema.auditLogs.entityType, "profile"), eq(schema.auditLogs.entityId, profile.profile.id))) : and(eq(schema.auditLogs.entityType, "user_account"), eq(schema.auditLogs.entityId, user.id))).orderBy(desc(schema.auditLogs.createdAt)).limit(100),
+    ]);
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      accountStatus: user.disabledAt ? "disabled" : "active",
+      createdAt: asIsoTimestamp(user.createdAt),
+      lastSignedIn: user.lastSignedIn ? asIsoTimestamp(user.lastSignedIn) : null,
+      profile: profile ? { id: profile.profile.id, slug: profile.profile.slug, name: profile.profile.name, nameArabic: profile.profile.nameArabic, status: profile.profile.status, visibility: profile.profile.visibility, completion: calculateProfileCompletion(profile) } : null,
+      sessions: sessionRows.map((session) => ({ id: session.id, createdAt: asIsoTimestamp(session.createdAt), expiresAt: asIsoTimestamp(session.expiresAt) })),
+      audit: auditRows.map((row) => ({ ...row, createdAt: asIsoTimestamp(row.createdAt) })),
+    };
   },
 
   async setUserDisabled(id: string, disabled: boolean, actorId: string | null) {
@@ -580,6 +636,7 @@ export const adminRepository = {
       lastSignedIn: identity.lastSignedIn ? asIsoTimestamp(identity.lastSignedIn) : null,
       lastActivityAt: identity.lastActivityAt ? asIsoTimestamp(identity.lastActivityAt) : null,
       createdAt: asIsoTimestamp(identity.createdAt),
+      updatedAt: asIsoTimestamp(identity.updatedAt),
       activeSessions: Number(activeSessions ?? 0),
     }));
   },
@@ -598,7 +655,47 @@ export const adminRepository = {
       .limit(1);
     const row = rows[0];
     if (!row) return null;
-    return { id: row.identity.id, email: row.identity.email, displayName: row.identity.displayName, role: row.roleCode as AdminRoleCode | null, status: row.identity.status, lastSignedIn: row.identity.lastSignedIn ? asIsoTimestamp(row.identity.lastSignedIn) : null, lastActivityAt: row.identity.lastActivityAt ? asIsoTimestamp(row.identity.lastActivityAt) : null, createdAt: asIsoTimestamp(row.identity.createdAt), activeSessions: Number(row.activeSessions ?? 0) };
+    return { id: row.identity.id, email: row.identity.email, displayName: row.identity.displayName, role: row.roleCode as AdminRoleCode | null, status: row.identity.status, lastSignedIn: row.identity.lastSignedIn ? asIsoTimestamp(row.identity.lastSignedIn) : null, lastActivityAt: row.identity.lastActivityAt ? asIsoTimestamp(row.identity.lastActivityAt) : null, createdAt: asIsoTimestamp(row.identity.createdAt), updatedAt: asIsoTimestamp(row.identity.updatedAt), activeSessions: Number(row.activeSessions ?? 0) };
+  },
+
+  async getAdminEffectivePermissions(id: string): Promise<AdminEffectivePermissions | null> {
+    const identity = await this.getAdminIdentity(id);
+    if (!identity) return null;
+    const db = getDb();
+    const rows = await db.select({ permissionCode: schema.adminPermissionOverrides.permissionCode, effect: schema.adminPermissionOverrides.effect, assignedBy: schema.adminPermissionOverrides.assignedBy, assignedAt: schema.adminPermissionOverrides.assignedAt }).from(schema.adminPermissionOverrides).where(eq(schema.adminPermissionOverrides.adminId, id)).orderBy(asc(schema.adminPermissionOverrides.permissionCode));
+    const overrides: AdminPermissionOverrideSummary[] = rows.map((row) => ({ permissionCode: row.permissionCode, effect: row.effect, assignedBy: row.assignedBy, assignedAt: asIsoTimestamp(row.assignedAt) }));
+    const defaults = identity.role ? permissionListForRole(identity.role) : [];
+    const effective = identity.role ? [...applyPermissionOverrides(identity.role, overrides as { permissionCode: (typeof ADMIN_PERMISSIONS)[number]; effect: "allow" | "deny" }[])] : [];
+    return { adminId: id, role: identity.role, defaults, overrides, effective };
+  },
+
+  async replaceAdminPermissionOverrides(id: string, overrides: { permissionCode: AdminPermissionCode; effect: "allow" | "deny" }[], actorId: string | null) {
+    const db = getDb();
+    return db.transaction(async (tx) => {
+      const identityRows = await tx.select({ id: schema.adminIdentities.id, status: schema.adminIdentities.status }).from(schema.adminIdentities).where(eq(schema.adminIdentities.id, id)).limit(1);
+      if (!identityRows[0]) return null;
+      const assignmentRows = await tx.select({ roleCode: schema.adminRoleAssignments.roleCode }).from(schema.adminRoleAssignments).where(eq(schema.adminRoleAssignments.adminId, id)).limit(1);
+      const role = assignmentRows[0]?.roleCode as AdminRoleCode | undefined;
+      if (!role) {
+        const error = new Error("Admin identity has no assigned role");
+        error.name = "AdminConflictError";
+        throw error;
+      }
+      if (identityRows[0].status === "active" && role === "SUPER_ADMIN") {
+        const activeSuperAdmins = await tx.select({ id: schema.adminIdentities.id }).from(schema.adminIdentities).innerJoin(schema.adminRoleAssignments, eq(schema.adminRoleAssignments.adminId, schema.adminIdentities.id)).where(and(eq(schema.adminIdentities.status, "active"), eq(schema.adminRoleAssignments.roleCode, "SUPER_ADMIN")));
+        const effective = applyPermissionOverrides(role, overrides as { permissionCode: (typeof ADMIN_PERMISSIONS)[number]; effect: "allow" | "deny" }[]);
+        if (!canSoleSuperAdminRetainCorePermissions(role, activeSuperAdmins.length, effective)) {
+          const error = new Error("The final Super Admin must retain core permissions");
+          error.name = "AdminConflictError";
+          throw error;
+        }
+      }
+      const now = new Date();
+      await tx.delete(schema.adminPermissionOverrides).where(eq(schema.adminPermissionOverrides.adminId, id));
+      if (overrides.length > 0) await tx.insert(schema.adminPermissionOverrides).values(overrides.map((override) => ({ adminId: id, permissionCode: override.permissionCode, effect: override.effect, assignedBy: actorId, assignedAt: now })));
+      await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "admin_identity", entityId: id, field: "permission_overrides", oldValue: null, newValue: JSON.stringify(overrides), action: "update_admin_permissions", reason: null, createdAt: now });
+      return { id, count: overrides.length };
+    }).then(() => this.getAdminEffectivePermissions(id));
   },
 
   async createAdminIdentity(input: { email: string; displayName: string; role: AdminRoleCode }, actorId: string | null) {
@@ -629,10 +726,30 @@ export const adminRepository = {
       if (!current) return null;
       const assignmentRows = await tx.select({ roleCode: schema.adminRoleAssignments.roleCode }).from(schema.adminRoleAssignments).where(eq(schema.adminRoleAssignments.adminId, id)).limit(1);
       const currentRole = assignmentRows[0]?.roleCode as AdminRoleCode | undefined;
+      if (!input.role && !input.status && !input.email && !input.displayName) {
+        const error = new Error("No editable admin identity fields supplied");
+        error.name = "AdminInputError";
+        throw error;
+      }
+      if (input.role !== undefined && !ADMIN_ROLE_CODES.includes(input.role)) {
+        const error = new Error("Invalid admin role");
+        error.name = "AdminInputError";
+        throw error;
+      }
+      if (input.status !== undefined && input.status !== "active" && input.status !== "disabled") {
+        const error = new Error("Invalid admin status");
+        error.name = "AdminInputError";
+        throw error;
+      }
       const nextRole = input.role ?? currentRole;
       const nextStatus = input.status ?? current.status;
-      const nextEmail = input.email ?? current.email;
-      const nextDisplayName = input.displayName ?? current.displayName;
+      const nextEmail = input.email?.trim() ?? current.email;
+      const nextDisplayName = input.displayName?.trim() ?? current.displayName;
+      if (!nextEmail || nextEmail.length > 320 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nextEmail) || !nextDisplayName || nextDisplayName.length > 160) {
+        const error = new Error("Invalid admin identity fields");
+        error.name = "AdminInputError";
+        throw error;
+      }
       if (nextStatus === "active" && !current.passwordHash) {
         const error = new Error("Admin activation requires a configured credential lifecycle");
         error.name = "AdminConflictError";
@@ -659,10 +776,16 @@ export const adminRepository = {
     });
   },
 
-  async listAdminSessions(limit = 100): Promise<AdminSessionSummary[]> {
+  async listAdminSessions(options: { adminId?: string; status?: "active" | "revoked" | "expired" | "all"; limit?: number } = {}): Promise<AdminSessionSummary[]> {
     const db = getDb();
-    const rows = await db.select({ session: schema.adminSessions, adminName: schema.adminIdentities.displayName }).from(schema.adminSessions).innerJoin(schema.adminIdentities, eq(schema.adminSessions.adminId, schema.adminIdentities.id)).where(and(isNull(schema.adminSessions.revokedAt), gt(schema.adminSessions.expiresAt, new Date()))).orderBy(desc(schema.adminSessions.lastActivityAt)).limit(Math.min(Math.max(limit, 1), 100));
-    return rows.map(({ session, adminName }) => ({ id: session.id, adminId: session.adminId, adminName, createdAt: asIsoTimestamp(session.createdAt), lastActivityAt: asIsoTimestamp(session.lastActivityAt), expiresAt: asIsoTimestamp(session.expiresAt), userAgent: session.userAgent, ipAddress: session.ipAddress }));
+    const now = new Date();
+    const conditions = [];
+    if (options.adminId) conditions.push(eq(schema.adminSessions.adminId, options.adminId));
+    if (options.status === "revoked") conditions.push(isNotNull(schema.adminSessions.revokedAt));
+    if (options.status === "expired") conditions.push(and(isNull(schema.adminSessions.revokedAt), lte(schema.adminSessions.expiresAt, now)));
+    if (!options.status || options.status === "active") conditions.push(and(isNull(schema.adminSessions.revokedAt), gt(schema.adminSessions.expiresAt, now)));
+    const rows = await db.select({ session: schema.adminSessions, adminName: schema.adminIdentities.displayName }).from(schema.adminSessions).innerJoin(schema.adminIdentities, eq(schema.adminSessions.adminId, schema.adminIdentities.id)).where(conditions.length > 0 ? and(...conditions) : undefined).orderBy(desc(schema.adminSessions.lastActivityAt)).limit(Math.min(Math.max(options.limit ?? 100, 1), 100));
+    return rows.map(({ session, adminName }) => ({ id: session.id, adminId: session.adminId, adminName, createdAt: asIsoTimestamp(session.createdAt), lastActivityAt: asIsoTimestamp(session.lastActivityAt), expiresAt: asIsoTimestamp(session.expiresAt), status: session.revokedAt ? "revoked" as const : session.expiresAt <= now ? "expired" as const : "active" as const, revokedAt: session.revokedAt ? asIsoTimestamp(session.revokedAt) : null, userAgent: session.userAgent, ipAddress: session.ipAddress }));
   },
 
   async revokeAdminSession(id: string, actorId: string | null) {

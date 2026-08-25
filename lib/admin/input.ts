@@ -1,4 +1,5 @@
-import { ADMIN_ROLE_CODES, type AdminRoleCode } from "@/lib/admin/types";
+import { ADMIN_PERMISSIONS } from "@/lib/admin/rbac";
+import { ADMIN_ROLE_CODES, type AdminPermissionCode, type AdminRoleCode } from "@/lib/admin/types";
 
 function invalid(message: string): never {
   const error = new Error(message);
@@ -44,6 +45,22 @@ export function parseAdminIdentityUpdateBody(body: unknown) {
   if (input.displayName !== undefined) result.displayName = requiredText(input.displayName, "displayName", 160);
   if (!result.role && !result.status && !result.email && !result.displayName) invalid("No editable fields supplied");
   return result;
+}
+
+export function parsePermissionOverridesBody(body: unknown) {
+  if (!body || typeof body !== "object") invalid("Invalid body");
+  const input = body as Record<string, unknown>;
+  if (!Array.isArray(input.overrides) || input.overrides.length > ADMIN_PERMISSIONS.length) invalid("Invalid permission overrides");
+  const seen = new Set<string>();
+  const overrides = input.overrides.map((value) => {
+    if (!value || typeof value !== "object") invalid("Invalid permission override");
+    const item = value as Record<string, unknown>;
+    if (typeof item.permissionCode !== "string" || !ADMIN_PERMISSIONS.includes(item.permissionCode as (typeof ADMIN_PERMISSIONS)[number]) || seen.has(item.permissionCode)) invalid("Invalid permission code");
+    if (item.effect !== "allow" && item.effect !== "deny") invalid("Invalid permission effect");
+    seen.add(item.permissionCode);
+    return { permissionCode: item.permissionCode as AdminPermissionCode, effect: item.effect } as const;
+  });
+  return { overrides };
 }
 
 export function parseId(value: string) {

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminPrincipalFromRequest, isAdminRequest } from "@/lib/admin/auth";
 import { safeErrors } from "@/lib/errors/taxonomy";
-import { hasAdminPermission, type AdminPermission } from "@/lib/admin/rbac";
+import { hasEffectiveAdminPermission, type AdminPermission } from "@/lib/admin/rbac";
 
 function unauthorizedResponse() {
   return NextResponse.json({ error: safeErrors.UNAUTHORIZED.code, message: safeErrors.UNAUTHORIZED.publicMessage }, { status: safeErrors.UNAUTHORIZED.status });
@@ -24,15 +24,23 @@ export async function requireAdminAsync(request: Request) {
 export async function requirePermission(request: Request, permission: AdminPermission) {
   const principal = await getAdminPrincipalFromRequest(request);
   if (!principal) return unauthorizedResponse();
-  if (!hasAdminPermission(principal.role, permission)) return forbiddenResponse();
-  return null;
+  try {
+    if (!(await hasEffectiveAdminPermission(principal, permission))) return forbiddenResponse();
+    return null;
+  } catch {
+    return NextResponse.json({ error: safeErrors.DEPENDENCY_UNAVAILABLE.code, message: safeErrors.DEPENDENCY_UNAVAILABLE.publicMessage }, { status: safeErrors.DEPENDENCY_UNAVAILABLE.status });
+  }
 }
 
 export async function requirePermissionPrincipal(request: Request, permission: AdminPermission) {
   const principal = await getAdminPrincipalFromRequest(request);
   if (!principal) return { response: unauthorizedResponse(), principal: null };
-  if (!hasAdminPermission(principal.role, permission)) return { response: forbiddenResponse(), principal: null };
-  return { response: null, principal };
+  try {
+    if (!(await hasEffectiveAdminPermission(principal, permission))) return { response: forbiddenResponse(), principal: null };
+    return { response: null, principal };
+  } catch {
+    return { response: NextResponse.json({ error: safeErrors.DEPENDENCY_UNAVAILABLE.code, message: safeErrors.DEPENDENCY_UNAVAILABLE.publicMessage }, { status: safeErrors.DEPENDENCY_UNAVAILABLE.status }), principal: null };
+  }
 }
 
 export function adminErrorResponse(error: unknown) {
@@ -44,6 +52,9 @@ export function adminErrorResponse(error: unknown) {
   }
   if (typeof error === "object" && error !== null && "code" in error && (error as { code?: unknown }).code === "23505") {
     return NextResponse.json({ error: safeErrors.CONFLICT.code, message: safeErrors.CONFLICT.publicMessage }, { status: safeErrors.CONFLICT.status });
+  }
+  if (typeof error === "object" && error !== null && "code" in error && (error as { code?: unknown }).code === "42P01") {
+    return NextResponse.json({ error: safeErrors.DEPENDENCY_UNAVAILABLE.code, message: safeErrors.DEPENDENCY_UNAVAILABLE.publicMessage }, { status: safeErrors.DEPENDENCY_UNAVAILABLE.status });
   }
   console.error("[Admin] request failed", error instanceof Error ? error.name : "unknown");
   return NextResponse.json({ error: safeErrors.INTERNAL_ERROR.code, message: safeErrors.INTERNAL_ERROR.publicMessage }, { status: safeErrors.INTERNAL_ERROR.status });

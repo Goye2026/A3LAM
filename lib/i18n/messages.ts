@@ -302,6 +302,10 @@ export type FoundationMessages = {
   adminPagePrevious: string;
   adminPageNext: string;
   adminUpdated: string;
+  adminCreated: string;
+  adminCredentialBoundary: string;
+  adminCredentialLifecycleDeferred: string;
+  adminOpaqueSessionId: string;
   adminControlCenter: string;
   adminControlCenterDescription: string;
   adminPeopleGroup: string;
@@ -362,6 +366,48 @@ export type FoundationMessages = {
   adminPermissionMatrixDescription: string;
   adminPermissionRole: string;
   adminPermissionCode: string;
+  adminUserDetail: string;
+  adminAccountOverview: string;
+  adminProfileOverview: string;
+  adminSecurity: string;
+  adminCompletion: string;
+  adminActiveSessions: string;
+  adminAuditEvents: string;
+  adminView: string;
+  adminRevokeAllSessions: string;
+  adminSuspendUser: string;
+  adminReactivateUser: string;
+  adminPermissionOverrides: string;
+  adminDefaultPermissions: string;
+  adminEffectivePermissions: string;
+  adminPermissionAllow: string;
+  adminPermissionDeny: string;
+  adminSavePermissions: string;
+  adminPermissionSaved: string;
+  adminPermissionConfiguration: string;
+  adminConfirmationNeeded: string;
+  adminAuditFilters: string;
+  adminAuditActor: string;
+  adminAuditAction: string;
+  adminAuditEntity: string;
+  adminAuditFrom: string;
+  adminAuditTo: string;
+  adminClearFilters: string;
+  adminNoAudit: string;
+  adminSessionStatus: string;
+  adminSessionActive: string;
+  adminSessionRevoked: string;
+  adminSessionExpired: string;
+  adminAllSessions: string;
+  adminProfileStatus: string;
+  adminVisibility: string;
+  adminVisibilityPrivate: string;
+  adminVisibilityUnlisted: string;
+  adminVisibilityPublished: string;
+  adminHasProfile: string;
+  adminWithProfile: string;
+  adminWithoutProfile: string;
+  adminCompletionShort: string;
 };
 
 const ar: FoundationMessages = {
@@ -667,6 +713,10 @@ const ar: FoundationMessages = {
   adminPagePrevious: "السابق",
   adminPageNext: "التالي",
   adminUpdated: "آخر تحديث",
+  adminCreated: "تاريخ الإنشاء",
+  adminCredentialBoundary: "لا تُعرض كلمات المرور أو التجزئات أو رموز الجلسات في لوحة الإدارة.",
+  adminCredentialLifecycleDeferred: "عمليات التفعيل وإعادة التعيين غير متاحة حتى يتم إعداد دورة credentials آمنة ومزود بريد معتمد.",
+  adminOpaqueSessionId: "معرّف جلسة opaque",
   adminControlCenter: "مركز التحكم",
   adminControlCenterDescription: "مساحة تشغيل موحدة لإدارة المحتوى والملفات المهنية وإعدادات المنتج بأمان.",
   adminPeopleGroup: "المحتوى التحريري",
@@ -727,6 +777,48 @@ const ar: FoundationMessages = {
   adminPermissionMatrixDescription: "مرجع للسياسة المركزية الحالية؛ لا تُعرض مربعات تعديل قبل توفر persisted permission assignment.",
   adminPermissionRole: "الدور",
   adminPermissionCode: "الصلاحية",
+  adminUserDetail: "تفاصيل المستخدم",
+  adminAccountOverview: "نظرة عامة على الحساب",
+  adminProfileOverview: "الملف المهني",
+  adminSecurity: "الأمان",
+  adminCompletion: "اكتمال الملف",
+  adminActiveSessions: "الجلسات الفعالة",
+  adminAuditEvents: "أحداث التدقيق",
+  adminView: "عرض",
+  adminRevokeAllSessions: "سحب كل الجلسات",
+  adminSuspendUser: "تعطيل الحساب",
+  adminReactivateUser: "إعادة تفعيل الحساب",
+  adminPermissionOverrides: "تجاوزات الصلاحيات",
+  adminDefaultPermissions: "الصلاحيات الافتراضية",
+  adminEffectivePermissions: "الصلاحيات الفعلية",
+  adminPermissionAllow: "سماح",
+  adminPermissionDeny: "منع",
+  adminSavePermissions: "حفظ الصلاحيات",
+  adminPermissionSaved: "تم حفظ الصلاحيات.",
+  adminPermissionConfiguration: "تحتاج إدارة الصلاحيات إلى تطبيق migration 0005 وتهيئة آمنة؛ لا يوجد تعديل متاح في هذه البيئة.",
+  adminConfirmationNeeded: "يرجى تأكيد العملية الحساسة قبل المتابعة.",
+  adminAuditFilters: "تصفية سجل التدقيق",
+  adminAuditActor: "الفاعل",
+  adminAuditAction: "الإجراء",
+  adminAuditEntity: "الكيان",
+  adminAuditFrom: "من تاريخ",
+  adminAuditTo: "إلى تاريخ",
+  adminClearFilters: "مسح التصفية",
+  adminNoAudit: "لا توجد أحداث تدقيق في النطاق الحالي.",
+  adminSessionStatus: "حالة الجلسة",
+  adminSessionActive: "نشطة",
+  adminSessionRevoked: "مسحوبة",
+  adminSessionExpired: "منتهية",
+  adminAllSessions: "كل الجلسات",
+  adminProfileStatus: "حالة الملف",
+  adminVisibility: "الظهور",
+  adminVisibilityPrivate: "خاص",
+  adminVisibilityUnlisted: "غير مدرج",
+  adminVisibilityPublished: "عام",
+  adminHasProfile: "الملف المهني",
+  adminWithProfile: "لديه ملف",
+  adminWithoutProfile: "بلا ملف",
+  adminCompletionShort: "الاكتمال",
 };
 
 const en: FoundationMessages = {
@@ -1032,6 +1124,10 @@ const en: FoundationMessages = {
   adminPagePrevious: "Previous",
   adminPageNext: "Next",
   adminUpdated: "Updated",
+  adminCreated: "Created",
+  adminCredentialBoundary: "Passwords, hashes, and session tokens are never exposed in the Admin console.",
+  adminCredentialLifecycleDeferred: "Activation and reset operations remain unavailable until a secure credential lifecycle and approved email provider are configured.",
+  adminOpaqueSessionId: "Opaque session ID",
   adminControlCenter: "Control center",
   adminControlCenterDescription: "A unified operational space for content, professional profiles, and safe product controls.",
   adminPeopleGroup: "Editorial content",
@@ -1092,6 +1188,48 @@ const en: FoundationMessages = {
   adminPermissionMatrixDescription: "Reference for the current centralized policy; edit checkboxes are not shown before persisted permission assignment is available.",
   adminPermissionRole: "Role",
   adminPermissionCode: "Permission",
+  adminUserDetail: "User detail",
+  adminAccountOverview: "Account overview",
+  adminProfileOverview: "Professional profile",
+  adminSecurity: "Security",
+  adminCompletion: "Profile completion",
+  adminActiveSessions: "Active sessions",
+  adminAuditEvents: "Audit events",
+  adminView: "View",
+  adminRevokeAllSessions: "Revoke all sessions",
+  adminSuspendUser: "Disable account",
+  adminReactivateUser: "Reactivate account",
+  adminPermissionOverrides: "Permission overrides",
+  adminDefaultPermissions: "Default permissions",
+  adminEffectivePermissions: "Effective permissions",
+  adminPermissionAllow: "Allow",
+  adminPermissionDeny: "Deny",
+  adminSavePermissions: "Save permissions",
+  adminPermissionSaved: "Permissions saved.",
+  adminPermissionConfiguration: "Permission management requires migration 0005 and secure configuration; editing is unavailable in this environment.",
+  adminConfirmationNeeded: "Confirm this sensitive operation before continuing.",
+  adminAuditFilters: "Filter audit log",
+  adminAuditActor: "Actor",
+  adminAuditAction: "Action",
+  adminAuditEntity: "Entity",
+  adminAuditFrom: "From date",
+  adminAuditTo: "To date",
+  adminClearFilters: "Clear filters",
+  adminNoAudit: "No audit events match the current scope.",
+  adminSessionStatus: "Session status",
+  adminSessionActive: "Active",
+  adminSessionRevoked: "Revoked",
+  adminSessionExpired: "Expired",
+  adminAllSessions: "All sessions",
+  adminProfileStatus: "Profile status",
+  adminVisibility: "Visibility",
+  adminVisibilityPrivate: "Private",
+  adminVisibilityUnlisted: "Unlisted",
+  adminVisibilityPublished: "Public",
+  adminHasProfile: "Professional profile",
+  adminWithProfile: "Has profile",
+  adminWithoutProfile: "No profile",
+  adminCompletionShort: "Completion",
 };
 
 export const messages: Record<Locale, FoundationMessages> = { ar, en };

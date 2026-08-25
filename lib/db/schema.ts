@@ -251,6 +251,21 @@ export const adminRoleAssignments = pgTable(
   }),
 );
 
+export const adminPermissionOverrides = pgTable(
+  "admin_permission_overrides",
+  {
+    adminId: text("admin_id").notNull().references(() => adminIdentities.id, { onDelete: "cascade" }),
+    permissionCode: text("permission_code").$type<AdminPermissionCode>().notNull(),
+    effect: text("effect").$type<"allow" | "deny">().notNull(),
+    assignedBy: text("assigned_by").references(() => adminIdentities.id, { onDelete: "set null" }),
+    assignedAt: timestamp("assigned_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    primaryKey: primaryKey({ columns: [table.adminId, table.permissionCode] }),
+    permissionIndex: index("admin_permission_overrides_permission_idx").on(table.permissionCode),
+  }),
+);
+
 export const adminSessions = pgTable(
   "admin_sessions",
   {
@@ -497,6 +512,7 @@ export const dbSchema = {
     adminPermissions,
     adminRolePermissions,
     adminRoleAssignments,
+    adminPermissionOverrides,
     adminSessions,
     profiles,
   profileCategories,

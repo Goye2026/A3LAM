@@ -11,15 +11,22 @@ export async function GET(request: Request) {
   if (gate.response) return gate.response;
   try {
     const url = new URL(request.url);
-    const disabled = url.searchParams.get("status") as "active" | "disabled" | "" | null;
-    return NextResponse.json({ items: await adminRepository.listAdminUsers({ query: url.searchParams.get("q") ?? undefined, disabled: disabled ?? "", limit: 100 }) });
+      const statusValue = url.searchParams.get("status") ?? "";
+      const profileStatusValue = url.searchParams.get("profileStatus") ?? "";
+      const visibilityValue = url.searchParams.get("visibility") ?? "";
+      const hasProfileValue = url.searchParams.get("hasProfile") ?? "";
+      const disabled = statusValue === "active" || statusValue === "disabled" ? statusValue : "";
+      const profileStatus = ["draft", "pending_review", "published", "archived"].includes(profileStatusValue) ? profileStatusValue as "draft" | "pending_review" | "published" | "archived" : "";
+      const visibility = ["private", "unlisted", "published"].includes(visibilityValue) ? visibilityValue as "private" | "unlisted" | "published" : "";
+      const hasProfile = hasProfileValue === "yes" || hasProfileValue === "no" ? hasProfileValue : "";
+      return NextResponse.json({ items: await adminRepository.listAdminUsers({ query: url.searchParams.get("q") ?? undefined, disabled, profileStatus, visibility, hasProfile, limit: 100 }) });
   } catch (error) {
     return adminErrorResponse(error);
   }
 }
 
 export async function PATCH(request: Request) {
-  const gate = await requirePermissionPrincipal(request, "users.manage");
+  const gate = await requirePermissionPrincipal(request, "users.suspend");
   if (gate.response) return gate.response;
   if (!isSameOriginMutation(request)) return NextResponse.json({ error: "INVALID_INPUT", message: "The submitted value is invalid." }, { status: 400 });
   try {

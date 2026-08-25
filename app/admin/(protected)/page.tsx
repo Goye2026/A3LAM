@@ -37,6 +37,7 @@ export default async function AdminDashboardPage() {
     { label: copy.adminPeopleCount, value: summary?.people ?? 0, featured: true },
     { label: copy.adminCategories, value: summary?.categories ?? 0 },
     { label: copy.adminUsers, value: summary?.users ?? 0 },
+    { label: copy.adminUserActive, value: summary?.activeUsers ?? 0 },
     { label: copy.adminProfiles, value: summary?.profiles.total ?? 0 },
     { label: copy.adminReview, value: summary?.profiles.pendingReview ?? 0 },
     { label: copy.adminAdministrators, value: summary?.adminIdentities ?? null },
@@ -76,6 +77,7 @@ export default async function AdminDashboardPage() {
         <div className="admin-section-heading"><h2 id="admin-recent-title">{copy.adminRecentUpdates}</h2><Link href="/admin/people">{copy.adminPeople}</Link></div>
         {!dashboard?.recent.length ? <p className="admin-empty">{copy.adminNoRecent}</p> : <div className="admin-recent-list">{dashboard.recent.map((person) => <Link href={`/admin/people/${person.id}`} className="admin-recent-row" key={person.id}><span><strong>{person.nameArabic}</strong><small>{person.categories.join(" · ") || "—"}</small></span><span><b className={`admin-status admin-status-${person.status}`}>{statusLabel(person.status, copy)}</b><small>{formatDate(person.updatedAt, "ar")}</small></span></Link>)}</div>}
       </section>
+      <section className="admin-panel" aria-labelledby="admin-recent-audit-title"><div className="admin-section-heading"><h2 id="admin-recent-audit-title">{copy.adminAuditEvents}</h2><Link href="/admin/audit">{copy.adminAudit}</Link></div>{!summary?.recentAudit.length ? <p className="admin-empty">{copy.adminNoAudit}</p> : <div className="admin-audit-list">{summary.recentAudit.map((log) => <article className="admin-audit-row" key={log.id}><div><strong>{log.action}</strong><small>{log.entityType} · {log.entityId}</small></div><small>{formatDate(log.createdAt, "ar")}</small></article>)}</div>}</section>
     </div>
   );
 }
