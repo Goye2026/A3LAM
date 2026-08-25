@@ -5,6 +5,7 @@ import { withTimeout } from "@/lib/foundation/withTimeout";
 import { siteExperienceDefaults } from "@/lib/site-experience/config";
 import { siteExperienceRepository } from "@/lib/site-experience/repository";
 import { LogoutButton } from "./LogoutButton";
+import { MobileMenu } from "./MobileMenu";
 
 type HeaderSection = "home" | "people" | "categories" | "about" | "search" | "contact" | "privacy";
 
@@ -22,6 +23,7 @@ export async function SiteHeader({ copy, active = "home" }: SiteHeaderProps) {
   const navigation = await withTimeout(siteExperienceRepository.getPublishedResource("navigation"), 2500).catch(() => siteExperienceDefaults.navigation);
   const identity = await withTimeout(siteExperienceRepository.getPublishedResource("identity"), 2500).catch(() => siteExperienceDefaults.identity);
   const links = navigation.header.filter((link) => link.visible).sort((a, b) => a.order - b.order).map((link) => ({ key: link.id, href: link.href, label: link.label }));
+  const mobileLinks = [...links.map((link) => ({ href: link.href, label: link.label })), { href: "/search", label: copy.navSearch }].filter((link, index, items) => items.findIndex((candidate) => candidate.href === link.href) === index);
 
   return (
     <header className="a3lam-header">
@@ -50,6 +52,7 @@ export async function SiteHeader({ copy, active = "home" }: SiteHeaderProps) {
           );
         })}
       </nav>
+      <MobileMenu copy={copy} links={mobileLinks} />
 
       <div className="a3lam-header-actions">
         <Link className="a3lam-header-action" href="/search" aria-current={active === "search" ? "page" : undefined}>

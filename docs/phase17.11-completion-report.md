@@ -13,7 +13,7 @@ This phase delivered a substantial public Homepage 2.0 and discovery-experience 
 
 A3LAM’s homepage is now structured as an Arabic-first discovery gateway rather than a generic marketing landing page. The new composition establishes a clear flow from **discover → search → browse → deepen → contribute**, while continuing to use the existing public data readers and published-content gates.
 
-The implementation introduces a stronger editorial hero, an independent catalog suspense boundary, a large advanced search surface, data-driven featured and category sections, an honest Discovery/Timeline foundation, a three-principle Trust section, and refined public navigation/footer styling. Where data or functionality does not exist, the UI says so rather than fabricating people, counts, periods, sources, testimonials, or submission workflows.
+The implementation introduces a stronger editorial hero, an independent catalog suspense boundary, a large advanced search surface, data-driven featured and category sections, an honest Discovery/Timeline foundation, a three-principle Trust section, a keyboard-aware localized mobile menu, and refined public navigation/footer styling. Where data or functionality does not exist, the UI says so rather than fabricating people, counts, periods, sources, testimonials, or submission workflows.
 
 Local typecheck, lint, build, tests, and targeted browser checks passed. The implementation commit deployed to Production as `dpl_EcNDdJ2t25TS5S85a98s7BwnAqE4` with `readyState=READY`, aliased to `https://a3-lam.vercel.app`; the final verification below was read-only.
 
@@ -21,7 +21,7 @@ Local typecheck, lint, build, tests, and targeted browser checks passed. The imp
 
 The homepage composition in `app/page.tsx` was restructured into a fast Hero shell plus an asynchronous `HomepageCatalogSections` boundary. `HomepageTrust.tsx` and `HomepageDiscovery.tsx` are new reusable public components. The catalog mapper now exposes `indexLabel` rather than a misleading ordinal `count`, while public category links and published-person projections remain unchanged.
 
-The central stylesheet received a Homepage 2.0 layer for the paper/ink/teal/copper visual system, responsive grids, typography hierarchy, discovery panel, editorial bands, trust principles, focusable controls, and reduced-motion behavior. The existing Site Experience configuration remains the source of editable homepage copy and visibility flags; no schema or migration was introduced.
+The central stylesheet received a Homepage 2.0 layer for the paper/ink/teal/copper visual system, responsive grids, typography hierarchy, discovery panel, editorial bands, trust principles, focusable controls, reduced-motion behavior, and breakpoint-specific mobile menu treatment. The existing Site Experience configuration remains the source of editable homepage copy and visibility flags; no schema or migration was introduced.
 
 A small regression suite was added in `tests/phase17.11.test.ts`, and the existing Phase 17.9 source-level regression was updated to follow the new CatalogStats/fallback structure rather than the previous JSX arrangement.
 
@@ -77,7 +77,7 @@ A new person-submission mutation or route was not created because no approved pu
 
 ## Header and Footer
 
-The public Header remains semantic and configuration-driven, with the existing session-aware account/login behavior unchanged. Homepage 2.0 improves its spacing, active-link treatment, sticky desktop presentation, small-screen wrapping, and touch-sized actions. The 768px breakpoint now wraps the navigation into a contained second row to prevent header collisions.
+The public Header remains semantic and configuration-driven, with the existing session-aware account/login behavior unchanged. Homepage 2.0 improves its spacing, active-link treatment, sticky desktop presentation, small-screen wrapping, touch-sized actions, and a localized mobile menu that reuses the published navigation links without changing the navigation contract. The 768px breakpoint now wraps the navigation into a contained second row to prevent header collisions.
 
 The Footer retains only existing routes and published footer/navigation links. It received stronger spacing, hierarchy, contrast, and responsive treatment; no nonexistent legal or contribution route was added.
 
@@ -96,7 +96,7 @@ A targeted DOM sanity check returned `lang=ar`, `dir=rtl`, exactly one `h1`, zer
 
 ## Accessibility
 
-The implementation uses semantic `main`, `section`, `header`, `nav`, `form`, `article`, headings, labels, `aria-labelledby`, `aria-live`, `role="status"`, `role="alert"`, and meaningful link/button semantics. Decorative visual elements are marked `aria-hidden`. The page retains visible focus styles from the central stylesheet and honors `prefers-reduced-motion`.
+The implementation uses semantic `main`, `section`, `header`, `nav`, `form`, `article`, headings, labels, `aria-labelledby`, `aria-live`, `role="status"`, `role="alert"`, and meaningful link/button semantics. The mobile menu toggle exposes localized `aria-expanded` and `aria-controls` values, and the open panel contains keyboard-focusable links. Decorative visual elements are marked `aria-hidden`. The page retains visible focus styles from the central stylesheet and honors `prefers-reduced-motion`.
 
 The available evidence supports **PASS WITH LIMITATION** for targeted structural checks. Screen-reader behavior, keyboard-only traversal by an external reviewer, measured WCAG 2.2 AA contrast, Firefox, Safari/WebKit, and assistive-technology certification remain external verification items.
 
@@ -120,9 +120,9 @@ The following checks passed after implementation iterations:
 | --- | --- |
 | `pnpm typecheck` | PASS |
 | `pnpm lint` | PASS |
-| `pnpm test` | PASS — 15 files / 87 tests |
+| `pnpm test` | PASS — 15 files / 88 tests |
 | `pnpm build` | PASS — 66 routes/pages |
-| Targeted Chromium responsive captures | PASS for 390×844, 393×852, 768×1024, 1440×900 |
+| Targeted Chromium responsive captures | PASS for 390×844, 393×852, 768×1024, 1440×900; fresh current-build artifacts in `phase17.11-responsive-final/` |
 | DOM sanity check | PASS WITH LIMITATION |
 | `git diff --check` | PASS |
 
@@ -186,5 +186,7 @@ The visual and interaction goals of Homepage 2.0 are implemented without fabrica
 [1]: `phase17.11-responsive/findings.md` — Chromium responsive and DOM sanity findings.
 [2]: `/home/ubuntu/phase17.11-production-smoke.txt` — final Production GET/HEAD-only smoke artifact for the deployed Homepage 2.0 alias.
 [3]: `/home/ubuntu/a3lam-phase13/tests/phase17.11.test.ts` — Homepage 2.0 regression tests.
+[6]: `/home/ubuntu/phase17.11-mobile-menu-findings.md` — fresh mobile menu DOM, interaction, and responsive findings.
+[7]: `/home/ubuntu/phase17.11-responsive-final/` — fresh Chromium screenshots for all required viewports.
 [4]: `/home/ubuntu/a3lam-phase13/app/page.tsx` — Hero/catalog Suspense architecture.
 [5]: `/home/ubuntu/a3lam-phase13/app/globals.css` — centralized Homepage 2.0 tokens and responsive layer.

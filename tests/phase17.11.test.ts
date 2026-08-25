@@ -37,6 +37,17 @@ describe("Phase 17.11 homepage discovery regressions", () => {
     expect(homepage).toContain("<HomepageTrust copy={publicCopy} />");
   });
 
+  it("keeps the mobile menu localized and wired for assistive technology", () => {
+    const header = readProjectFile("components/a3lam/SiteHeader.tsx");
+    const menu = readProjectFile("components/a3lam/MobileMenu.tsx");
+    const messages = readProjectFile("lib/i18n/messages.ts");
+    expect(header).toContain('import { MobileMenu } from "./MobileMenu";');
+    expect(header).toContain("<MobileMenu copy={copy} links={mobileLinks} />");
+    expect(menu).toContain('aria-expanded={open}');
+    expect(menu).toContain('aria-controls={panelId}');
+    expect(messages).toContain('closeMenu: "إغلاق القائمة"');
+  });
+
   it("keeps reduced motion and responsive hooks in the centralized stylesheet", () => {
     const css = readProjectFile("app/globals.css");
     expect(css).toContain("@media (prefers-reduced-motion: reduce)");

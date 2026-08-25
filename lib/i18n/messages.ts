@@ -74,6 +74,7 @@ export type FoundationMessages = {
   accountWelcomeTitle: string;
   accountWelcomeDescription: string;
   menuLabel: string;
+  closeMenu: string;
   searchLabel: string;
   searchPlaceholder: string;
   searchAction: string;
@@ -636,6 +637,7 @@ const ar: FoundationMessages = {
   accountWelcomeTitle: "مرحبًا بك في أعلام",
   accountWelcomeDescription: "الخطوة التالية واضحة: أنشئ ملفك المهني وشارك خبرتك مع الآخرين.",
   menuLabel: "فتح القائمة",
+  closeMenu: "إغلاق القائمة",
   searchLabel: "ابحث في أعلام",
   searchPlaceholder: "ابحث عن اسم، مهنة، أو مدينة...",
   searchAction: "بحث",
@@ -1198,6 +1200,7 @@ const en: FoundationMessages = {
   accountWelcomeTitle: "Welcome to A3LAM",
   accountWelcomeDescription: "Your next step is clear: create your professional profile and share your experience.",
   menuLabel: "Open menu",
+  closeMenu: "Close menu",
   searchLabel: "Search A3LAM",
   searchPlaceholder: "Search a name, profession, or city...",
   searchAction: "Search",
