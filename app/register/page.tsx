@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { UserAuthForm } from "@/components/a3lam/UserAuthForm";
+import { getSafeAuthDestination } from "@/lib/user/redirect";
 
 export const metadata: Metadata = {
   title: "إنشاء حساب",
@@ -8,7 +9,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function RegisterPage() {
+type RegisterPageProps = { searchParams?: Promise<{ next?: string }> };
+
+export default async function RegisterPage({ searchParams }: RegisterPageProps) {
+  const params = searchParams ? await searchParams : {};
+  const redirectTo = getSafeAuthDestination(params.next, "/account?welcome=1");
+
   return (
     <main className="auth-page" dir="rtl">
       <div className="auth-card">
@@ -18,6 +24,7 @@ export default function RegisterPage() {
         <p className="route-description">أنشئ حسابًا منفصلًا عن مساحة التحرير لإنشاء سيرتك المهنية وإرسالها للمراجعة.</p>
         <UserAuthForm
           mode="register"
+          redirectTo={redirectTo}
           copy={{
             name: "الاسم",
             email: "البريد الإلكتروني",

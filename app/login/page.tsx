@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { UserAuthForm } from "@/components/a3lam/UserAuthForm";
+import { getSafeAuthDestination } from "@/lib/user/redirect";
 
 export const metadata: Metadata = {
   title: "تسجيل الدخول",
@@ -8,7 +9,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function LoginPage() {
+type LoginPageProps = { searchParams?: Promise<{ next?: string }> };
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const params = searchParams ? await searchParams : {};
+  const redirectTo = getSafeAuthDestination(params.next, "/account");
+
   return (
     <main className="auth-page" dir="rtl">
       <div className="auth-card">
@@ -18,6 +24,7 @@ export default function LoginPage() {
         <p className="route-description">أدخل بيانات حسابك للوصول إلى ملفك المهني وإدارته.</p>
         <UserAuthForm
           mode="login"
+          redirectTo={redirectTo}
           copy={{
             name: "الاسم",
             email: "البريد الإلكتروني",

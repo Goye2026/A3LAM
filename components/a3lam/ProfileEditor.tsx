@@ -81,16 +81,21 @@ export function ProfileEditor({ profile, categories, copy }: { profile: ProfileR
   }
   async function save(action: "save" | "submit") {
     setBusy(true); setError(""); setNotice("");
-    const response = await fetch("/api/account/profile", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ action, profile: form }) });
-    const data = await response.json() as { message?: string; issues?: string[] };
-    if (!response.ok) setError(data.issues?.join(" • ") || data.message || "تعذر حفظ الملف");
-    else {
-      setNotice(action === "submit" ? "تم إرسال الملف للمراجعة التحريرية." : copy.editorSaved);
-      setIsDirty(false);
-      setLastSavedAt(new Date());
-      router.refresh();
+    try {
+      const response = await fetch("/api/account/profile", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ action, profile: form }) });
+      const data = await response.json() as { message?: string; issues?: string[] };
+      if (!response.ok) setError(data.issues?.join(" • ") || data.message || "تعذر حفظ الملف");
+      else {
+        setNotice(action === "submit" ? "تم إرسال الملف للمراجعة التحريرية." : copy.editorSaved);
+        setIsDirty(false);
+        setLastSavedAt(new Date());
+        router.refresh();
+      }
+    } catch {
+      setError("تعذر الاتصال بخدمة الملف. تحقق من الاتصال وحاول مرة أخرى.");
+    } finally {
+      setBusy(false);
     }
-    setBusy(false);
   }
 
   async function uploadFile(event: React.ChangeEvent<HTMLInputElement>) {
@@ -113,7 +118,7 @@ export function ProfileEditor({ profile, categories, copy }: { profile: ProfileR
   }
 
   return (
-    <div className="profile-editor" dir="rtl">
+    <div className="profile-editor" dir="rtl" aria-busy={busy || fileBusy}>
       <div className="editor-toolbar">
         <div><p className="eyebrow">ملف مهني</p><h1>{profile ? "تعديل ملفك" : "إنشاء ملفك المهني"}</h1><p className="route-description">احفظ عملك كمسودة في أي وقت. لا يظهر الملف للعامة قبل المراجعة والموافقة.</p></div>
         <div className="editor-actions"><button className="button button-quiet" onClick={() => router.push("/account")}>العودة</button>{profile ? <button className="button button-quiet" onClick={() => router.push("/account/profile/preview")}>معاينة خاصة</button> : null}<button className="button button-primary" onClick={() => void save("save")} disabled={busy}>{busy ? copy.editorSaving : copy.adminSaveDraft}</button><button className="button button-dark" onClick={() => void save("submit")} disabled={busy}>{copy.adminSendReview}</button></div>

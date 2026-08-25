@@ -19,9 +19,14 @@ type AuthCopy = {
 type UserAuthFormProps = {
   mode: "register" | "login";
   copy: AuthCopy;
+  redirectTo: string;
 };
 
-export function UserAuthForm({ mode, copy }: UserAuthFormProps) {
+export function UserAuthForm({ mode, copy, redirectTo }: UserAuthFormProps) {
+  const switchPath = mode === "register" ? "/login" : "/register";
+  const switchHref = redirectTo === "/account"
+    ? switchPath
+    : `${switchPath}?next=${encodeURIComponent(redirectTo)}`;
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -45,7 +50,7 @@ export function UserAuthForm({ mode, copy }: UserAuthFormProps) {
       });
       const data = (await response.json()) as { message?: string };
       if (!response.ok) throw new Error(data.message || copy.invalid);
-      router.push(mode === "register" ? "/account?welcome=1" : "/account");
+      router.push(redirectTo);
       router.refresh();
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : copy.invalid);
@@ -77,11 +82,11 @@ export function UserAuthForm({ mode, copy }: UserAuthFormProps) {
         </label>
       ) : null}
       {error ? <p className="form-error" role="alert">{error}</p> : null}
-      <button className="button button-primary" type="submit" disabled={submitting}>
+      <button className="button button-primary" type="submit" disabled={submitting} aria-busy={submitting}>
         {submitting ? copy.submitting : copy.submit}
       </button>
       <p className="form-switch">
-        {copy.switchPrompt} <Link href={mode === "register" ? "/login" : "/register"}>{copy.switchLabel}</Link>
+        {copy.switchPrompt} <Link href={switchHref}>{copy.switchLabel}</Link>
       </p>
     </form>
   );

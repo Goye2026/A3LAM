@@ -5,6 +5,7 @@ import { InvalidUploadError, validateUpload } from "@/lib/storage/validation";
 import { ADMIN_SESSION_COOKIE } from "@/lib/admin/auth";
 import { isSameOriginMutation } from "@/lib/user/requestSecurity";
 import { calculateProfileCompletion, projectPublicProfile, type ProfileRecord } from "@/lib/user/profileRepository";
+import { getSafeAuthDestination } from "@/lib/user/redirect";
 
 const baseProfile = {
   name: "Test Professional",
@@ -85,6 +86,16 @@ describe("Phase 14 profile UX contracts", () => {
     } as ProfileRecord;
     expect(calculateProfileCompletion(record).percent).toBeGreaterThan(0);
     expect(calculateProfileCompletion(record).percent).toBeLessThan(100);
+  });
+});
+
+describe("Phase 16.1 auth continuation", () => {
+  it("preserves internal paths and rejects external redirect targets", () => {
+    expect(getSafeAuthDestination("/account/profile?step=2#source")).toBe("/account/profile?step=2#source");
+    expect(getSafeAuthDestination("https://evil.example/account")).toBe("/account");
+    expect(getSafeAuthDestination("//evil.example/account")).toBe("/account");
+    expect(getSafeAuthDestination("/account\\\\evil")).toBe("/account");
+    expect(getSafeAuthDestination(undefined, "/account?welcome=1")).toBe("/account?welcome=1");
   });
 });
 
