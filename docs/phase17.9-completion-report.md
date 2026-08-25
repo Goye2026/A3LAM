@@ -22,7 +22,7 @@ The validation used Node.js `22.13.0`, pnpm `11.21.0`, Next.js `16.3.1`, React `
 ## Production
 
 ```text
-deployment: dpl_7Vm4m4tTPVDM5onhQj589TUgBAic
+deployment: dpl_FdBMEemKTBZo4XjGPTxDJiM3X4Uh (last verified Production deployment before this documentation-only closeout)
 status: READY / production / alias assigned
 alias: https://a3-lam.vercel.app
 health: PASS — HTTP 200; status=ok; service=a3lam
@@ -98,13 +98,14 @@ These counts are Phase 17.9 execution counters. No operation in this phase creat
 
 ```text
 branch: main
-HEAD: 506f653b258b850e5b25e53dc79bead1a524a8e3
-origin/main: 506f653b258b850e5b25e53dc79bead1a524a8e3
-HEAD == origin/main: yes
-working tree: clean at the implementation handoff; final report commit will be recorded in the closeout
+implementation handoff HEAD: 506f653b258b850e5b25e53dc79bead1a524a8e3
+last verified documentation HEAD: 94f085ef4ec9eb55d42b06c97431497fe403d42c
+final closeout HEAD: the normal commit containing this report; see final Git closeout
+HEAD == origin/main: required and verified after the final push
+working tree: required clean after the final closeout push
 ```
 
-The implementation/handoff commit was pushed normally. The final report documentation commit must be pushed normally and rechecked after deployment. No reset, rebase, force push, or history rewrite is allowed.
+The implementation/handoff commit `506f653b258b850e5b25e53dc79bead1a524a8e3` and the preceding verified documentation deployment commit `94f085ef4ec9eb55d42b06c97431497fe403d42c` were pushed normally. This final report is part of a subsequent documentation-only closeout commit; its exact SHA is recorded by the final Git closeout and task response. No reset, rebase, force push, or history rewrite is allowed.
 
 ## Deferred Items
 
