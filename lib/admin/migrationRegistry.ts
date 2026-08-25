@@ -1,11 +1,6 @@
-import { readdir } from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { sql } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
-
-const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const migrationsDirectory = path.join(projectRoot, "drizzle", "migrations");
+import { REQUIRED_MIGRATIONS } from "@/lib/admin/systemHealth";
 
 export type MigrationRegistryItem = {
   version: string;
@@ -80,9 +75,7 @@ function normalizeAppliedAt(value: Date | string | null) {
 }
 
 async function getRepositoryMigrationVersions() {
-  return (await readdir(migrationsDirectory))
-    .filter((file) => file.endsWith(".sql"))
-    .sort();
+  return [...REQUIRED_MIGRATIONS];
 }
 
 function isMissingMigrationRegistry(error: unknown) {
