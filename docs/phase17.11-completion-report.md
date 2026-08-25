@@ -15,7 +15,7 @@ A3LAM’s homepage is now structured as an Arabic-first discovery gateway rather
 
 The implementation introduces a stronger editorial hero, an independent catalog suspense boundary, a large advanced search surface, data-driven featured and category sections, an honest Discovery/Timeline foundation, a three-principle Trust section, a keyboard-aware localized mobile menu, and refined public navigation/footer styling. Where data or functionality does not exist, the UI says so rather than fabricating people, counts, periods, sources, testimonials, or submission workflows.
 
-Local typecheck, lint, build, tests, and targeted browser checks passed. The implementation commit deployed to Production as `dpl_EcNDdJ2t25TS5S85a98s7BwnAqE4` with `readyState=READY`, aliased to `https://a3-lam.vercel.app`; the final verification below was read-only.
+Local typecheck, lint, build, tests, and targeted browser checks passed. The mobile-navigation completion commit deployed to Production as `dpl_CCRzYQqbwMn3u5wVHhhrV2qCPVkX` with `readyState=READY`, aliased to `https://a3-lam.vercel.app`; the final verification below was read-only.
 
 ## What Changed
 
@@ -130,11 +130,11 @@ No migration runner, integration seed, test seed, production write, or database 
 
 ## Production Verification
 
-The Homepage 2.0 implementation commit `f746497271884dc7beb5c5c439d87423581939d2` deployed to Production as `dpl_EcNDdJ2t25TS5S85a98s7BwnAqE4`, target `production`, `readyState=READY`, with alias `https://a3-lam.vercel.app`.
+The current Homepage 2.0 mobile-navigation completion commit `a7cdda2512ded7f937af522dcecf3dd539ac20b0` deployed from `main` to Production as `dpl_CCRzYQqbwMn3u5wVHhhrV2qCPVkX`, target `production`, `readyState=READY`, with alias `https://a3-lam.vercel.app`.
 
-The final GET/HEAD-only smoke returned 200 for `/`, `/api/health`, `/categories`, `/search`, `/about`, `/login`, `/register`, `/robots.txt`, and `/sitemap.xml`; missing person/category routes returned 404; anonymous Admin pages returned 307; anonymous Admin APIs returned 401. The limited leakage scan returned no matches for database URLs, admin/user session markers, password hashes, or stack traces on `/`, `/search`, `/categories`, the published person route, `/account`, and `/admin`. No POST/PUT/PATCH/DELETE was sent.
+The final GET-only smoke returned 200 for `/`, `/api/health`, `/categories`, `/search`, `/about`, `/login`, `/register`, `/robots.txt`, and `/sitemap.xml`; anonymous `/admin` returned 307; anonymous `/api/admin/users` and `/api/admin/categories` returned 401. The bounded leakage scan returned no matches for database URLs, access tokens, session markers, password hashes, stack traces, or `node_modules` on the checked responses. The root canonical matched `https://a3-lam.vercel.app/`. No POST/PUT/PATCH/DELETE was sent.
 
-Production HTML visibly includes the Homepage 2.0 Hero, Header, Search, Discovery foundation, Trust section, and safe unavailable states. A current runtime-error grouped check was not rerun in this final pass; the latest recorded runtime evidence remains the previous no-error 24-hour window. No console/hydration error was observed in the available browser inspection; this is not cross-browser certification.
+Production HTML visibly includes the Homepage 2.0 Hero, Header, Search, Discovery foundation, Trust section, mobile-menu component, and safe unavailable states. The available browser inspection reported `lang=ar`, `dir=rtl`, one `h1`, mobile-menu ARIA wiring, and no horizontal overflow. A current Vercel grouped runtime-error check was not run in this pass; the latest recorded runtime evidence remains the previous no-error 24-hour window. No console/hydration error was observed in the available browser inspection; this is not cross-browser certification.
 
 ## Deferred
 
@@ -172,8 +172,9 @@ All Phase 17.11 counters are zero:
 
 - Branch: `main`
 - Pre-phase baseline: `e4b6a9cf0762cd2289f8930035f5861c033066ba`
-- Implementation commit: `f746497271884dc7beb5c5c439d87423581939d2`
-- Documentation synchronization: this report is updated in a subsequent normal docs-only commit after the implementation deployment verification.
+- Implementation baseline: `f746497271884dc7beb5c5c439d87423581939d2`
+- Current completion commit: `a7cdda2512ded7f937af522dcecf3dd539ac20b0`
+- Documentation and mobile-navigation synchronization: included in the current normal commit.
 - Force push/reset/rebase/history rewrite: none
 - Working tree: clean and `HEAD == origin/main` at final closeout.
 
@@ -184,7 +185,7 @@ The visual and interaction goals of Homepage 2.0 are implemented without fabrica
 ## Evidence References
 
 [1]: `phase17.11-responsive/findings.md` — Chromium responsive and DOM sanity findings.
-[2]: `/home/ubuntu/phase17.11-production-smoke.txt` — final Production GET/HEAD-only smoke artifact for the deployed Homepage 2.0 alias.
+[2]: `/home/ubuntu/phase17.11-production-smoke-current.txt` — current Production GET-only smoke and browser evidence for the deployed Homepage 2.0 alias.
 [3]: `/home/ubuntu/a3lam-phase13/tests/phase17.11.test.ts` — Homepage 2.0 regression tests.
 [6]: `/home/ubuntu/phase17.11-mobile-menu-findings.md` — fresh mobile menu DOM, interaction, and responsive findings.
 [7]: `/home/ubuntu/phase17.11-responsive-final/` — fresh Chromium screenshots for all required viewports.
