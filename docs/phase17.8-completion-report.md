@@ -6,7 +6,7 @@ Phase 17.8 hardens the existing A3LAM Release Candidate for final launch handoff
 
 The existing Next.js/PostgreSQL/Auth/RBAC/publication/privacy architecture is preserved. No Population, seed data, new migration, schema change, Production DDL/DML, user/admin/editor/profile/person/category/CV/file creation, provider credential, Vercel configuration change, temporary Production endpoint, authentication rewrite, or Phase 18 work is included.
 
-Final status is intended to be **PHASE 17.8 — COMPLETE WITH LIMITATIONS** after the release deployment and final read-only Production verification are recorded. Docker and Android remain honest external-verification boundaries.
+Final status is **PHASE 17.8 — COMPLETE WITH LIMITATIONS**. The release deployment and final read-only Production verification are recorded below. Docker and Android remain honest external-verification boundaries.
 
 ## 2. Changes
 
@@ -88,15 +88,25 @@ This evidence is not a screen-reader certification, keyboard-only certification,
 
 ## 13. Production Verification
 
-Final Production verification is GET/HEAD-only. No POST, PUT, PATCH, DELETE, form submission, migration action, publication action, archive action, session revocation, filter application, login of a new user, profile creation, CV creation, or data mutation is authorized.
+Final Production verification was GET/HEAD-only. No POST, PUT, PATCH, DELETE, form submission, migration action, publication action, archive action, session revocation, filter application, login of a new user, profile creation, CV creation, or data mutation was performed.
 
-The final verification records the current production alias, deployment ID and source commit, HTTP status for `/`, `/api/health`, `/categories`, `/search`, `/register`, `/login`, `/robots.txt`, and `/sitemap.xml`, public privacy scan, unauthenticated Admin page redirect/login boundary, unauthenticated Admin API `401` boundary, and current Vercel runtime-error query. Authenticated Admin checks are limited to loading existing pages through the existing session.
+The implementation commit `a031381034c5b020deae30eac6d891b1047f0ceb` deployed to Production as `dpl_Mhuj1ihEYCLtfxisf5yH9UuGsgCn`, target `production`, source `git`, state `READY`, and alias `https://a3-lam.vercel.app`.
 
-At this draft stage, final Phase 17.8 changes are not yet deployed. The completed report must replace this paragraph with actual final deployment and read-only evidence.
+| Check | Evidence | Result |
+|---|---|---|
+| `/`, `/categories`, `/search`, `/register`, `/login`, `/robots.txt`, `/sitemap.xml` | `phase17.8-production-public.txt` | PASS — HTTP 200 |
+| `/api/health` | `phase17.8-production-public.txt` | PASS — HTTP 200; `status=ok`, `service=a3lam` |
+| Security response headers | `phase17.8-production-public.txt` | PASS — nosniff, SAMEORIGIN, strict-origin referrer policy, restrictive Permissions-Policy, and HSTS observed |
+| Homepage canonical and public privacy scan | `phase17.8-production-public.txt` | PASS — HTTPS canonical observed; no database URL, Admin token/session, password hash, schema marker, or Set-Cookie leakage found |
+| Admin pages without session | `phase17.8-production-public.txt` | PASS — `/admin`, `/admin/users`, `/admin/categories`, and `/admin/system` returned `307` to `/admin/login` with internal `next` paths |
+| Admin APIs without session | `phase17.8-production-public.txt` | PASS — collection/system endpoints returned `401` |
+| Runtime errors | Vercel runtime logs scoped to `dpl_Mhuj1ihEYCLtfxisf5yH9UuGsgCn`, production, error/fatal, last hour | PASS — no logs found for the specified criteria; grouped-error query separately timed out and was not used as evidence |
+
+The final Production checks were read-only and did not create or alter records. Existing Admin migration registry and dashboard observations from the current authorized session remain consistent with the Phase 17.7 baseline: 6 applied, 0 pending, 6 expected; existing media/email configuration limitations remain. The Vercel project metadata still reports Node.js `24.x`; no Vercel runtime setting was changed.
 
 ## 14. Git Status
 
-The required final state is `main`, a clean working tree, and `HEAD == origin/main`. No force push, reset, rebase, or history rewrite is permitted. The final report must record the actual implementation and documentation commits after the normal push.
+The implementation commit `a031381034c5b020deae30eac6d891b1047f0ceb` is on `main` and was pushed normally. The documentation closeout commit is the normal commit containing this final report and is recorded in the final Git closeout. The required final state is `main`, a clean working tree, and `HEAD == origin/main`. No force push, reset, rebase, or history rewrite is permitted.
 
 ## 15. Deferred Items
 
@@ -126,7 +136,7 @@ No application or schema blocker was discovered in the Phase 17.8 slice. Docker 
 
 ## 18. Recommended Next Phase
 
-The next authorized phase should be selected explicitly by the product owner after reviewing this Release Candidate. It should not begin automatically. Before any private-host or Android release, complete the external Docker, VPS, accessibility, device, signing, domain, backup-restore, and provider verification items in their target environments.
+The next authorized phase should be selected explicitly by the product owner after reviewing this Release Candidate. It should not begin automatically. Before any private-host or Android release, complete the external Docker, VPS, accessibility, device, signing, domain, backup-restore, and provider verification items in their target environments. Population and Phase 18 remain outside this closeout.
 
 ## Safety Counters
 
