@@ -13,3 +13,5 @@ Production read-only visual verification on `https://a3-lam.vercel.app/` loaded 
 Production GET-only status checks on 2026-08-25 returned: `/api/health` 200, `/admin` 307 to the Admin login boundary, `/api/admin/administrators` 401 without an authorized Admin session, `/robots.txt` 200, and `/sitemap.xml` 200. No database migration status was inferred from these checks; migration remains unapplied/not verified.
 
 After the final documentation deployment reached READY, the production alias was visually rechecked. The Arabic public shell, search controls, and publication-gated catalog state rendered without a visible runtime error. The check remained GET/visual-only; no Admin login, mutation, migration, or data creation was attempted.
+
+Vercel read-only deployment verification: deployment `dpl_58HuwC4JieiZVhG8fk3esLUgwiMB` reached `READY` with target `production`, alias `a3-lam.vercel.app`, and GitHub commit `3f6ec1c53e7fc676286fa583ab67274ae56ebb57`. No migration or content/account mutation was executed.

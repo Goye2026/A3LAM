@@ -83,7 +83,7 @@
 
 ## Production Verification
 
-تم نشر commit Phase 17.1 في deployment إنتاجي READY هو `dpl_Dbz8sYwQKngfVXt151m1njEWtPrV`، والـdeployment مرتبط بـcommit `e22c89c8424216ceb196b02d15ddf287591a2ca9`. أُجريت قراءات Production فقط: `/api/health` أعاد 200، `/admin` أعاد 307 إلى حد تسجيل Admin، `/api/admin/administrators` أعاد 401 دون session مصرح بها، و`/robots.txt` و`/sitemap.xml` أعادا 200. لم تُجر أي Production mutation أو migration أو إنشاء identity/session/content. لا يمكن إثبات تشغيل persisted identity APIs أو schema في Production قبل تطبيق migration بتصريح مستقل.
+تم نشر آخر commit Phase 17.1 في deployment إنتاجي READY هو `dpl_58HuwC4JieiZVhG8fk3esLUgwiMB`، والـdeployment مرتبط بـcommit `3f6ec1c53e7fc676286fa583ab67274ae56ebb57` وبـalias `a3-lam.vercel.app`. أُجريت قراءات Production فقط: `/api/health` أعاد 200، `/admin` أعاد 307 إلى حد تسجيل Admin، `/api/admin/administrators` أعاد 401 دون session مصرح بها، و`/robots.txt` و`/sitemap.xml` أعادا 200. لم تُجر أي Production mutation أو migration أو إنشاء identity/session/content. لا يمكن إثبات تشغيل persisted identity APIs أو schema في Production قبل تطبيق migration بتصريح مستقل.
 
 ## Responsive Verification
 
@@ -99,7 +99,7 @@
 
 ## Git
 
-تم دفع commit التنفيذ إلى `main` بالرسالة `feat: establish server-side admin identity and RBAC` وSHA `e22c89c8424216ceb196b02d15ddf287591a2ca9`. تلاه commit توثيقي `3b2b26be719930d4dadcac957ff8673258e65c4a`، وسيُدفع الآن تحديث evidence النهائي في commit توثيقي إضافي. بعد ذلك يُتحقق من `HEAD == origin/main` وworking tree النظيف، دون force push أو reset أو rebase.
+تم دفع ثلاثة commits غير قسرية على `main`: implementation `e22c89c8424216ceb196b02d15ddf287591a2ca9`، verification docs `3b2b26be719930d4dadcac957ff8673258e65c4a`، وfinal evidence `3f6ec1c53e7fc676286fa583ab67274ae56ebb57`. سيُتحقق الآن من `HEAD == origin/main` وworking tree النظيف، دون force push أو reset أو rebase.
 
 ## Final Status
 
