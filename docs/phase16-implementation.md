@@ -6,7 +6,7 @@
 
 **Scope:** Migration-free improvements to professional profile identity, visibility, completion guidance, portfolio presentation and ordering, professional contact CTA, sharing, Admin moderation UX, public profile UX, accessibility, responsive behavior, and SEO-safe public projection.
 
-**Production status:** Commit `8422fa2db33152231ceef55795e9cef2bf27c41c` is deployed to Vercel Production as deployment `dpl_EbPuhaY2dbHpM6pKVUUE5HTboCqi` with state `READY`.
+**Production status:** The feature commit `8422fa2db33152231ceef55795e9cef2bf27c41c` is deployed to Vercel Production as deployment `dpl_EbPuhaY2dbHpM6pKVUUE5HTboCqi` with state `READY`. The latest documentation-only commit `a60d5c0896871fbf55c83198a955855d451fe73d` also has a Vercel Production deployment `dpl_AUEDd8ptjpYdeHBsRVG1ZPLh9ais` with state `READY`.
 
 ## Features
 
@@ -74,7 +74,8 @@ The following items remain documented rather than silently implemented: first-cl
 
 ## Git
 
-- **Commit:** `8422fa2db33152231ceef55795e9cef2bf27c41c`
+- **Feature commit:** `8422fa2db33152231ceef55795e9cef2bf27c41c`
+- **Final documentation commit / HEAD:** `a60d5c0896871fbf55c83198a955855d451fe73d`
 - **Branch:** `main`
 - **HEAD == origin/main:** PASS
 - **Working tree:** clean
