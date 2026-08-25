@@ -83,7 +83,7 @@
 
 ## Production Verification
 
-لم يُنشر commit Phase 17.1 بعد في وقت كتابة هذا التقرير، ولم تُجر أي Production mutation أو migration أو إنشاء identity/session/content. Production verification المسموح به بعد deployment هو GET/HEAD read-only فقط، مع استخدام session مصرح بها موجودة فعليًا إن توفرت. لا يمكن إثبات persisted identity APIs في Production قبل تطبيق migration بتصريح مستقل.
+تم نشر commit Phase 17.1 في deployment إنتاجي READY هو `dpl_Dbz8sYwQKngfVXt151m1njEWtPrV`، والـdeployment مرتبط بـcommit `e22c89c8424216ceb196b02d15ddf287591a2ca9`. أُجريت قراءات Production فقط: `/api/health` أعاد 200، `/admin` أعاد 307 إلى حد تسجيل Admin، `/api/admin/administrators` أعاد 401 دون session مصرح بها، و`/robots.txt` و`/sitemap.xml` أعادا 200. لم تُجر أي Production mutation أو migration أو إنشاء identity/session/content. لا يمكن إثبات تشغيل persisted identity APIs أو schema في Production قبل تطبيق migration بتصريح مستقل.
 
 ## Responsive Verification
 
@@ -99,7 +99,7 @@
 
 ## Git
 
-تم إنشاء commit منطقي واحد على `main` بالرسالة `feat: establish server-side admin identity and RBAC`. SHA الحالي قبل push هو `288cde28bf48638fca7e799ef30791046b2fde02`. سيُتحقق من `HEAD == origin/main` بعد الدفع، دون force push أو reset أو rebase.
+تم دفع commit التنفيذ إلى `main` بالرسالة `feat: establish server-side admin identity and RBAC` وSHA `e22c89c8424216ceb196b02d15ddf287591a2ca9`. أُضيفت أدلة Production read-only الحالية إلى التقرير وملف الأدلة في commit توثيقي لاحق قبل التحقق النهائي من `HEAD == origin/main`، دون force push أو reset أو rebase.
 
 ## Final Status
 
