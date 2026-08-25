@@ -90,4 +90,4 @@ Role/permission catalog tables بقيت دون seed rows. مصفوفة الصل�
 
 ## Git and deployment
 
-تم إنشاء commit Phase 17.2 على فرع `main`. سيُسجّل push ونتيجة مقارنة `main` مع `origin/main` وحالة working tree في delivery metadata النهائي بعد التحقق. لا يوجد أي Production migration أو DML ضمن عملية النشر.
+تم دفع commit التنفيذ `e8718bf6443573ba7d369cd051635dbb5b4d4bc3` إلى `main`، ونجح deployment Production `dpl_Bb2wbrziiiZPsTQD8jzGiQEWZ1VX` بحالة `READY` على alias `https://a3-lam.vercel.app`. تحقق Production read-only أعطى `/` = 200، و`/api/health` = 200، و`/api/admin/users` دون Admin cookie = 401. لم تُرسل أي mutation إلى Production، ولا يوجد أي Production migration أو DML ضمن عملية النشر. سيتم تسجيل أي docs-only follow-up SHA في سجل Git النهائي إن وُجد.
