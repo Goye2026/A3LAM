@@ -4,7 +4,7 @@
 **Scope:** Final Product Polish & Launch QA Sprint only
 **Report status:** Evidence-based closeout candidate; **PASS WITH LIMITATIONS**
 **Baseline implementation commit:** `f9175bdf5bb922e2b8acac216657f504d9719cd8`
-**Current Production deployment under verification:** `dpl_FTCujEHqjXZ1VnZ3aismw2KtZN4g`
+**Current Production deployment:** `dpl_7E1KwNLWHhbSw3Ypk23sjDXhMJg7`
 **Production alias:** [https://a3-lam.vercel.app](https://a3-lam.vercel.app)
 **Date:** 2026-08-25/26 session closeout
 
@@ -221,7 +221,7 @@ All checks below were **GET/HEAD-only or read-only browser checks**. No POST, PU
 | Representative published person route | HTTP 200; Arabic title, canonical, one Person JSON-LD marker, no sensitive scan matches |
 | Migration registry projection | 0001–0006 applied; pending 0; expected 6; consistent; runner not executed |
 
-A read-only Vercel runtime-error query for the last 24 hours returned three single-occurrence groups associated with prior deployments: two Phase 13 migration errors including an `ENOENT` migrations-path sample, and one historical `[UserAuth] registration failed` group. The current `dpl_FTC...` deployment was not listed. These results are retained as a limitation and are not represented as “zero runtime errors.” No secret or credential data was captured.
+A read-only Vercel runtime-error query for the last 24 hours returned three single-occurrence groups associated with prior deployments: two Phase 13 migration errors including an `ENOENT` migrations-path sample, and one historical `[UserAuth] registration failed` group. The current `dpl_7E1...` deployment was not listed. These results are retained as a limitation and are not represented as “zero runtime errors.” No secret or credential data was captured.
 
 ## Tests
 
@@ -242,12 +242,12 @@ The implementation baseline before this report update was:
 
 ```text
 branch: main
-HEAD before report/docs closeout: f9175bdf5bb922e2b8acac216657f504d9719cd8
-origin/main before report/docs closeout: f9175bdf5bb922e2b8acac216657f504d9719cd8
-working tree before report/docs closeout: clean
+HEAD after final report/docs closeout: fed86be67638d516fdfa6858b4ebf43b9996c642
+origin/main after final report/docs closeout: fed86be67638d516fdfa6858b4ebf43b9996c642
+working tree after final report/docs closeout: clean
 ```
 
-This report and the minimal launch-readiness reference synchronization are documentation-only closeout changes after the implementation commit above. The final closeout commit SHA, final `HEAD == origin/main` equality, and final clean working-tree result must be recorded by the last verification immediately after the normal push. No reset, rebase, force-push, or history rewrite is permitted.
+This report and the minimal launch-readiness reference synchronization are documentation-only closeout changes after the implementation commit above. The final closeout commit is `fed86be67638d516fdfa6858b4ebf43b9996c642`; final `HEAD == origin/main` equality and a clean working tree were verified after the normal push. No reset, rebase, force-push, or history rewrite is permitted.
 
 ## Data Safety Counters
 
