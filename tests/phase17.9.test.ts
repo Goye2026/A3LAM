@@ -11,8 +11,9 @@ function readProjectFile(relativePath: string) {
 describe("Phase 17.9 launch QA regressions", () => {
   it("does not present unavailable homepage counts as zero", () => {
     const homepage = readProjectFile("app/page.tsx");
-    expect(homepage).toContain('{ value: dataUnavailable ? "—" : String(people.length).padStart(2, "0"), label: copy.statsPeople }');
-    expect(homepage).toContain('{ value: dataUnavailable ? "—" : String(categories.length).padStart(2, "0"), label: copy.statsCategories }');
+    expect(homepage).toContain('unavailable || peopleCount === null ? "—" : String(peopleCount).padStart(2, "0")');
+    expect(homepage).toContain('unavailable || categoriesCount === null ? "—" : String(categoriesCount).padStart(2, "0")');
+    expect(homepage).toContain("<HomepageCatalogFallback");
   });
 
   it("uses the category-specific empty state on the homepage", () => {

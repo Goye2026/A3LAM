@@ -143,6 +143,20 @@ export type FoundationMessages = {
   ctaTitle: string;
   ctaDescription: string;
   ctaAction: string;
+  trustEyebrow: string;
+  trustSourcesTitle: string;
+  trustSourcesDescription: string;
+  trustArabicTitle: string;
+  trustArabicDescription: string;
+  trustGrowthTitle: string;
+  trustGrowthDescription: string;
+  discoveryEyebrow: string;
+  discoveryTitle: string;
+  discoveryDescription: string;
+  discoveryDeferredLabel: string;
+  discoveryDeferred: string;
+  discoverySearchAction: string;
+  discoveryCategoriesAction: string;
   footerTagline: string;
   footerExplore: string;
   footerContribute: string;
@@ -691,6 +705,20 @@ const ar: FoundationMessages = {
   ctaTitle: "لديك معلومة موثوقة؟ اجعلها تصل.",
   ctaDescription: "أعلام ينمو بالمصادر الدقيقة والتصحيحات المسؤولة. ستصبح أدوات المساهمة متاحة ضمن المراجعة التحريرية.",
   ctaAction: "اعرف المزيد",
+  trustEyebrow: "لماذا أعلام",
+  trustSourcesTitle: "معرفة موثقة",
+  trustSourcesDescription: "نربط السجلات بمصادر واضحة ونترك المعلومة قابلة للتتبع.",
+  trustArabicTitle: "تجربة عربية أولًا",
+  trustArabicDescription: "واجهة هادئة مصممة لقراءة الأسماء والسير العربية بوضوح.",
+  trustGrowthTitle: "موسوعة قابلة للنمو",
+  trustGrowthDescription: "بنية منظمة تستوعب الشخصيات والحقول الجديدة دون فقدان السياق.",
+  discoveryEyebrow: "مسار الاكتشاف",
+  discoveryTitle: "رحلة عبر المعرفة العربية",
+  discoveryDescription: "سنربط الأحداث والحقب والملفات المنشورة في تجربة زمنية أعمق عندما تتوفر البيانات المنظمة اللازمة.",
+  discoveryDeferredLabel: "قيد الإعداد",
+  discoveryDeferred: "العرض الزمني يحتاج بيانات حقب وأحداث منشورة؛ لذلك لا نعرض عناصر غير موثقة في الوقت الحالي.",
+  discoverySearchAction: "ابدأ بالبحث",
+  discoveryCategoriesAction: "استكشف المجالات",
   footerTagline: "منصة عربية لفهم أثر الأشخاص وصناعة المعرفة.",
   footerExplore: "استكشف",
   footerContribute: "ساهم",
@@ -1239,6 +1267,20 @@ const en: FoundationMessages = {
   ctaTitle: "Have a sourced fact? Help it travel.",
   ctaDescription: "A3LAM grows through careful sources and responsible corrections. Contribution tools will arrive within editorial review.",
   ctaAction: "Learn more",
+  trustEyebrow: "Why A3LAM",
+  trustSourcesTitle: "Sourced knowledge",
+  trustSourcesDescription: "We connect records to clear sources and keep each fact traceable.",
+  trustArabicTitle: "Arabic first",
+  trustArabicDescription: "A calm interface designed for reading Arabic names and biographies clearly.",
+  trustGrowthTitle: "Built to grow",
+  trustGrowthDescription: "A structured foundation for new people and fields without losing context.",
+  discoveryEyebrow: "Discovery path",
+  discoveryTitle: "A journey through Arab knowledge",
+  discoveryDescription: "Periods, events, and published profiles will connect in a deeper timeline once the required structured data exists.",
+  discoveryDeferredLabel: "In preparation",
+  discoveryDeferred: "The timeline view needs published period and event data, so we do not show unverified items today.",
+  discoverySearchAction: "Start searching",
+  discoveryCategoriesAction: "Explore fields",
   footerTagline: "An Arabic platform for understanding people and their impact.",
   footerExplore: "Explore",
   footerContribute: "Contribute",

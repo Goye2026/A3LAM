@@ -18,7 +18,7 @@ export type DisplayCategory = {
   slug: string;
   label: string;
   description: string;
-  count: string;
+  indexLabel: string;
   icon: string;
   tone: "teal" | "sand" | "ink";
 };
@@ -58,7 +58,7 @@ export function toDisplayCategories(categories: Category[]): DisplayCategory[] {
     slug: category.slug,
     label: category.name,
     description: category.description,
-    count: String(index + 1).padStart(2, "0"),
+    indexLabel: String(index + 1).padStart(2, "0"),
     ...(categoryVisuals[category.id] ?? { icon: "•", tone: "teal" as const }),
   }));
 }

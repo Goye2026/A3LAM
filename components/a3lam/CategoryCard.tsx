@@ -9,7 +9,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
   return (
     <Link className={`category-card category-${category.tone}`} href={`/categories/${category.slug}`}
  aria-label={`${category.label}: ${category.description}`}>
-      <span className="category-number">{category.count}</span>
+      <span className="category-number" aria-hidden="true">{category.indexLabel}</span>
       <span className="category-icon" aria-hidden="true">
         {category.icon}
       </span>
