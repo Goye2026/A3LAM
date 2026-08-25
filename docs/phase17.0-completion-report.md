@@ -79,10 +79,10 @@
 
 ## Production Verification
 
-**Deployment confirmed:** `dpl_7koR4LmpGpsgqL5QfUp4JRNhUtfe`  
-**State:** `READY`  
-**Target:** `production`  
-**Commit:** `291f1b3765464b0dcde8af02c354d0509ee92a1b`  
+**Deployment confirmed:** `dpl_43k2AoLfAfT9kSDVWrShyXU6CX3X`
+**State:** `READY`
+**Target:** `production`
+**Commit:** `2d66ffba2a4fe97a6863572f5e6820d9bd49a207`
 **Alias:** https://a3-lam.vercel.app
 
 تمت فحوصات GET/HEAD وقراءة عامة فقط. أعادت `/`, `/register`, `/login`, `/categories`, `/search`, `/sitemap.xml`, `/robots.txt`، وواجهات `/api/health`, `/api/categories`, `/api/search?q=` استجابات ناجحة بالأنواع المتوقعة. أعادت مسارات Admin للزائر غير المصرح redirect إلى `/admin/login`، بينما فُتحت لوحة Admin بجلسة موجودة مسبقًا للقراءة فقط، وظهرت navigation الجديدة والعدادات الحقيقية وrecent activity بصيغة عربية RTL.
@@ -109,10 +109,11 @@
 |---|---|
 | Branch | `main` |
 | Implementation commit | `291f1b3765464b0dcde8af02c354d0509ee92a1b` |
-| Documentation commit | Commit مستقل بعد هذا التنفيذ؛ SHA النهائي يُثبت في التسليم بعد push والتحقق. |
+| Documentation commit | `2d66ffba2a4fe97a6863572f5e6820d9bd49a207` |
+| Final docs update | هذا التحديث سيُدفع كـdocumentation-only commit بعد تثبيت Production evidence. |
 | Force push/reset/rebase | لم تُستخدم |
 | Production mutation | لم تُنفذ |
-| Working tree | يُتحقق منه قبل التسليم النهائي |
+| Working tree | يُتحقق منه بعد commit والدفع النهائي |
 
 ## Completion Classification
 

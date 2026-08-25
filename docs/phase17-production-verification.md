@@ -34,3 +34,7 @@ The authorized Admin session was not used to click, submit, create, edit, publis
 ## Limitations
 
 The exact viewport matrix 390×844, 393×852, 768×1024, and 1440×900 was not measured in this browser session and remains **NOT TESTED**. Screen-reader verification, measured WCAG contrast evidence, and multi-role Admin E2E are also **NOT TESTED**. The current Production Admin session represents the existing single Admin token and does not prove persisted ADMIN/EDITOR/MODERATOR identities.
+
+## Final deployment verification
+
+بعد دفع commit التوثيق النهائي، ظهر deployment `dpl_43k2AoLfAfT9kSDVWrShyXU6CX3X` بحالة `READY`، target `production`، والـcommit `2d66ffba2a4fe97a6863572f5e6820d9bd49a207`. أُعيد فحص alias العام عبر GET فقط، وكانت `/`, `/register`, `/login`, `/categories`, `/search`, `/sitemap.xml`, `/robots.txt`, `/api/health`, `/api/categories`, `/api/search?q=`, `/admin`, `/admin/users`, و`/admin/homepage` ناجحة؛ المسارات المحمية أعادت صفحة Admin login بعد redirect بدل كشف المحتوى.
