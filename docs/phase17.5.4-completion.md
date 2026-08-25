@@ -104,7 +104,7 @@ These counters describe actions performed during Phase 17.5.4:
 
 No claim is made here for external responsive, WCAG, screen-reader, cross-browser, provider, or real-user verification. Those checks are outside this production migration-control-plane pass and remain deferred unless separately authorized with genuine evidence.
 
-Vercel runtime log inspection was attempted read-only through the configured Vercel connector, but the connector request ended with a `deadline_exceeded` error while obtaining server configuration. Therefore no runtime-log PASS/FAIL conclusion is claimed from that unavailable check. The deployed endpoint and GET-only production smoke checks above were independently verified.
+Read-only grouped Vercel runtime-error inspection for the last 24 hours returned three error groups, all dated before the 0006 execution and associated with earlier deployments: five historical `[UserAuth] registration failed` events on `/api/auth/register` ending at `2026-08-24T21:06:26.000Z`, and two historical `phase13_migration_failed` events on `/api/admin/migration/phase13` at `2026-08-24T21:33:14.000Z` and `2026-08-24T21:36:12.000Z`. The latter included the previously observed ENOENT migration-directory issue. None of the returned groups was associated with the final deployment `dpl_2ex8MCjo6hbqw3ShYVUSK5LgSw6Q` for commit `59b0df1`; the inspection therefore provides no evidence of a new runtime-error group on the final deployment, but it is not a claim that the historical errors were deleted or resolved. The deployed endpoint and GET-only production smoke checks above were independently verified.
 
 ## 9. Git final state
 
