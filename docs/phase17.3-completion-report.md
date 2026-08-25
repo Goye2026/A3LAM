@@ -66,6 +66,6 @@
 
 ## Git and deployment
 
-تم تسجيل Phase 17.3 في commit واحد على `main`: `3d2cd77537c4fdc38db2c808d496f398c0c81357` (`feat: build admin control center`) ودُفع إلى `origin/main` دون force-push. Deployment Vercel المرتبط هو `dpl_FQ9jAhXgc1PYsdqkjH57hYbC7xKg`، وحالته `READY` على Production.
+تم دفع commit التنفيذ الرئيسي إلى `main`: `3d2cd77537c4fdc38db2c808d496f398c0c81357` (`feat: build admin control center`) دون force-push، ثم commit توثيقي عادي: `75e06903528b9695c1ee9a836a521a1403684a69` (`docs: finalize phase 17.3 evidence`). أحدث deployment المرتبط بـHEAD هو `dpl_3JYBGvguudahGZFb5twfvvdgavCm`، وحالته `READY` على Production.
 
 تم تنفيذ Production read-only GET فقط: `/api/health` أعاد 200، الصفحة العامة `/` أعادت 200، و`/api/admin/site-experience/homepage` دون cookie أعاد 401 برسالة آمنة. لم تُجرَ أي migration أو Production CMS mutation أو account/data change ضمن هذه المهمة. آخر تحقق Git بعد الدفع: `main == origin/main` وworking tree نظيف.

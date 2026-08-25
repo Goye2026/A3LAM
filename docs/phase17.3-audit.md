@@ -86,3 +86,7 @@
 ## 12. Production read-only evidence
 
 بعد دفع commit `3d2cd77537c4fdc38db2c808d496f398c0c81357`، أصبح deployment `dpl_FQ9jAhXgc1PYsdqkjH57hYbC7xKg` بحالة READY على alias `https://a3-lam.vercel.app`. فحص GET على `/api/health` أعاد 200، وGET على `/` أعاد 200 مع `lang="ar"`, `dir="rtl"` وappearance data attributes، وGET غير موثق على `/api/admin/site-experience/homepage` أعاد 401 برسالة آمنة. لم تُرسل cookies ولم تُجرَ أي mutation أو migration.
+
+## 13. Final HEAD evidence
+
+بعد commit التوثيق `75e06903528b9695c1ee9a836a521a1403684a69`، أصبح deployment `dpl_3JYBGvguudahGZFb5twfvvdgavCm` بحالة READY، مع alias `https://a3-lam.vercel.app`. Health GET أعاد 200، public GET أعاد 200، وAdmin Site Experience GET بلا cookie أعاد 401 برسالة `UNAUTHORIZED` آمنة. لا توجد Production migrations أو writes.
