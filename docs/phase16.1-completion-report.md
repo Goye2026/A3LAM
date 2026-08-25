@@ -90,13 +90,29 @@
 
 ## Production Verification
 
-سيُجرى بعد الدفع فقط تحقق read-only عبر GET/HEAD للمسارات التالية: `/`، `/register`، `/login`، `/categories`، `/search`، ملف editorial معروف، `/sitemap.xml`، و`/robots.txt`. لا تُنفذ POST/PUT/PATCH/DELETE ولا يُستخدم حساب أو session حقيقي في هذا التحقق.
+اكتمل التحقق read-only بعد الدفع عبر GET/HEAD فقط. لم تُرسل طلبات POST/PUT/PATCH/DELETE، ولم تُستخدم جلسة مستخدم أو Admin، ولم تُنشأ أو تُعدّل بيانات.
+
+| المسار | النتيجة |
+|---|---|
+| `/` | 200 HTML؛ RTL وحالة catalog آمنة دون تحميل لا نهائي. |
+| `/register` | 200 HTML؛ نموذج RTL كامل، وcontinuation الداخلي ظاهر في رابط التبديل. |
+| `/login?next=%2Faccount%2Fprofile` | 200 HTML؛ نموذج RTL ورابط continuation داخلي. |
+| `/categories` | 200 HTML؛ التصنيفات العامة المنشورة ظاهرة، ومنها التاريخ. |
+| `/categories/history` | 200 HTML. |
+| `/search` | 200 HTML؛ نموذج البحث والمرشحات العامة ظاهرة RTL. |
+| `/person/ibn-khaldun` | 200 HTML؛ الصفحة اكتملت بعد انتظار قصير وظهر الملف التحريري العام والمصدر والروابط ذات الصلة. |
+| `/sitemap.xml` | 200 XML؛ static routes والتصنيفات وpublic people فقط، بما فيها ابن خلدون. |
+| `/robots.txt` | 200 text؛ `Allow: /` و`Disallow: /api/` مع sitemap صحيح. |
+| `/api/search?q=ibn-khaldun` | 200 JSON؛ نتيجة عامة فقط، دون `contactEmail` أو `phone` أو session/private markers. |
+| `/api/health` | 200 JSON. |
+
+Deployment المستخدم: `dpl_4bCGwFVXhPgK9294QX8uec13x8Qc`، حالته `READY`، والـcommit الكامل `eb8db9f03d510cb5a13aed3db781715bb0449e87` على `main`. لم تظهر أخطاء client في console أثناء الفحص الأخير. حالة loading الأولية لملف ابن خلدون كانت مؤقتة أثناء جلب السجل ثم اكتملت.
 
 **Production professional CV/profile E2E:** NOT TESTED، لعدم توفر owner session حقيقية وملف user-owned منشور.  
-**Production storage upload:** NOT TESTED، لنفس السبب ولضرورة provider configuration.  
+**Production storage upload:** NOT TESTED، لضرورة provider configuration وowner session حقيقية.
 **Production migration/data mutation:** NOT PERFORMED.
 
-ستُحدّث هذه الفقرة بنتائج HTTP/headers وdeployment read-only قبل التسليم النهائي.
+الأثر التفصيلي محفوظ في `docs/phase16.1-production-verification.md`.
 
 ## Database Changes
 
@@ -114,7 +130,7 @@
 
 ## Git
 
-سيتم إنشاء commit Phase 16.1 واحد منطقي بعد اكتمال الفحوص النهائية، ثم دفع `main` دون force push أو reset أو rebase. يجب أن يساوي `HEAD` قيمة `origin/main` وأن يكون working tree نظيفًا.
+دُفع commit التنفيذ `eb8db9f03d510cb5a13aed3db781715bb0449e87` إلى `main` دون force push أو reset أو rebase، وأنشأ deployment Production الجاهز المذكور أعلاه. أضيف أثر Production النهائي في commit توثيقي ثانٍ minimal فقط، وسيُدفع إلى `main` دون force push، ثم يُتحقق من تطابق `HEAD` و`origin/main` ونظافة working tree.
 
 ## Phase Boundary
 
