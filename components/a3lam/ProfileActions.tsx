@@ -13,7 +13,7 @@ const fallbackCopy: ProfileActionCopy = {
   profileShareFailed: "تعذرت المشاركة؛ يمكنك نسخ الرابط يدويًا.",
 };
 
-export function ProfileActions({ title, copy = fallbackCopy }: { title: string; copy?: ProfileActionCopy }) {
+export function ProfileActions({ title, copy = fallbackCopy, showPrintButton = true, showShareControls = true }: { title: string; copy?: ProfileActionCopy; showPrintButton?: boolean; showShareControls?: boolean }) {
   const [message, setMessage] = useState("");
 
   async function copyLink() {
@@ -51,16 +51,15 @@ export function ProfileActions({ title, copy = fallbackCopy }: { title: string; 
     window.open(targets[target], "_blank", "noopener,noreferrer");
   }
 
-  return <div className="profile-actions" aria-label="أدوات الملف">
-    <button className="button button-quiet" type="button" onClick={() => void share()}>{copy.profileShare}</button>
-    <button className="button button-quiet" type="button" onClick={() => void copyLink()}>{copy.profileCopyLink}</button>
-    <button className="button button-quiet" type="button" onClick={() => window.print()}>{copy.profilePrint}</button>
-    <div className="profile-share-links" aria-label="مشاركة عبر المنصات">
+  return <div className="profile-actions" aria-label={copy.profileShare}>
+    {showShareControls ? <><button className="button button-quiet" type="button" onClick={() => void share()}>{copy.profileShare}</button><button className="button button-quiet" type="button" onClick={() => void copyLink()}>{copy.profileCopyLink}</button></> : null}
+    {showPrintButton ? <button className="button button-quiet" type="button" onClick={() => window.print()}>{copy.profilePrint}</button> : null}
+    {showShareControls ? <div className="profile-share-links" aria-label={copy.profileShare}>
       <button type="button" onClick={() => openShare("whatsapp")}>WhatsApp</button>
       <button type="button" onClick={() => openShare("linkedin")}>LinkedIn</button>
       <button type="button" onClick={() => openShare("facebook")}>Facebook</button>
       <button type="button" onClick={() => openShare("x")}>X</button>
-    </div>
+    </div> : null}
     {message ? <span role="status">{message}</span> : null}
   </div>;
 }

@@ -2548,3 +2548,71 @@ textarea.admin-input { resize: vertical; }
   .admin-responsive-table .admin-button-row { align-items: stretch; }
   .admin-responsive-table .admin-button-row .button { width: 100%; }
 }
+
+/* Phase 17.3: only allow-listed appearance tokens are applied from persisted configuration. */
+[data-radius="sharp"] .admin-panel,
+[data-radius="sharp"] .admin-stat-card,
+[data-radius="sharp"] .admin-action-card,
+[data-radius="sharp"] .person-card {
+  border-radius: var(--radius-sm);
+}
+
+[data-density="compact"] {
+  line-height: 1.55;
+}
+
+[data-container="standard"] .a3lam-shell {
+  max-width: 64rem;
+}
+
+[data-card-style="outlined"] .admin-stat-card,
+[data-card-style="outlined"] .admin-action-card,
+[data-card-style="outlined"] .person-card {
+  box-shadow: none;
+  border: 1px solid var(--color-border);
+}
+
+.admin-preview-hero {
+  padding: var(--space-12);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.admin-preview-section-list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding-inline-start: 1.5rem;
+}
+
+.admin-version-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-block: var(--space-6);
+}
+
+.admin-version-strip > div {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.admin-version-strip span {
+  color: var(--color-ink-muted);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 48rem) {
+  .admin-version-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-preview-hero {
+    padding: var(--space-6);
+  }
+}

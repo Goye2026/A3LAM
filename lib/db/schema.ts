@@ -1,4 +1,4 @@
-import { boolean, date, index, integer, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { boolean, date, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import type { ContentStatus, ProfileStatus, ProfileVisibility, SourceType } from "@/lib/domain/a3lam";
 import type { AdminAccountStatus, AdminPermissionCode, AdminRoleCode } from "@/lib/admin/types";
 
@@ -266,6 +266,19 @@ export const adminPermissionOverrides = pgTable(
   }),
 );
 
+export const siteExperienceConfigs = pgTable(
+  "site_experience_configs",
+  {
+    resource: text("resource").primaryKey(),
+    draft: jsonb("draft").notNull(),
+    published: jsonb("published").notNull(),
+    updatedBy: text("updated_by").references(() => adminIdentities.id, { onDelete: "set null" }),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    publishedBy: text("published_by").references(() => adminIdentities.id, { onDelete: "set null" }),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+  },
+);
+
 export const adminSessions = pgTable(
   "admin_sessions",
   {
@@ -513,6 +526,7 @@ export const dbSchema = {
     adminRolePermissions,
     adminRoleAssignments,
     adminPermissionOverrides,
+    siteExperienceConfigs,
     adminSessions,
     profiles,
   profileCategories,

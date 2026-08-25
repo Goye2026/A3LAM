@@ -1,6 +1,9 @@
 import Link from "next/link";
 import type { FoundationMessages } from "@/lib/i18n/messages";
 import { getCurrentUser } from "@/lib/user/auth";
+import { withTimeout } from "@/lib/foundation/withTimeout";
+import { siteExperienceDefaults } from "@/lib/site-experience/config";
+import { siteExperienceRepository } from "@/lib/site-experience/repository";
 import { LogoutButton } from "./LogoutButton";
 
 type HeaderSection = "home" | "people" | "categories" | "about" | "search" | "contact" | "privacy";
@@ -16,12 +19,9 @@ type SiteHeaderProps = {
 
 export async function SiteHeader({ copy, active = "home" }: SiteHeaderProps) {
   const user = await getCurrentUser();
-  const links = [
-    { key: "home" as const, href: "/", label: copy.navHome },
-    { key: "people" as const, href: "/search", label: copy.navPeople },
-    { key: "categories" as const, href: "/categories", label: copy.navCategories },
-    { key: "about" as const, href: "/about", label: copy.navAbout },
-  ];
+  const navigation = await withTimeout(siteExperienceRepository.getPublishedResource("navigation"), 2500).catch(() => siteExperienceDefaults.navigation);
+  const identity = await withTimeout(siteExperienceRepository.getPublishedResource("identity"), 2500).catch(() => siteExperienceDefaults.identity);
+  const links = navigation.header.filter((link) => link.visible).sort((a, b) => a.order - b.order).map((link) => ({ key: link.id, href: link.href, label: link.label }));
 
   return (
     <header className="a3lam-header">
@@ -30,8 +30,8 @@ export async function SiteHeader({ copy, active = "home" }: SiteHeaderProps) {
           أ
         </span>
         <span className="a3lam-brand-copy">
-          <span className="a3lam-brand-name">{copy.siteName}</span>
-          <span className="a3lam-brand-eyebrow">{copy.siteEyebrow}</span>
+          <span className="a3lam-brand-name">{identity.siteName || copy.siteName}</span>
+          <span className="a3lam-brand-eyebrow">{identity.tagline || copy.siteEyebrow}</span>
         </span>
       </Link>
 

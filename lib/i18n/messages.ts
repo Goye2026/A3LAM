@@ -324,6 +324,93 @@ export type FoundationMessages = {
   adminAudit: string;
   adminSystem: string;
   adminSettings: string;
+  adminSiteExperienceDescription: string;
+  adminPublishDraft: string;
+  adminDraftVersion: string;
+  adminPublishedVersion: string;
+  adminLastSaved: string;
+  adminIdentitySettings: string;
+  adminThemeSettings: string;
+  adminHomepageBuilder: string;
+  adminNavigationManager: string;
+  adminFooterManager: string;
+  adminSeoManager: string;
+  adminProfilePresentationSettings: string;
+  adminSystemHealth: string;
+  adminRecentActivity: string;
+  adminModerationQueue: string;
+  adminQuickActions: string;
+  adminMediaProvider: string;
+  adminRequiresConfiguration: string;
+  adminVisible: string;
+  adminHidden: string;
+  adminLabel: string;
+  adminUrl: string;
+  adminExternalLink: string;
+  adminSectionTitle: string;
+  adminSectionDescription: string;
+  adminPublishConfirmation: string;
+  adminPublishSuccess: string;
+  adminDraftSaved: string;
+  adminMoveUp: string;
+  adminMoveDown: string;
+  adminSiteName: string;
+  adminTagline: string;
+  adminDefaultLanguage: string;
+  adminDirection: string;
+  adminSupportEmail: string;
+  adminContactEmail: string;
+  adminLogo: string;
+  adminFavicon: string;
+  adminShortName: string;
+  adminBrandDescription: string;
+  adminTheme: string;
+  adminTypography: string;
+  adminSpacing: string;
+  adminRadius: string;
+  adminNavigationStyle: string;
+  adminCardStyle: string;
+  adminButtonStyle: string;
+  adminHeroStyle: string;
+  adminFooterStyle: string;
+  adminHero: string;
+  adminSearchSection: string;
+  adminFeaturedSection: string;
+  adminProfilesSection: string;
+  adminCategoriesSection: string;
+  adminAboutSection: string;
+  adminFinalCta: string;
+  adminSelectionMode: string;
+  adminItemLimit: string;
+  adminDisplayMode: string;
+  adminHelperText: string;
+  adminSeoTitle: string;
+  adminDefaultDescription: string;
+  adminKeywords: string;
+  adminOgImage: string;
+  adminTwitterCard: string;
+  adminCanonicalBase: string;
+  adminIndexingAllowed: string;
+  adminTemplate: string;
+  adminSectionOrder: string;
+  adminShowPortfolio: string;
+  adminShowContact: string;
+  adminShowSocial: string;
+  adminShowPrint: string;
+  adminShowShare: string;
+  adminPrimary: string;
+  adminSecondary: string;
+  adminCopyright: string;
+  adminLegalLinks: string;
+  adminTokenPrimary: string;
+  adminTokenAccent: string;
+  adminTokenSurface: string;
+  adminTokenDensity: string;
+  adminTokenContainer: string;
+  adminAddLink: string;
+  adminAddGroup: string;
+  adminAddSocialLink: string;
+  adminMediaSafetyNote: string;
   adminUnavailableTitle: string;
   adminUnavailableDescription: string;
   adminRequiresSchema: string;
@@ -735,6 +822,93 @@ const ar: FoundationMessages = {
   adminAudit: "سجل التدقيق",
   adminSystem: "حالة النظام",
   adminSettings: "الإعدادات",
+  adminSiteExperienceDescription: "إدارة آمنة لإعدادات تجربة الموقع مع مسودة ونشر منفصلين.",
+  adminPublishDraft: "نشر المسودة",
+  adminDraftVersion: "المسودة الحالية",
+  adminPublishedVersion: "الإصدار المنشور",
+  adminLastSaved: "آخر حفظ",
+  adminIdentitySettings: "هوية الموقع",
+  adminThemeSettings: "إعدادات المظهر",
+  adminHomepageBuilder: "محرر الصفحة الرئيسية",
+  adminNavigationManager: "إدارة التنقل",
+  adminFooterManager: "إدارة التذييل",
+  adminSeoManager: "إدارة SEO",
+  adminProfilePresentationSettings: "عرض الملفات المهنية",
+  adminSystemHealth: "حالة النظام",
+  adminRecentActivity: "النشاط الأخير",
+  adminModerationQueue: "طابور المراجعة",
+  adminQuickActions: "إجراءات سريعة",
+  adminMediaProvider: "مزود الوسائط",
+  adminRequiresConfiguration: "يتطلب إعدادًا",
+  adminVisible: "ظاهر",
+  adminHidden: "مخفي",
+  adminLabel: "التسمية",
+  adminUrl: "الرابط",
+  adminExternalLink: "رابط خارجي",
+  adminSectionTitle: "عنوان القسم",
+  adminSectionDescription: "وصف القسم",
+  adminPublishConfirmation: "سيصبح هذا الإصدار ظاهرًا للعامة بعد النشر.",
+  adminPublishSuccess: "تم نشر الإصدار بنجاح.",
+  adminDraftSaved: "تم حفظ المسودة.",
+  adminMoveUp: "نقل لأعلى",
+  adminMoveDown: "نقل لأسفل",
+  adminSiteName: "اسم الموقع",
+  adminTagline: "الشعار الوصفي",
+  adminDefaultLanguage: "اللغة الافتراضية",
+  adminDirection: "اتجاه العرض",
+  adminSupportEmail: "بريد الدعم",
+  adminContactEmail: "بريد التواصل",
+  adminLogo: "الشعار",
+  adminFavicon: "أيقونة الموقع",
+  adminShortName: "الاسم المختصر",
+  adminBrandDescription: "وصف الهوية",
+  adminTheme: "السمة",
+  adminTypography: "الخطوط",
+  adminSpacing: "المسافات",
+  adminRadius: "استدارة الزوايا",
+  adminNavigationStyle: "نمط التنقل",
+  adminCardStyle: "نمط البطاقات",
+  adminButtonStyle: "نمط الأزرار",
+  adminHeroStyle: "نمط الواجهة الرئيسية",
+  adminFooterStyle: "نمط التذييل",
+  adminHero: "الواجهة الرئيسية",
+  adminSearchSection: "قسم البحث",
+  adminFeaturedSection: "المحتوى المختار",
+  adminProfilesSection: "الملفات المهنية",
+  adminCategoriesSection: "التصنيفات",
+  adminAboutSection: "عن أعلام",
+  adminFinalCta: "الدعوة الختامية",
+  adminSelectionMode: "نمط الاختيار",
+  adminItemLimit: "عدد العناصر",
+  adminDisplayMode: "نمط العرض",
+  adminHelperText: "النص المساعد",
+  adminSeoTitle: "عنوان SEO",
+  adminDefaultDescription: "الوصف الافتراضي",
+  adminKeywords: "الكلمات المفتاحية",
+  adminOgImage: "صورة المشاركة",
+  adminTwitterCard: "بطاقة X/Twitter",
+  adminCanonicalBase: "النطاق الأساسي للروابط",
+  adminIndexingAllowed: "السماح بالفهرسة",
+  adminTemplate: "القالب",
+  adminSectionOrder: "ترتيب الأقسام",
+  adminShowPortfolio: "عرض نماذج الأعمال",
+  adminShowContact: "عرض زر التواصل",
+  adminShowSocial: "عرض الروابط الاجتماعية",
+  adminShowPrint: "عرض زر الطباعة",
+  adminShowShare: "عرض أدوات المشاركة",
+  adminPrimary: "الإجراء الأساسي",
+  adminSecondary: "الإجراء الثانوي",
+  adminCopyright: "حقوق النشر",
+  adminLegalLinks: "الروابط القانونية",
+  adminTokenPrimary: "اللون الأساسي",
+  adminTokenAccent: "لون التمييز",
+  adminTokenSurface: "لون السطح",
+  adminTokenDensity: "كثافة العرض",
+  adminTokenContainer: "عرض الحاوية",
+  adminAddLink: "إضافة رابط",
+  adminAddGroup: "إضافة مجموعة",
+  adminAddSocialLink: "إضافة رابط اجتماعي",
+  adminMediaSafetyNote: "تُحفظ metadata فقط عبر مزود تخزين خارجي؛ لا يوجد fallback إلى filesystem أو تخزين bytes في PostgreSQL.",
   adminUnavailableTitle: "هذه الوظيفة غير مفعلة بعد",
   adminUnavailableDescription: "تحتاج هذه المساحة إلى بنية بيانات أو إعداد خارجي غير متاح في الإصدار الحالي.",
   adminRequiresSchema: "تحتاج تهيئة بنية البيانات",
@@ -1146,6 +1320,93 @@ const en: FoundationMessages = {
   adminAudit: "Audit log",
   adminSystem: "System status",
   adminSettings: "Settings",
+  adminSiteExperienceDescription: "Safely manage site experience settings with separate draft and published versions.",
+  adminPublishDraft: "Publish draft",
+  adminDraftVersion: "Current draft",
+  adminPublishedVersion: "Published version",
+  adminLastSaved: "Last saved",
+  adminIdentitySettings: "Site identity",
+  adminThemeSettings: "Appearance settings",
+  adminHomepageBuilder: "Homepage builder",
+  adminNavigationManager: "Navigation manager",
+  adminFooterManager: "Footer manager",
+  adminSeoManager: "SEO manager",
+  adminProfilePresentationSettings: "Professional profile presentation",
+  adminSystemHealth: "System health",
+  adminRecentActivity: "Recent activity",
+  adminModerationQueue: "Moderation queue",
+  adminQuickActions: "Quick actions",
+  adminMediaProvider: "Media provider",
+  adminRequiresConfiguration: "Requires configuration",
+  adminVisible: "Visible",
+  adminHidden: "Hidden",
+  adminLabel: "Label",
+  adminUrl: "URL",
+  adminExternalLink: "External link",
+  adminSectionTitle: "Section title",
+  adminSectionDescription: "Section description",
+  adminPublishConfirmation: "This version becomes public after publishing.",
+  adminPublishSuccess: "Version published successfully.",
+  adminDraftSaved: "Draft saved.",
+  adminMoveUp: "Move up",
+  adminMoveDown: "Move down",
+  adminSiteName: "Site name",
+  adminTagline: "Tagline",
+  adminDefaultLanguage: "Default language",
+  adminDirection: "Direction",
+  adminSupportEmail: "Support email",
+  adminContactEmail: "Contact email",
+  adminLogo: "Logo",
+  adminFavicon: "Favicon",
+  adminShortName: "Short name",
+  adminBrandDescription: "Brand description",
+  adminTheme: "Theme",
+  adminTypography: "Typography",
+  adminSpacing: "Spacing",
+  adminRadius: "Corner radius",
+  adminNavigationStyle: "Navigation style",
+  adminCardStyle: "Card style",
+  adminButtonStyle: "Button style",
+  adminHeroStyle: "Hero style",
+  adminFooterStyle: "Footer style",
+  adminHero: "Hero",
+  adminSearchSection: "Search section",
+  adminFeaturedSection: "Featured content",
+  adminProfilesSection: "Professional profiles",
+  adminCategoriesSection: "Categories",
+  adminAboutSection: "About A3LAM",
+  adminFinalCta: "Final CTA",
+  adminSelectionMode: "Selection mode",
+  adminItemLimit: "Item limit",
+  adminDisplayMode: "Display mode",
+  adminHelperText: "Helper text",
+  adminSeoTitle: "SEO title",
+  adminDefaultDescription: "Default description",
+  adminKeywords: "Keywords",
+  adminOgImage: "Social image",
+  adminTwitterCard: "X/Twitter card",
+  adminCanonicalBase: "Canonical base",
+  adminIndexingAllowed: "Allow indexing",
+  adminTemplate: "Template",
+  adminSectionOrder: "Section order",
+  adminShowPortfolio: "Show portfolio",
+  adminShowContact: "Show contact CTA",
+  adminShowSocial: "Show social links",
+  adminShowPrint: "Show print control",
+  adminShowShare: "Show share controls",
+  adminPrimary: "Primary action",
+  adminSecondary: "Secondary action",
+  adminCopyright: "Copyright",
+  adminLegalLinks: "Legal links",
+  adminTokenPrimary: "Primary color",
+  adminTokenAccent: "Accent color",
+  adminTokenSurface: "Surface color",
+  adminTokenDensity: "Display density",
+  adminTokenContainer: "Container width",
+  adminAddLink: "Add link",
+  adminAddGroup: "Add group",
+  adminAddSocialLink: "Add social link",
+  adminMediaSafetyNote: "Only metadata is retained through an external storage provider; there is no filesystem or PostgreSQL-bytes fallback.",
   adminUnavailableTitle: "This function is not enabled yet",
   adminUnavailableDescription: "This area requires a data structure or external configuration that is not available in the current release.",
   adminRequiresSchema: "Requires schema configuration",

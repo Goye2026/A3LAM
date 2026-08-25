@@ -1,8 +1,10 @@
-import { AdminStatusPage } from "@/components/a3lam/AdminStatusPage";
+import type { Metadata } from "next";
+import { AdminSiteExperiencePage } from "@/components/a3lam/AdminSiteExperiencePage";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 
+export const metadata: Metadata = { title: "Settings · A3LAM", robots: { index: false, follow: false } };
+
 export default function AdminSettingsPage() {
-  const copy = getMessages(defaultLocale);
-  return <AdminStatusPage title={copy.adminSettings} description={copy.adminControlCenterDescription} status={copy.adminRequiresSchema} detail="لن تتحول قاعدة البيانات إلى JSON dumping ground؛ أي إعدادات دائمة ستُصمم كنموذج typed مع validation ونسخة draft/preview عند اعتماد schema." />;
+  return <AdminSiteExperiencePage resource="settings" title={getMessages(defaultLocale).adminSettings} />;
 }

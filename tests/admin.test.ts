@@ -5,6 +5,8 @@ import { parseAdminIdentityCreateBody, parseAdminIdentityUpdateBody, parsePermis
 import type { Category } from "@/lib/domain/a3lam";
 import { applyPermissionOverrides, canAdminRoleManageRole, canSoleSuperAdminRetainCorePermissions, effectivePermissionsForPrincipal, hasAdminPermission, isFinalSuperAdminDeletionAllowed, permissionsForRole } from "@/lib/admin/rbac";
 import { requirePermission } from "@/lib/admin/http";
+import { isSameOriginMutation } from "@/lib/user/requestSecurity";
+import { parseSiteExperienceConfig, siteExperienceDefaults } from "@/lib/site-experience/config";
 
 const token = "phase-11-local-admin-token-012345678901234567890";
 const category: Category = { id: "media", slug: "media", name: "الإعلام", description: "تصنيف اختباري.", status: "published" };
@@ -65,6 +67,33 @@ describe("Phase 17 centralized RBAC policy", () => {
     const session = createAdminSession();
     const allowed = await requirePermission(new Request("http://localhost", { headers: { cookie: `a3lam_admin_session=${encodeURIComponent(session)}` } }), "settings.manage");
     expect(allowed).toBeNull();
+  });
+});
+
+describe("Phase 17.3 site experience contracts", () => {
+  it("accepts the typed default configuration without arbitrary executable fields", () => {
+    const parsed = parseSiteExperienceConfig("homepage", siteExperienceDefaults.homepage);
+    expect(parsed.sections).toHaveLength(7);
+    expect(parsed.hero.primary.href).toBe("/profile/new");
+  });
+
+  it("rejects unsafe URLs and duplicate homepage section keys", () => {
+    expect(() => parseSiteExperienceConfig("identity", { ...siteExperienceDefaults.identity, logoUrl: "javascript:alert(1)" })).toThrow(/Invalid/);
+    const duplicate = { ...siteExperienceDefaults.homepage, sections: siteExperienceDefaults.homepage.sections.map((section, index) => index === 1 ? { ...section, key: "hero" as const } : section) };
+    expect(() => parseSiteExperienceConfig("homepage", duplicate)).toThrow(/Invalid/);
+  });
+
+  it("drops unknown fields instead of persisting arbitrary configuration", () => {
+    const parsed = parseSiteExperienceConfig("identity", { ...siteExperienceDefaults.identity, customJs: "alert(1)", rawCss: "body{}" });
+    expect("customJs" in parsed).toBe(false);
+    expect("rawCss" in parsed).toBe(false);
+  });
+
+  it("keeps mutation origin protection strict when an origin is supplied", () => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://a3-lam.vercel.app");
+    vi.stubEnv("NODE_ENV", "production");
+    expect(isSameOriginMutation(new Request("https://a3-lam.vercel.app/api/admin/site-experience/homepage", { headers: { origin: "https://a3-lam.vercel.app" } }))).toBe(true);
+    expect(isSameOriginMutation(new Request("https://a3-lam.vercel.app/api/admin/site-experience/homepage", { headers: { origin: "https://evil.example" } }))).toBe(false);
   });
 });
 

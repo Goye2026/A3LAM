@@ -6,10 +6,13 @@ import { SiteFooter } from "@/components/a3lam/SiteFooter";
 import { SiteHeader } from "@/components/a3lam/SiteHeader";
 import { toDisplayCategories, toDisplayPeople } from "@/lib/a3lam/catalog";
 import type { Category, Person } from "@/lib/domain/a3lam";
+import type { HomepageSettings } from "@/lib/site-experience/config";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 import { personService } from "@/lib/services/personService";
 import { withTimeout } from "@/lib/foundation/withTimeout";
+import { siteExperienceDefaults } from "@/lib/site-experience/config";
+import { siteExperienceRepository } from "@/lib/site-experience/repository";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +20,25 @@ const HOMEPAGE_DATA_TIMEOUT_MS = 5000;
 
 export default async function HomePage() {
   const copy = getMessages(defaultLocale);
+  const homepage = await withTimeout(siteExperienceRepository.getPublishedResource("homepage"), 3000).catch(() => siteExperienceDefaults.homepage);
+  const homepageCopy = {
+    ...copy,
+    heroEyebrow: homepage.hero.eyebrow || copy.heroEyebrow,
+    heroTitle: homepage.hero.title || copy.heroTitle,
+    heroLede: homepage.hero.subtitle || copy.heroLede,
+    homeCreateProfile: homepage.hero.primary.label || copy.homeCreateProfile,
+    homeExplore: homepage.hero.secondary.label || copy.homeExplore,
+    searchHint: homepage.search.title || copy.searchHint,
+    searchPlaceholder: homepage.search.placeholder || copy.searchPlaceholder,
+    featuredTitle: homepage.featured.sectionTitle || copy.featuredTitle,
+    featuredDescription: homepage.featured.sectionDescription || copy.featuredDescription,
+    categoriesTitle: homepage.categories.title || copy.categoriesTitle,
+    categoriesDescription: homepage.categories.description || copy.categoriesDescription,
+    ctaTitle: homepage.finalCta.title || copy.ctaTitle,
+    ctaDescription: homepage.finalCta.description || copy.ctaDescription,
+    ctaAction: homepage.finalCta.button.label || copy.ctaAction,
+  };
+  const isVisible = (key: HomepageSettings["sections"][number]["key"]) => homepage.sections.find((section) => section.key === key)?.visible ?? true;
   let categories: Category[] = [];
   let people: Person[] = [];
   let dataUnavailable = false;
@@ -33,8 +55,9 @@ export default async function HomePage() {
     dataUnavailable = true;
   }
 
-  const displayCategories = toDisplayCategories(categories);
-  const displayPeople = toDisplayPeople(people, categories);
+  const displayCategories = toDisplayCategories(categories).slice(0, homepage.categories.itemLimit);
+  const displayPeopleAll = toDisplayPeople(people, categories);
+  const displayPeople = homepage.featured.selectionMode === "selected" && homepage.featured.selectedPersonIds.length > 0 ? displayPeopleAll.filter((person) => homepage.featured.selectedPersonIds.includes(person.id)) : displayPeopleAll.slice(0, 6);
   const stats = [
     { value: String(people.length).padStart(2, "0"), label: copy.statsPeople },
     { value: String(categories.length).padStart(2, "0"), label: copy.statsCategories },
@@ -44,9 +67,9 @@ export default async function HomePage() {
   return (
     <main id="top" className="a3lam-page">
       <div className="a3lam-shell">
-        <SiteHeader copy={copy} active="home" />
+        <SiteHeader copy={homepageCopy} active="home" />
 
-        <section className="a3lam-hero" aria-labelledby="hero-title">
+        {isVisible("hero") ? <section className="a3lam-hero" aria-labelledby="hero-title">
           <div className="hero-visual" aria-hidden="true">
             <div className="hero-orbit hero-orbit-one" />
             <div className="hero-orbit hero-orbit-two" />
@@ -58,25 +81,25 @@ export default async function HomePage() {
             <span className="hero-coordinate coordinate-two">YEMEN / 01</span>
           </div>
           <div className="hero-content">
-            <p className="eyebrow">{copy.heroEyebrow}</p>
-            <p className="hero-audience">{copy.homeAudience}</p>
-            <h1 id="hero-title">{copy.heroTitle}</h1>
-            <p className="hero-lede">{copy.heroLede}</p>
+            <p className="eyebrow">{homepageCopy.heroEyebrow}</p>
+            <p className="hero-audience">{homepageCopy.homeAudience}</p>
+            <h1 id="hero-title">{homepageCopy.heroTitle}</h1>
+            <p className="hero-lede">{homepageCopy.heroLede}</p>
             <div className="hero-actions">
-              <a className="button button-primary" href="/profile/new">
-                {copy.homeCreateProfile}
+              <a className="button button-primary" href={homepage.hero.primary.href}>
+                {homepageCopy.homeCreateProfile}
                 <span aria-hidden="true">↗</span>
               </a>
-              <a className="button button-quiet" href="/search">
-                {copy.homeExplore}
+              <a className="button button-quiet" href={homepage.hero.secondary.href}>
+                {homepageCopy.homeExplore}
               </a>
             </div>
             <div className="hero-note-line">
               <span className="note-dot" aria-hidden="true" />
-              <span>{copy.scopeDescription}</span>
+              <span>{homepageCopy.scopeDescription}</span>
             </div>
           </div>
-        </section>
+        </section> : null}
 
         <section className="stats-strip" aria-label={copy.phaseStatus}>
           {stats.map((stat) => (
@@ -91,19 +114,19 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <SearchDiscovery copy={copy} categories={categories} />
+        {isVisible("search") ? <SearchDiscovery copy={homepageCopy} categories={categories} /> : null}
 
-        <section className="section-block" id="featured" aria-labelledby="featured-title">
+        {isVisible("featured") ? <section className="section-block" id="featured" aria-labelledby="featured-title">
           <div className="section-header-row">
             <div>
-              <p className="eyebrow">{copy.featuredEyebrow}</p>
-              <h2 id="featured-title">{copy.featuredTitle}</h2>
+              <p className="eyebrow">{homepageCopy.featuredEyebrow}</p>
+              <h2 id="featured-title">{homepageCopy.featuredTitle}</h2>
             </div>
             <Link className="text-link" href="/categories">
               {copy.viewAll} <span aria-hidden="true">↗</span>
             </Link>
           </div>
-          <p className="section-description">{copy.featuredDescription}</p>
+          <p className="section-description">{homepageCopy.featuredDescription}</p>
           {displayPeople.length > 0 ? (
             <div className="people-grid">
               {displayPeople.map((person) => (
@@ -115,17 +138,17 @@ export default async function HomePage() {
               {dataUnavailable ? copy.dataUnavailable : copy.featuredEmpty}
             </p>
           )}
-        </section>
+        </section> : null}
 
-        <section className="section-block categories-section" id="categories" aria-labelledby="categories-title">
+        {isVisible("categories") ? <section className="section-block categories-section" id="categories" aria-labelledby="categories-title">
           <div className="section-header-row">
             <div>
-              <p className="eyebrow">{copy.categoriesEyebrow}</p>
-              <h2 id="categories-title">{copy.categoriesTitle}</h2>
+              <p className="eyebrow">{homepageCopy.categoriesEyebrow}</p>
+              <h2 id="categories-title">{homepageCopy.categoriesTitle}</h2>
             </div>
             <span className="section-index" aria-hidden="true">02 / 03</span>
           </div>
-          <p className="section-description">{copy.categoriesDescription}</p>
+          <p className="section-description">{homepageCopy.categoriesDescription}</p>
           {displayCategories.length > 0 ? (
             <div className="category-grid">
               {displayCategories.map((category) => (
@@ -137,22 +160,28 @@ export default async function HomePage() {
               {dataUnavailable ? copy.dataUnavailable : copy.featuredEmpty}
             </p>
           )}
-        </section>
+        </section> : null}
 
-        <section className="editorial-band" id="about" aria-labelledby="cta-title">
+        {isVisible("profiles") && homepage.profiles.visible ? <section className="editorial-band" id="profiles" aria-labelledby="profiles-title">
+          <div className="editorial-mark" aria-hidden="true">+</div>
+          <div><p className="eyebrow">{homepageCopy.homeAudience}</p><h2 id="profiles-title">{homepage.profiles.title}</h2><p>{homepage.profiles.description}</p></div>
+          <a className="button button-light" href={homepage.profiles.cta.href}>{homepage.profiles.cta.label}<span aria-hidden="true">↗</span></a>
+        </section> : null}
+
+        {isVisible("final_cta") ? <section className="editorial-band" id="about" aria-labelledby="cta-title">
           <div className="editorial-mark" aria-hidden="true">“</div>
           <div>
-            <p className="eyebrow">{copy.ctaEyebrow}</p>
-            <h2 id="cta-title">{copy.ctaTitle}</h2>
-            <p>{copy.ctaDescription}</p>
+            <p className="eyebrow">{homepageCopy.ctaEyebrow}</p>
+            <h2 id="cta-title">{homepageCopy.ctaTitle}</h2>
+            <p>{homepageCopy.ctaDescription}</p>
           </div>
-          <a className="button button-light" href="/about">
-            {copy.ctaAction}
+          <a className="button button-light" href={homepage.finalCta.button.href}>
+            {homepageCopy.ctaAction}
             <span aria-hidden="true">↗</span>
           </a>
-        </section>
+        </section> : null}
 
-        <SiteFooter copy={copy} />
+        <SiteFooter copy={homepageCopy} />
       </div>
     </main>
   );

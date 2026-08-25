@@ -1,8 +1,10 @@
-import { AdminStatusPage } from "@/components/a3lam/AdminStatusPage";
+import type { Metadata } from "next";
+import { AdminSiteExperiencePage } from "@/components/a3lam/AdminSiteExperiencePage";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 
+export const metadata: Metadata = { title: "Homepage · A3LAM", robots: { index: false, follow: false } };
+
 export default function AdminHomepagePage() {
-  const copy = getMessages(defaultLocale);
-  return <AdminStatusPage title={copy.adminHomepage} description={copy.adminControlCenterDescription} status={copy.adminRequiresSchema} detail="سيُبنى لاحقًا كمحرر أقسام typed مع Draft/Preview/Publish، وليس كـvisual builder مفتوح." />;
+  return <AdminSiteExperiencePage resource="homepage" title={getMessages(defaultLocale).adminHomepage} />;
 }

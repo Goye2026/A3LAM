@@ -1,9 +1,18 @@
+import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import { getAdminPrincipal, ADMIN_SESSION_COOKIE } from "@/lib/admin/auth";
+import { hasEffectiveAdminPermission } from "@/lib/admin/rbac";
+import { getSystemHealthSnapshot } from "@/lib/admin/systemHealth";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
-import { adminRepository } from "@/lib/data/adminRepository";
+
+export const metadata: Metadata = { title: "System · A3LAM", robots: { index: false, follow: false } };
 
 export default async function AdminSystemPage() {
   const copy = getMessages(defaultLocale);
-  const status = await adminRepository.getSystemStatus();
-  return <div className="admin-route"><header className="admin-route-heading"><div><p className="eyebrow">{copy.adminSystemGroup}</p><h1>{copy.adminSystem}</h1><p className="route-description">حالة تشغيلية مختصرة دون أسرار أو تفاصيل اتصال حساسة.</p></div></header><section className="admin-panel admin-system-status" aria-labelledby="admin-system-status-title"><p className="eyebrow">{copy.adminSystem}</p><h2 id="admin-system-status-title">{copy.adminDatabaseStatus}</h2><strong className={status.database === "available" ? "admin-system-available" : "admin-system-unavailable"}>{status.database === "available" ? copy.adminAvailable : copy.adminUnavailable}</strong><p className="section-help">{status.database === "available" ? "تمكن التطبيق من تنفيذ فحص اتصال محدود." : copy.adminDatabaseError}</p></section></div>;
+  const principal = await getAdminPrincipal((await cookies()).get(ADMIN_SESSION_COOKIE)?.value);
+  if (!principal || !(await hasEffectiveAdminPermission(principal, "system.read"))) return <div className="admin-route"><p className="admin-alert" role="alert">{copy.adminUnauthorized}</p></div>;
+  const health = await getSystemHealthSnapshot();
+  const status = (value: string) => value === "available" || value === "ready" ? copy.adminAvailable : value === "requires_configuration" ? copy.adminRequiresConfiguration : copy.adminUnavailable;
+  return <div className="admin-route"><header className="admin-route-heading"><div><p className="eyebrow">{copy.adminSystemGroup}</p><h1>{copy.adminSystemHealth}</h1><p className="route-description">{copy.adminControlCenterDescription}</p></div></header><section className="admin-stat-grid"><div className="admin-stat-card"><span>{copy.adminDatabaseStatus}</span><strong>{status(health.database)}</strong></div><div className="admin-stat-card"><span>{copy.adminMediaProvider}</span><strong>{status(health.storage)}</strong></div><div className="admin-stat-card"><span>{copy.adminContactEmail}</span><strong>{status(health.email)}</strong></div><div className="admin-stat-card"><span>{copy.adminSettings}</span><strong>{status(health.configuration)}</strong></div><div className="admin-stat-card"><span>{copy.adminMedia}</span><strong>{health.mediaFiles === null ? "—" : health.mediaFiles}</strong></div></section><p className="admin-field-hint">{copy.adminRequiresConfiguration}: {copy.adminCredentialLifecycleDeferred}</p></div>;
 }

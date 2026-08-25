@@ -19,6 +19,17 @@ function config() {
   return { uploadUrl: parsedUpload.toString().replace(/\/$/, ""), publicBaseUrl: parsedPublic.toString().replace(/\/$/, ""), token };
 }
 
+export type StorageStatus = "ready" | "requires_configuration";
+
+export function getStorageStatus(): StorageStatus {
+  try {
+    config();
+    return "ready";
+  } catch {
+    return "requires_configuration";
+  }
+}
+
 export async function putObject(key: string, bytes: Uint8Array, mimeType: string): Promise<StoredObject> {
   const storage = config();
   const response = await fetch(`${storage.uploadUrl}/${key}`, { method: "PUT", headers: { authorization: `Bearer ${storage.token}`, "content-type": mimeType, "content-length": String(bytes.byteLength) }, body: Buffer.from(bytes) });
