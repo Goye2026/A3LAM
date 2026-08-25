@@ -79,15 +79,15 @@
 
 ## Production Verification
 
-**Deployment confirmed:** `dpl_43k2AoLfAfT9kSDVWrShyXU6CX3X`
+**Deployment confirmed:** `dpl_7r2PEJ84i86xqYgeC4sSVTSVyc7B`
 **State:** `READY`
 **Target:** `production`
-**Commit:** `2d66ffba2a4fe97a6863572f5e6820d9bd49a207`
+**Commit:** `57c420674e24f7ea643eab3eca11c0a0ebcb90a8`
 **Alias:** https://a3-lam.vercel.app
 
 تمت فحوصات GET/HEAD وقراءة عامة فقط. أعادت `/`, `/register`, `/login`, `/categories`, `/search`, `/sitemap.xml`, `/robots.txt`، وواجهات `/api/health`, `/api/categories`, `/api/search?q=` استجابات ناجحة بالأنواع المتوقعة. أعادت مسارات Admin للزائر غير المصرح redirect إلى `/admin/login`، بينما فُتحت لوحة Admin بجلسة موجودة مسبقًا للقراءة فقط، وظهرت navigation الجديدة والعدادات الحقيقية وrecent activity بصيغة عربية RTL.
 
-لم تُنفذ أي POST أو PUT أو PATCH أو DELETE في Production، ولم يُنشأ حساب أو CV أو شخص أو تصنيف أو seed data، ولم تُطبق migration. لا تُعد جلسة Admin الموجودة دليلًا على دعم هويات ADMIN/EDITOR/MODERATOR persisted.
+لم تُنفذ أي POST أو PUT أو PATCH أو DELETE في Production، ولم يُنشأ حساب أو CV أو شخص أو تصنيف أو seed data، ولم تُطبق migration. فحص runtime errors خلال آخر ساعة أعاد عدم وجود أخطاء. لا تُعد جلسة Admin الموجودة دليلًا على دعم هويات ADMIN/EDITOR/MODERATOR persisted.
 
 ## Deferred Features
 
@@ -110,7 +110,7 @@
 | Branch | `main` |
 | Implementation commit | `291f1b3765464b0dcde8af02c354d0509ee92a1b` |
 | Documentation commit | `2d66ffba2a4fe97a6863572f5e6820d9bd49a207` |
-| Final docs update | هذا التحديث سيُدفع كـdocumentation-only commit بعد تثبيت Production evidence. |
+| Latest evidence update | يتضمن هذا التقرير آخر Production deployment/runtime evidence؛ SHA النهائي موضح في التسليم بعد الدفع. |
 | Force push/reset/rebase | لم تُستخدم |
 | Production mutation | لم تُنفذ |
 | Working tree | يُتحقق منه بعد commit والدفع النهائي |
