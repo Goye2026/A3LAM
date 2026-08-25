@@ -4,7 +4,7 @@
 
 Phase 17.6 implements an incremental activation and operational-hardening pass for the existing A3LAM Admin Control Center. The work extends the existing repository, REST, authentication, RBAC, audit, Site Experience, and migration-registry architecture. It does not add a second auth system, RBAC vocabulary, session system, audit store, storage abstraction, public projection, migration runner, provider, or database migration.
 
-The implementation is locally and Production-verified. The final Production deployment is `dpl_81Swn9CSdpbFViQLuCcyWgM5etR5`, source commit `2e97303e4eaaae1bee1ff6f542c5e2a14c432ba8`, and state `READY`.
+The implementation is locally and Production-verified. The final Production deployment is `dpl_Hj7v37bw5W38C3Y7uM6MHijxa14x`, source commit `d099abc81fe586d170476a407ce681bdbe993eaa`, and state `READY`. The application code is the public-payload-fixed `2e97303` tree plus the factual closeout report.
 
 ## Features Implemented
 
@@ -104,11 +104,11 @@ There is no current Phase 17.6 deployment or verification blocker. The explicitl
 
 ## Git
 
-The Phase 17.6 implementation and public payload security fix are pushed to `main`. Final `HEAD` equals `origin/main` at `2e97303e4eaaae1bee1ff6f542c5e2a14c432ba8`, and the working tree is clean. No force push, reset, rebase, or history rewrite was used.
+The Phase 17.6 implementation, public payload security fix, and factual closeout report are pushed to `main`. Final `HEAD` equals `origin/main` at `d099abc81fe586d170476a407ce681bdbe993eaa`, and the working tree is clean. No force push, reset, rebase, or history rewrite was used.
 
 ## Deployment
 
-The final Production deployment is `dpl_81Swn9CSdpbFViQLuCcyWgM5etR5`, target `production`, source commit `2e97303e4eaaae1bee1ff6f542c5e2a14c432ba8`, and state `READY`. The production alias is `https://a3-lam.vercel.app`. No Production migration execution is part of this deployment.
+The final Production deployment is `dpl_Hj7v37bw5W38C3Y7uM6MHijxa14x`, target `production`, source commit `d099abc81fe586d170476a407ce681bdbe993eaa`, and state `READY`. The production alias is `https://a3-lam.vercel.app`. No Production migration execution is part of this deployment.
 
 ## Final Status
 
@@ -135,7 +135,7 @@ The final Production deployment is `dpl_81Swn9CSdpbFViQLuCcyWgM5etR5`, target `p
 | Vercel configuration changes | 0 |
 | Temporary endpoints created | 0 |
 
-The initial `ad74bdf` deployment was followed by the evidence-based public localization fix commit `2e97303`; the final deployment and final Git tip are the latter commit.
+The initial `ad74bdf` deployment was followed by the evidence-based public localization fix commit `2e97303`, then the factual closeout report commit `d099abc`; the final deployment and final Git tip are `d099abc`.
 
 ## Phase Boundary
 
