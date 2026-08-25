@@ -4,7 +4,7 @@
 
 Phase 17.6 implements an incremental activation and operational-hardening pass for the existing A3LAM Admin Control Center. The work extends the existing repository, REST, authentication, RBAC, audit, Site Experience, and migration-registry architecture. It does not add a second auth system, RBAC vocabulary, session system, audit store, storage abstraction, public projection, migration runner, provider, or database migration.
 
-The implementation is locally validated. Production deployment and authenticated read-only verification must be recorded in this report after the commit is deployed. Until then, the final status is **IN PROGRESS — awaiting Production verification**.
+The implementation is locally and Production-verified. The final Production deployment is `dpl_81Swn9CSdpbFViQLuCcyWgM5etR5`, source commit `2e97303e4eaaae1bee1ff6f542c5e2a14c432ba8`, and state `READY`.
 
 ## Features Implemented
 
@@ -18,7 +18,7 @@ The `/admin/audit` listing and `/api/admin/audit` GET contract now support bound
 
 The Admin sessions UI now marks the current Admin session when it is present in the read result. Session revocation remains protected by the existing server-side permission and last-active-Super-Admin safeguards; no raw token, cookie, credential, or secret is rendered.
 
-The System page remains a read-only system and migration-registry inspector in this phase. The Phase 17.5.4 migration execution component is not mounted in Phase 17.6, and no migration execution endpoint was called.
+The System page remains a read-only system and migration-registry inspector in this phase. The Phase 17.5.4 migration execution component is not mounted in Phase 17.6, and no migration execution endpoint was called. Production inspection confirmed 6 applied migrations, 0 pending migrations, a consistent registry, and no migration execution action in the rendered System page.
 
 ## Admin/RBAC
 
@@ -46,7 +46,7 @@ The new Site Experience hub and aliases reuse the existing typed resources, perm
 
 Existing empty states are preserved for users, categories, sessions, audit, people, identities, and Site Experience resources. Existing server error mapping continues to distinguish authentication, authorization, missing schema/dependency, validation, conflict, and internal responses without exposing database details. Storage and email remain configuration states when providers are unavailable; no provider was added.
 
-The current implementation does not claim WCAG 2.2 AA compliance, screen-reader completion, or cross-browser completion without the corresponding measured external evidence.
+The current implementation does not claim WCAG 2.2 AA compliance, screen-reader completion, or cross-browser completion without the corresponding measured external evidence. Those checks remain deferred rather than inferred from the available browser smoke evidence.
 
 ## Security
 
@@ -65,7 +65,7 @@ The following local checks were completed after the implementation changes:
 | `pnpm install --frozen-lockfile` | PASS |
 | `pnpm typecheck` | PASS |
 | `pnpm lint` | PASS with no warnings |
-| `pnpm test` | PASS — 11 test files, 69 tests |
+| `pnpm test` | PASS — 11 test files, 70 tests |
 | `pnpm build` | PASS — 66 generated pages/routes, including the new Site Experience routes |
 | `git diff --check` | PASS |
 | Local `next start` GET smoke | PASS for public routes and local Admin route responses |
@@ -74,7 +74,13 @@ The new `tests/phase17.6.test.ts` covers bounded pagination inputs, page counts,
 
 ## Production Verification
 
-**Pending until the Phase 17.6 commit is deployed.** The required read-only checks are public route smoke, unauthenticated Admin boundaries, authenticated Admin dashboard/users/administrators/editors/sessions/audit/people/categories/profiles/site/system views, current deployment status, and runtime-error review. No Production mutation is required or authorized for this phase.
+Production verification completed read-only after the final deployment. The authenticated Admin dashboard loaded with the new operational cards and Site Experience link. `/admin/site` loaded with the eight permission-filtered resource links. `/admin/system` loaded with database/Admin protection available, settings and Site Experience available, storage and contact email requiring configuration, 6 migrations applied, 0 pending, 6 expected, and a consistent registry. `/admin/users` loaded with validated filters and `1–1 / 1`; `/admin/audit` loaded with bounded pagination `1 / 1 · 6`; `/admin/sessions` showed the truthful empty state of 0 active Admin sessions; `/admin/categories` showed the existing 10 published categories. Administrators and Editors both loaded with truthful empty states of 0 identities. No mutation was performed.
+
+The public GET-only smoke returned HTTP 200 for `/`, `/api/health`, `/categories`, `/search`, `/register`, `/login`, `/robots.txt`, and `/sitemap.xml`. The public response scan found no `DATABASE_URL`, admin token, admin session cookie, migration registry, password hash, or migration-control marker after the final payload fix. Unauthenticated GET requests to the protected Admin APIs returned HTTP 401, and unauthenticated Admin pages returned HTTP 307 redirects to `/admin/login` with the original route encoded in `next`.
+
+A pre-final smoke pass detected the internal `adminMigrationControl` localization key in public HTML because public client components received the full message bundle. This evidence-based defect was corrected before final deployment by introducing `getPublicMessages` and narrowing public component props; the final Production smoke returned `leakage=none` on all tested public routes. No Production data mutation was used to validate the fix.
+
+Vercel grouped runtime errors for the last 24 hours showed only historical groups last seen on 2026-08-24 and associated with older deployments: five registration failures and two Phase 13 migration failure groups. No group was associated with the final Phase 17.6 deployment. No Production mutation is required or authorized for this phase.
 
 ## Database Changes
 
@@ -94,19 +100,19 @@ Population, bulk population, AI, semantic search, analytics, email/storage provi
 
 ## Blockers
 
-The only current blocker is the required Production verification after deployment. If any requested behavior is found to require a schema change, provider, secret, unsupported permission, authentication bypass, or unsafe Production mutation, that slice must be marked **BLOCKED** or **SCHEMA_CHANGE_REQUIRED** rather than worked around.
+There is no current Phase 17.6 deployment or verification blocker. The explicitly deferred external responsive, WCAG 2.2 AA measurement, screen-reader, Firefox/Safari/WebKit, and provider real-user checks are not blockers for this Admin Control Center phase. If any future requested behavior requires a schema change, provider, secret, unsupported permission, authentication bypass, or unsafe Production mutation, that slice must be marked **BLOCKED** or **SCHEMA_CHANGE_REQUIRED** rather than worked around.
 
 ## Git
 
-The report is prepared for the Phase 17.6 implementation commit. Final `HEAD`, `origin/main`, and working-tree status will be recorded after the commit and push.
+The Phase 17.6 implementation and public payload security fix are pushed to `main`. Final `HEAD` equals `origin/main` at `2e97303e4eaaae1bee1ff6f542c5e2a14c432ba8`, and the working tree is clean. No force push, reset, rebase, or history rewrite was used.
 
 ## Deployment
 
-The final Production deployment identifier, source commit, and `READY` status will be recorded after push and Vercel completion. No Production migration execution is part of this deployment.
+The final Production deployment is `dpl_81Swn9CSdpbFViQLuCcyWgM5etR5`, target `production`, source commit `2e97303e4eaaae1bee1ff6f542c5e2a14c432ba8`, and state `READY`. The production alias is `https://a3-lam.vercel.app`. No Production migration execution is part of this deployment.
 
 ## Final Status
 
-**IN PROGRESS — local implementation and validation complete; Production read-only verification pending.**
+**PHASE 17.6 — COMPLETE.** Local validation, final deployment, authenticated Admin read-only verification, public GET-only smoke, unauthenticated boundary checks, and runtime-error review are complete. External responsive/WCAG/screen-reader/cross-browser/provider real-user verification remains deferred and is not represented as passed.
 
 ## Mandatory Counters
 
@@ -128,6 +134,8 @@ The final Production deployment identifier, source commit, and `READY` status wi
 | Secrets changed | 0 |
 | Vercel configuration changes | 0 |
 | Temporary endpoints created | 0 |
+
+The initial `ad74bdf` deployment was followed by the evidence-based public localization fix commit `2e97303`; the final deployment and final Git tip are the latter commit.
 
 ## Phase Boundary
 
