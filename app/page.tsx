@@ -1,5 +1,6 @@
 import { CategoryCard } from "@/components/a3lam/CategoryCard";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { PersonCard } from "@/components/a3lam/PersonCard";
 import { SearchDiscovery } from "@/components/a3lam/SearchDiscovery";
 import { SiteFooter } from "@/components/a3lam/SiteFooter";
@@ -15,6 +16,8 @@ import { siteExperienceDefaults } from "@/lib/site-experience/config";
 import { siteExperienceRepository } from "@/lib/site-experience/repository";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 const HOMEPAGE_DATA_TIMEOUT_MS = 5000;
 

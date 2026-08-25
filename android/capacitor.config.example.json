@@ -1,0 +1,10 @@
+{
+  "appId": "org.a3lam.app",
+  "appName": "A3LAM",
+  "webDir": "www",
+  "server": {
+    "url": "https://your-domain.example",
+    "cleartext": false,
+    "androidScheme": "https"
+  }
+}

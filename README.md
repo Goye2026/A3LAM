@@ -4,7 +4,7 @@
 
 ## الحالة الحالية
 
-المشروع في **Phase 13 — Public Professional CV Profiles**. تم الحفاظ على تاريخ المراحل السابقة دون إعادة كتابة أو حذف. تتضمن هذه المرحلة مساحة تحرير داخلية محمية للسجلات التحريرية القديمة، وحسابات مستخدمين مستقلة وملفات CV مملوكة للمستخدم مع دورة مراجعة بشرية قبل النشر. لا تتضمن هذه المرحلة contributions العامة أو verification workflows أو comments أو payments أو analytics.
+المشروع في **Phase 17.7 — Release Preparation Sprint** فوق المراحل السابقة. تتضمن الحالة الحالية Admin Control Center عمليًا، Site Experience hub، نشرًا قائمًا على Vercel، مسارًا موثقًا لـDocker/VPS/PostgreSQL، وحدودًا صريحة لأساس Android. لا تتضمن هذه المرحلة Population أو seed إنتاجيًا أو AI أو semantic search أو analytics أو إعادة بناء Auth/RBAC/Database.
 
 ## Toolchain
 
@@ -89,6 +89,10 @@ A3LAM_ALLOW_SYNTHETIC_SEED=true NODE_ENV=development pnpm db:seed
 ```
 
 يفشل script دون `A3LAM_ALLOW_SYNTHETIC_SEED=true`، ويرفض التشغيل عندما تكون `NODE_ENV=production`. لا تستخدم هذا الأمر لاستيراد المحتوى التحريري الحقيقي.
+
+## Portability and release handoff
+
+توجد إجراءات التشغيل خارج Vercel في `docs/deployment/`، وتشمل Docker Compose وVPS وPostgreSQL والبيئة وdomain وbackup/restore وtroubleshooting. قائمة الجاهزية الموضوعية موجودة في `docs/release/launch-readiness.md`. أساس Android وحدوده الأمنية موثق في `android/README.md`، ولا تُعد نتائج Android أو Docker build ناجحة دون تشغيلها في بيئتها الفعلية.
 
 ## التشغيل المحلي
 
@@ -189,7 +193,7 @@ pnpm build
 اختبار PostgreSQL التكاملـي اختياري ويتطلب قاعدة بيانات متاحة، ويستخدم seed اصطناعيًا بتفعيل صريح ضمن بيئة غير production:
 
 ```bash
-DATABASE_URL=postgres://a3lam:a3lam@127.0.0.1:5432/a3lam \
+# Load DATABASE_URL from an untracked .env.local or protected shell environment.
 A3LAM_ALLOW_SYNTHETIC_SEED=true NODE_ENV=development \
 pnpm test:integration
 ```

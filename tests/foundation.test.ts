@@ -31,6 +31,6 @@ describe("observability foundation", () => {
   it("creates a correlation id and safe health response", () => {
     expect(createCorrelationId()).toMatch(/^[0-9a-f-]{36}$/);
     expect(getHealthResponse().status).toBe("ok");
-    expect(getHealthResponse().service).toBe("a3lam-phase02-foundation");
+    expect(getHealthResponse().service).toBe("a3lam");
   });
 });
