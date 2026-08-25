@@ -8,7 +8,7 @@ import { toDisplayCategories, toDisplayPeople } from "@/lib/a3lam/catalog";
 import type { Category, Person } from "@/lib/domain/a3lam";
 import type { HomepageSettings } from "@/lib/site-experience/config";
 import { defaultLocale } from "@/lib/i18n/config";
-import { getMessages } from "@/lib/i18n/messages";
+import { getMessages, getPublicMessages } from "@/lib/i18n/messages";
 import { personService } from "@/lib/services/personService";
 import { withTimeout } from "@/lib/foundation/withTimeout";
 import { siteExperienceDefaults } from "@/lib/site-experience/config";
@@ -20,9 +20,10 @@ const HOMEPAGE_DATA_TIMEOUT_MS = 5000;
 
 export default async function HomePage() {
   const copy = getMessages(defaultLocale);
+  const publicCopy = getPublicMessages(defaultLocale);
   const homepage = await withTimeout(siteExperienceRepository.getPublishedResource("homepage"), 3000).catch(() => siteExperienceDefaults.homepage);
   const homepageCopy = {
-    ...copy,
+    ...publicCopy,
     heroEyebrow: homepage.hero.eyebrow || copy.heroEyebrow,
     heroTitle: homepage.hero.title || copy.heroTitle,
     heroLede: homepage.hero.subtitle || copy.heroLede,
@@ -130,7 +131,7 @@ export default async function HomePage() {
           {displayPeople.length > 0 ? (
             <div className="people-grid">
               {displayPeople.map((person) => (
-                <PersonCard key={person.id} person={person} copy={copy} />
+                <PersonCard key={person.id} person={person} copy={publicCopy} />
               ))}
             </div>
           ) : (
@@ -181,7 +182,7 @@ export default async function HomePage() {
           </a>
         </section> : null}
 
-        <SiteFooter copy={homepageCopy} />
+        <SiteFooter copy={publicCopy} />
       </div>
     </main>
   );

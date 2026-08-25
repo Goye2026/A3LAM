@@ -1,11 +1,11 @@
 import Link from "next/link";
 import type { DisplayPerson } from "@/lib/a3lam/catalog";
-import type { FoundationMessages } from "@/lib/i18n/messages";
+import type { PublicMessages } from "@/lib/i18n/messages";
 import { PersonPortrait } from "./PersonPortrait";
 
 type PersonCardProps = {
   person: DisplayPerson;
-  copy: FoundationMessages;
+  copy: PublicMessages;
 };
 
 export function PersonCard({ person, copy }: PersonCardProps) {

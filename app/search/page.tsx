@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/a3lam/SiteHeader";
 import { SearchDiscovery } from "@/components/a3lam/SearchDiscovery";
 import type { Category } from "@/lib/domain/a3lam";
 import { defaultLocale } from "@/lib/i18n/config";
-import { getMessages } from "@/lib/i18n/messages";
+import { getMessages, getPublicMessages } from "@/lib/i18n/messages";
 import { personService } from "@/lib/services/personService";
 import { pageMetadata } from "@/lib/seo/site";
 
@@ -29,6 +29,7 @@ function firstParam(value: string | string[] | undefined) {
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const copy = getMessages(defaultLocale);
+  const publicCopy = getPublicMessages(defaultLocale);
   const params = await searchParams;
   let categories: Category[] = [];
   let unavailable = false;
@@ -42,7 +43,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <main className="a3lam-page">
       <div className="a3lam-shell">
-        <SiteHeader copy={copy} active="search" />
+        <SiteHeader copy={publicCopy} active="search" />
         <div className="route-page route-page-search">
           <div className="route-heading">
             <Link className="back-link" href="/">
@@ -55,7 +56,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </div>
           {unavailable ? <p className="empty-state" role="alert">{copy.dataUnavailable}</p> : null}
           <SearchDiscovery
-            copy={copy}
+            copy={publicCopy}
             categories={categories}
             initialQuery={firstParam(params.q)}
             initialCategorySlug={firstParam(params.category)}
@@ -63,7 +64,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             initialCountry={firstParam(params.country)}
           />
         </div>
-        <SiteFooter copy={copy} />
+        <SiteFooter copy={publicCopy} />
       </div>
     </main>
   );

@@ -3,12 +3,12 @@
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import type { Category } from "@/lib/domain/a3lam";
-import type { FoundationMessages } from "@/lib/i18n/messages";
+import type { PublicMessages } from "@/lib/i18n/messages";
 import { Input } from "@/components/foundation/Primitives";
 import { PersonCard } from "./PersonCard";
 
  type SearchDiscoveryProps = {
-  copy: FoundationMessages;
+  copy: PublicMessages;
   categories: Category[];
   initialQuery?: string;
   initialCategorySlug?: string;
@@ -124,7 +124,7 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
   );
 }
 
-function ProfessionalSearchResult({ result, copy }: { result: PublicSearchResult; copy: FoundationMessages }) {
+function ProfessionalSearchResult({ result, copy }: { result: PublicSearchResult; copy: PublicMessages }) {
   const location = [result.city, result.country].filter(Boolean).join("، ");
   return <article className="search-profile-result"><div className="search-profile-result-heading"><span className="status-badge status-published">{copy.searchProfessional}</span><a className="search-profile-result-name" href={`/person/${result.slug}`}>{result.nameArabic}</a>{result.name !== result.nameArabic ? <span className="profile-latin-name">{result.name}</span> : null}</div><p className="person-card-role">{result.occupations[0] || "شخصية مهنية"}</p>{location ? <p className="person-card-meta">{copy.searchLocationLabel}: {location}</p> : null}<p>{result.shortBio}</p>{result.skills.length > 0 ? <div className="card-skill-list" aria-label={copy.searchSkillsLabel}>{result.skills.map((skill) => <span key={skill}>{skill}</span>)}</div> : null}</article>;
 }

@@ -1,9 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { pageCount, parsePositivePage } from "@/lib/admin/pagination";
+import { getPublicMessages } from "@/lib/i18n/messages";
 import { applyPermissionOverrides, canRevokeSuperAdminSession, canSoleSuperAdminRetainCorePermissions, hasAdminPermission } from "@/lib/admin/rbac";
 import { parseSiteExperienceConfig, siteExperienceDefaults } from "@/lib/site-experience/config";
 
 describe("Phase 17.6 operational boundaries", () => {
+  it("does not serialize Admin localization into public messages", () => {
+    const publicMessages = getPublicMessages("ar");
+    expect("adminMigrationControlTitle" in publicMessages).toBe(false);
+    expect(publicMessages.siteName).toBeTruthy();
+  });
+
   it("bounds invalid and oversized page values", () => {
     expect(parsePositivePage(undefined)).toBe(1);
     expect(parsePositivePage("0")).toBe(1);

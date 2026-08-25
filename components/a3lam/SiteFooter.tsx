@@ -1,10 +1,10 @@
 import Link from "next/link";
-import type { FoundationMessages } from "@/lib/i18n/messages";
+import type { PublicMessages } from "@/lib/i18n/messages";
 import { withTimeout } from "@/lib/foundation/withTimeout";
 import { siteExperienceDefaults } from "@/lib/site-experience/config";
 import { siteExperienceRepository } from "@/lib/site-experience/repository";
 
-type SiteFooterProps = { copy: FoundationMessages };
+type SiteFooterProps = { copy: PublicMessages };
 
 export async function SiteFooter({ copy }: SiteFooterProps) {
   const footer = await withTimeout(siteExperienceRepository.getPublishedResource("footer"), 2500).catch(() => siteExperienceDefaults.footer);

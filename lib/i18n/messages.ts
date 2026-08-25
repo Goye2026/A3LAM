@@ -1639,3 +1639,10 @@ export const messages: Record<Locale, FoundationMessages> = { ar, en };
 export function getMessages(locale: Locale): FoundationMessages {
   return messages[locale] ?? messages.ar;
 }
+
+export type PublicMessages = Omit<FoundationMessages, `admin${string}`>;
+
+export function getPublicMessages(locale: Locale): PublicMessages {
+  const full = getMessages(locale);
+  return Object.fromEntries(Object.entries(full).filter(([key]) => !key.startsWith("admin"))) as PublicMessages;
+}

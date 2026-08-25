@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { FoundationMessages } from "@/lib/i18n/messages";
+import type { PublicMessages } from "@/lib/i18n/messages";
 import { getCurrentUser } from "@/lib/user/auth";
 import { withTimeout } from "@/lib/foundation/withTimeout";
 import { siteExperienceDefaults } from "@/lib/site-experience/config";
@@ -13,7 +13,7 @@ function isAboutSection(active: HeaderSection | undefined) {
 }
 
 type SiteHeaderProps = {
-  copy: FoundationMessages;
+  copy: PublicMessages;
   active?: HeaderSection;
 };
 
