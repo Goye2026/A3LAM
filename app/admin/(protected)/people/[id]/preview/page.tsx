@@ -4,6 +4,7 @@ import { AdminPreview } from "@/components/a3lam/AdminPreview";
 import { adminRepository } from "@/lib/data/adminRepository";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
+import { getAdminPageAccess } from "@/lib/admin/pageAuth";
 
 export const metadata: Metadata = { title: "Preview | A3LAM", robots: { index: false, follow: false } };
 
@@ -11,7 +12,9 @@ type PageProps = { params: Promise<{ id: string }> };
 
 export default async function AdminPersonPreviewPage({ params }: PageProps) {
   const copy = getMessages(defaultLocale);
+  const access = await getAdminPageAccess("people.read");
   const { id } = await params;
+  if (!access.allowed) return <div className="admin-route"><p className="admin-alert" role="alert">{access.dependencyUnavailable ? copy.adminRequiresSchema : copy.adminUnauthorized}</p></div>;
   let data = null;
   let unavailable = false;
   try { data = await adminRepository.getEditorData(id); } catch { unavailable = true; }

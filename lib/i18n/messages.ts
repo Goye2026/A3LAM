@@ -414,8 +414,16 @@ export type FoundationMessages = {
   adminUnavailableTitle: string;
   adminUnavailableDescription: string;
   adminRequiresSchema: string;
+  adminRequiresMigration: string;
   adminReadOnly: string;
   adminDatabaseStatus: string;
+  adminAuthStatus: string;
+  adminMigrationStatus: string;
+  adminSiteExperienceStatus: string;
+  adminAppliedMigrations: string;
+  adminPendingMigrations: string;
+  adminPublishedResources: string;
+  adminDraftResources: string;
   adminAvailable: string;
   adminUnavailable: string;
   adminNoUsers: string;
@@ -912,8 +920,16 @@ const ar: FoundationMessages = {
   adminUnavailableTitle: "هذه الوظيفة غير مفعلة بعد",
   adminUnavailableDescription: "تحتاج هذه المساحة إلى بنية بيانات أو إعداد خارجي غير متاح في الإصدار الحالي.",
   adminRequiresSchema: "تحتاج تهيئة بنية البيانات",
+  adminRequiresMigration: "تحتاج تطبيق migrations",
   adminReadOnly: "للقراءة فقط",
   adminDatabaseStatus: "حالة قاعدة البيانات",
+  adminAuthStatus: "حماية الإدارة",
+  adminMigrationStatus: "حالة migrations",
+  adminSiteExperienceStatus: "إعدادات تجربة الموقع",
+  adminAppliedMigrations: "migrations مطبقة",
+  adminPendingMigrations: "migrations معلقة",
+  adminPublishedResources: "موارد منشورة",
+  adminDraftResources: "موارد مسودة",
   adminAvailable: "متاحة",
   adminUnavailable: "غير متاحة",
   adminNoUsers: "لا توجد حسابات مستخدمين في النطاق الحالي.",
@@ -1410,8 +1426,16 @@ const en: FoundationMessages = {
   adminUnavailableTitle: "This function is not enabled yet",
   adminUnavailableDescription: "This area requires a data structure or external configuration that is not available in the current release.",
   adminRequiresSchema: "Requires schema configuration",
+  adminRequiresMigration: "Requires pending migrations",
   adminReadOnly: "Read-only",
   adminDatabaseStatus: "Database status",
+  adminAuthStatus: "Admin protection",
+  adminMigrationStatus: "Migration status",
+  adminSiteExperienceStatus: "Site Experience settings",
+  adminAppliedMigrations: "Applied migrations",
+  adminPendingMigrations: "Pending migrations",
+  adminPublishedResources: "Published resources",
+  adminDraftResources: "Draft resources",
   adminAvailable: "Available",
   adminUnavailable: "Unavailable",
   adminNoUsers: "There are no user accounts in the current scope.",

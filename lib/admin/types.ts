@@ -4,7 +4,55 @@ export const ADMIN_ROLE_CODES = ["SUPER_ADMIN", "ADMIN", "EDITOR", "MODERATOR"] 
 export type AdminRoleCode = (typeof ADMIN_ROLE_CODES)[number];
 export const ADMIN_ACCOUNT_STATUSES = ["invited", "active", "disabled"] as const;
 export type AdminAccountStatus = (typeof ADMIN_ACCOUNT_STATUSES)[number];
-export type AdminPermissionCode = string;
+export const ADMIN_PERMISSION_CODES = [
+  "users.read",
+  "users.manage",
+  "users.suspend",
+  "users.sessions.revoke",
+  "sessions.read",
+  "sessions.revoke",
+  "admins.read",
+  "admins.manage",
+  "editors.read",
+  "editors.manage",
+  "roles.read",
+  "roles.update",
+  "permissions.read",
+  "permissions.assign",
+  "people.read",
+  "people.create",
+  "people.update",
+  "people.delete",
+  "people.publish",
+  "profiles.read",
+  "profiles.moderate",
+  "profiles.publish",
+  "profiles.unpublish",
+  "categories.read",
+  "categories.create",
+  "categories.update",
+  "categories.delete",
+  "homepage.read",
+  "homepage.update",
+  "homepage.publish",
+  "appearance.read",
+  "appearance.update",
+  "navigation.read",
+  "navigation.update",
+  "footer.read",
+  "footer.update",
+  "profile_presentation.read",
+  "profile_presentation.update",
+  "media.read",
+  "media.manage",
+  "seo.read",
+  "seo.update",
+  "audit.read",
+  "settings.read",
+  "settings.manage",
+  "system.read",
+] as const;
+export type AdminPermissionCode = (typeof ADMIN_PERMISSION_CODES)[number];
 
 export type AdminIdentitySummary = {
   id: string;

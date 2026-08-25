@@ -3,7 +3,7 @@ import { createAdminSession, isAdminAccessConfigured, isAdminRequest, isValidAdm
 import { buildPersonRecord, parseAdminCategoryInput, parseAdminPersonInput } from "@/lib/admin/records";
 import { parseAdminIdentityCreateBody, parseAdminIdentityUpdateBody, parsePermissionOverridesBody } from "@/lib/admin/input";
 import type { Category } from "@/lib/domain/a3lam";
-import { applyPermissionOverrides, canAdminRoleManageRole, canSoleSuperAdminRetainCorePermissions, effectivePermissionsForPrincipal, hasAdminPermission, isFinalSuperAdminDeletionAllowed, permissionsForRole } from "@/lib/admin/rbac";
+import { applyPermissionOverrides, canAdminRoleManageRole, canRevokeSuperAdminSession, canSoleSuperAdminRetainCorePermissions, effectivePermissionsForPrincipal, hasAdminPermission, isFinalSuperAdminDeletionAllowed, permissionsForRole } from "@/lib/admin/rbac";
 import { requirePermission } from "@/lib/admin/http";
 import { isSameOriginMutation } from "@/lib/user/requestSecurity";
 import { parseSiteExperienceConfig, siteExperienceDefaults } from "@/lib/site-experience/config";
@@ -31,6 +31,13 @@ describe("Phase 17 centralized RBAC policy", () => {
     expect(canSoleSuperAdminRetainCorePermissions("SUPER_ADMIN", 1, new Set(["admins.manage", "permissions.assign", "system.read"]))).toBe(true);
     expect(canSoleSuperAdminRetainCorePermissions("SUPER_ADMIN", 1, new Set(["admins.manage", "system.read"]))).toBe(false);
     expect(canSoleSuperAdminRetainCorePermissions("SUPER_ADMIN", 2, new Set())).toBe(true);
+  });
+
+  it("does not allow revoking the final Super Admin session", () => {
+    expect(canRevokeSuperAdminSession("SUPER_ADMIN", 1)).toBe(false);
+    expect(canRevokeSuperAdminSession("SUPER_ADMIN", 2)).toBe(true);
+    expect(canRevokeSuperAdminSession("ADMIN", 1)).toBe(true);
+    expect(canRevokeSuperAdminSession(null, 1)).toBe(true);
   });
 
   it("keeps the role matrix explicit and least-privilege for editors", () => {

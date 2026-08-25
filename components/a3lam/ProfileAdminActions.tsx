@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function ProfileAdminActions({ profileId, status }: { profileId: string; status: "draft" | "pending_review" | "published" | "archived" }) {
+export function ProfileAdminActions({ profileId, status, canModerate, canPublish }: { profileId: string; status: "draft" | "pending_review" | "published" | "archived"; canModerate: boolean; canPublish: boolean }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -16,5 +16,5 @@ export function ProfileAdminActions({ profileId, status }: { profileId: string; 
     } catch { setError("تعذر الاتصال بخدمة المراجعة"); }
     setBusy(false);
   }
-  return <div className="profile-admin-actions">{error ? <p className="admin-alert" role="alert">{error}</p> : null}{status === "pending_review" ? <><button className="button button-primary" disabled={busy} onClick={() => void transition("published")}>{busy ? "جارٍ التنفيذ…" : "موافقة ونشر"}</button><button className="button button-quiet" disabled={busy} onClick={() => void transition("draft")}>إرجاع للمسودة</button></> : null}{status === "published" ? <button className="button button-quiet" disabled={busy} onClick={() => void transition("archived")}>أرشفة</button> : null}{status === "archived" ? <button className="button button-primary" disabled={busy} onClick={() => void transition("draft")}>استعادة كمسودة</button> : null}</div>;
+  return <div className="profile-admin-actions">{error ? <p className="admin-alert" role="alert">{error}</p> : null}{status === "pending_review" ? <>{canPublish ? <button className="button button-primary" disabled={busy} onClick={() => void transition("published")}>{busy ? "جارٍ التنفيذ…" : "موافقة ونشر"}</button> : null}{canModerate ? <button className="button button-quiet" disabled={busy} onClick={() => void transition("draft")}>إرجاع للمسودة</button> : null}</> : null}{status === "published" && canModerate ? <button className="button button-quiet" disabled={busy} onClick={() => void transition("archived")}>أرشفة</button> : null}{status === "archived" && canModerate ? <button className="button button-primary" disabled={busy} onClick={() => void transition("draft")}>استعادة كمسودة</button> : null}</div>;
 }

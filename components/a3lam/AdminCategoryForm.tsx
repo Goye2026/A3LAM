@@ -19,7 +19,7 @@ function initialState(category?: Category): CategoryFormState {
   };
 }
 
-export function AdminCategoryForm({ copy, category }: { copy: FoundationMessages; category?: Category }) {
+export function AdminCategoryForm({ copy, category, canEdit = true }: { copy: FoundationMessages; category?: Category; canEdit?: boolean }) {
   const [form, setForm] = useState<CategoryFormState>(() => initialState(category));
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState("");
@@ -71,10 +71,10 @@ export function AdminCategoryForm({ copy, category }: { copy: FoundationMessages
         <label className="admin-form-wide">{copy.adminCategoryDescription}<textarea className="admin-input" rows={4} value={form.description} onChange={(event) => update("description", event.target.value)} required maxLength={5000} /></label>
       </div>
       <p className="admin-field-hint">{copy.adminCategoryPublicNote}</p>
-      <div className="admin-form-actions">
+      {canEdit ? <div className="admin-form-actions">
         <button className="button button-primary" type="submit" disabled={busy}>{busy ? copy.adminSaving : isEditing ? copy.adminUpdateCategory : copy.adminCreateCategory}</button>
         <span aria-live="polite" className="admin-form-feedback">{feedback || error}</span>
-      </div>
+      </div> : <p className="admin-readonly-note">{copy.adminReadOnly}</p>}
     </form>
   );
 }

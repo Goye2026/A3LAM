@@ -4,6 +4,8 @@ import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 import type { ContentStatus } from "@/lib/domain/a3lam";
 import { adminRepository } from "@/lib/data/adminRepository";
+import { getAdminPageAccess } from "@/lib/admin/pageAuth";
+import { hasEffectiveAdminPermission } from "@/lib/admin/rbac";
 
 function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] ?? "" : value ?? "";
@@ -29,6 +31,9 @@ type PageProps = { searchParams: Promise<Record<string, string | string[] | unde
 
 export default async function AdminPeoplePage({ searchParams }: PageProps) {
   const copy = getMessages(defaultLocale);
+  const access = await getAdminPageAccess("people.read");
+  if (!access.allowed) return <div className="admin-route"><p className="admin-alert" role="alert">{access.dependencyUnavailable ? copy.adminRequiresSchema : copy.adminUnauthorized}</p></div>;
+  const canCreate = access.principal ? await hasEffectiveAdminPermission(access.principal, "people.create") : false;
   const params = await searchParams;
   const query = first(params.q);
   const status = contentStatus(first(params.status));
@@ -55,7 +60,7 @@ export default async function AdminPeoplePage({ searchParams }: PageProps) {
     <div className="admin-route">
       <header className="admin-route-heading">
         <div><p className="eyebrow">{copy.adminTitle}</p><h1>{copy.adminPeople}</h1><p className="route-description">{copy.adminSubtitle}</p></div>
-        <Link className="button button-primary" href="/admin/people/new">{copy.adminAddPerson}</Link>
+        {canCreate ? <Link className="button button-primary" href="/admin/people/new">{copy.adminAddPerson}</Link> : null}
       </header>
       <form className="admin-filter-form" method="get">
         <label htmlFor="admin-search">{copy.adminSearch}</label>

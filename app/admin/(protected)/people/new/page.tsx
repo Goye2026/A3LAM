@@ -5,11 +5,14 @@ import { AdminPersonForm } from "@/components/a3lam/AdminPersonForm";
 import { adminRepository } from "@/lib/data/adminRepository";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
+import { getAdminPageAccess } from "@/lib/admin/pageAuth";
 
 export const metadata: Metadata = { title: "New person | A3LAM", robots: { index: false, follow: false } };
 
 export default async function NewPersonPage() {
   const copy = getMessages(defaultLocale);
+  const access = await getAdminPageAccess("people.create");
+  if (!access.allowed) return <div className="admin-route"><p className="admin-alert" role="alert">{access.dependencyUnavailable ? copy.adminRequiresSchema : copy.adminUnauthorized}</p></div>;
   let categories: Category[] = [];
   let unavailable = false;
   try { categories = await adminRepository.listCategoryOptions(); } catch { unavailable = true; }

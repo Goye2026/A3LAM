@@ -1,60 +1,13 @@
 import { eq } from "drizzle-orm";
 import { getAdminPrincipalFromRequest, isAdminRequest } from "@/lib/admin/auth";
-import { ADMIN_ROLE_CODES, type AdminPermissionCode, type AdminPrincipal, type AdminRoleCode } from "@/lib/admin/types";
+import { ADMIN_PERMISSION_CODES, ADMIN_ROLE_CODES, type AdminPermissionCode, type AdminPrincipal, type AdminRoleCode } from "@/lib/admin/types";
 import { getDb } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 
 export const ADMIN_ROLES = [...ADMIN_ROLE_CODES, "USER"] as const;
 export type AdminRole = (typeof ADMIN_ROLES)[number];
 
-export const ADMIN_PERMISSIONS = [
-  "users.read",
-  "users.manage",
-  "users.suspend",
-  "users.sessions.revoke",
-  "sessions.read",
-  "sessions.revoke",
-  "admins.read",
-  "admins.manage",
-  "editors.read",
-  "editors.manage",
-  "roles.read",
-  "roles.update",
-  "permissions.read",
-  "permissions.assign",
-  "people.read",
-  "people.create",
-  "people.update",
-  "people.delete",
-  "people.publish",
-  "profiles.read",
-  "profiles.moderate",
-  "profiles.publish",
-  "profiles.unpublish",
-  "categories.read",
-  "categories.create",
-  "categories.update",
-  "categories.delete",
-  "homepage.read",
-  "homepage.update",
-  "homepage.publish",
-  "appearance.read",
-  "appearance.update",
-  "navigation.read",
-  "navigation.update",
-  "footer.read",
-  "footer.update",
-  "profile_presentation.read",
-  "profile_presentation.update",
-  "media.read",
-  "media.manage",
-  "seo.read",
-  "seo.update",
-  "audit.read",
-  "settings.read",
-  "settings.manage",
-  "system.read",
-] as const;
+export const ADMIN_PERMISSIONS = ADMIN_PERMISSION_CODES;
 
 export type AdminPermission = (typeof ADMIN_PERMISSIONS)[number];
 const allPermissions = new Set<AdminPermission>(ADMIN_PERMISSIONS);
@@ -125,6 +78,10 @@ export const SUPER_ADMIN_CORE_PERMISSIONS = ["admins.manage", "permissions.assig
 
 export function isFinalSuperAdminDeletionAllowed(superAdminCount: number) {
   return superAdminCount > 1;
+}
+
+export function canRevokeSuperAdminSession(role: AdminRoleCode | null | undefined, activeSuperAdminCount: number) {
+  return role !== "SUPER_ADMIN" || activeSuperAdminCount > 1;
 }
 
 export function canSoleSuperAdminRetainCorePermissions(role: AdminRoleCode, activeSuperAdminCount: number, effectivePermissions: ReadonlySet<AdminPermission>) {

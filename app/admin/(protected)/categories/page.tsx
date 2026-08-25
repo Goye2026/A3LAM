@@ -4,6 +4,8 @@ import { adminRepository } from "@/lib/data/adminRepository";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 import type { ContentStatus } from "@/lib/domain/a3lam";
+import { getAdminPageAccess } from "@/lib/admin/pageAuth";
+import { hasEffectiveAdminPermission } from "@/lib/admin/rbac";
 
 function statusLabel(status: ContentStatus, copy: ReturnType<typeof getMessages>) {
   return status === "published" ? copy.adminPublished : status === "draft" ? copy.adminDraft : status === "review" ? copy.adminReview : copy.adminArchived;
@@ -17,6 +19,9 @@ function first(value: string | string[] | undefined) {
 
 export default async function AdminCategoriesPage({ searchParams }: PageProps) {
   const copy = getMessages(defaultLocale);
+  const access = await getAdminPageAccess("categories.read");
+  if (!access.allowed) return <div className="admin-route"><p className="admin-alert" role="alert">{access.dependencyUnavailable ? copy.adminRequiresSchema : copy.adminUnauthorized}</p></div>;
+  const canEdit = access.principal ? (await hasEffectiveAdminPermission(access.principal, "categories.create")) || (await hasEffectiveAdminPermission(access.principal, "categories.update")) : false;
   const params = await searchParams;
   const editId = first(params.edit);
   const query = first(params.q);
@@ -39,7 +44,7 @@ export default async function AdminCategoriesPage({ searchParams }: PageProps) {
         {editing ? <Link className="button button-quiet" href="/admin/categories">{copy.adminCreateCategory}</Link> : null}
       </header>
       {unavailable ? <p className="admin-alert" role="alert">{copy.adminDatabaseError}</p> : null}
-      {!unavailable ? <AdminCategoryForm key={editing?.id ?? "new"} copy={copy} category={editing} /> : null}
+      {!unavailable ? <AdminCategoryForm key={editing?.id ?? "new"} copy={copy} category={editing} canEdit={canEdit} /> : null}
       {editId && !editing && !unavailable ? <p className="admin-alert" role="alert">{copy.adminNotFound}</p> : null}
       <section className="admin-panel" aria-labelledby="admin-categories-table-title">
         <div className="admin-section-heading"><h2 id="admin-categories-table-title">{copy.adminCategories}</h2><span className="admin-muted">{categories.length}</span></div>

@@ -19,7 +19,7 @@ import {
 } from "@/lib/domain/a3lam";
 import type { ContentStatus, ProfileStatus } from "@/lib/domain/a3lam";
 import { normalizeArabic } from "@/lib/domain/search";
-import { ADMIN_PERMISSIONS, applyPermissionOverrides, canSoleSuperAdminRetainCorePermissions, permissionListForRole } from "@/lib/admin/rbac";
+import { ADMIN_PERMISSIONS, applyPermissionOverrides, canRevokeSuperAdminSession, canSoleSuperAdminRetainCorePermissions, permissionListForRole } from "@/lib/admin/rbac";
 import { calculateProfileCompletion, getProfileForUser } from "@/lib/user/profileRepository";
 import { ADMIN_ROLE_CODES, type AdminAccountStatus, type AdminAuditLogItem, type AdminCategoryInput, type AdminCategorySummary, type AdminControlCenterSummary, type AdminDashboardData, type AdminEffectivePermissions, type AdminIdentitySummary, type AdminPermissionCode, type AdminUserDetail, type AdminPermissionOverrideSummary, type AdminPeoplePage, type AdminPersonEditorData, type AdminPersonListItem, type AdminRoleCode, type AdminSessionSummary, type AdminUserSummary } from "@/lib/admin/types";
 
@@ -791,6 +791,17 @@ export const adminRepository = {
   async revokeAdminSession(id: string, actorId: string | null) {
     const db = getDb();
     return db.transaction(async (tx) => {
+      const targetRows = await tx.select({ adminId: schema.adminSessions.adminId, roleCode: schema.adminRoleAssignments.roleCode }).from(schema.adminSessions).innerJoin(schema.adminRoleAssignments, eq(schema.adminRoleAssignments.adminId, schema.adminSessions.adminId)).where(and(eq(schema.adminSessions.id, id), isNull(schema.adminSessions.revokedAt))).limit(1);
+      const target = targetRows[0];
+      if (!target) return false;
+      if (target.roleCode === "SUPER_ADMIN") {
+        const activeSuperAdmins = await tx.select({ id: schema.adminIdentities.id }).from(schema.adminIdentities).innerJoin(schema.adminRoleAssignments, eq(schema.adminRoleAssignments.adminId, schema.adminIdentities.id)).where(and(eq(schema.adminIdentities.status, "active"), eq(schema.adminRoleAssignments.roleCode, "SUPER_ADMIN")));
+        if (!canRevokeSuperAdminSession(target.roleCode, activeSuperAdmins.length)) {
+          const error = new Error("The final Super Admin session cannot be revoked");
+          error.name = "AdminConflictError";
+          throw error;
+        }
+      }
       const now = new Date();
       const rows = await tx.update(schema.adminSessions).set({ revokedAt: now }).where(and(eq(schema.adminSessions.id, id), isNull(schema.adminSessions.revokedAt))).returning({ id: schema.adminSessions.id });
       if (!rows[0]) return false;
@@ -802,6 +813,17 @@ export const adminRepository = {
   async revokeAllAdminSessions(adminId: string, actorId: string | null) {
     const db = getDb();
     return db.transaction(async (tx) => {
+      const targetRows = await tx.select({ roleCode: schema.adminRoleAssignments.roleCode }).from(schema.adminRoleAssignments).where(eq(schema.adminRoleAssignments.adminId, adminId)).limit(1);
+      const targetRole = targetRows[0]?.roleCode;
+      if (!targetRole) return 0;
+      if (targetRole === "SUPER_ADMIN") {
+        const activeSuperAdmins = await tx.select({ id: schema.adminIdentities.id }).from(schema.adminIdentities).innerJoin(schema.adminRoleAssignments, eq(schema.adminRoleAssignments.adminId, schema.adminIdentities.id)).where(and(eq(schema.adminIdentities.status, "active"), eq(schema.adminRoleAssignments.roleCode, "SUPER_ADMIN")));
+        if (!canRevokeSuperAdminSession(targetRole, activeSuperAdmins.length)) {
+          const error = new Error("The final Super Admin sessions cannot be revoked");
+          error.name = "AdminConflictError";
+          throw error;
+        }
+      }
       const now = new Date();
       const rows = await tx.update(schema.adminSessions).set({ revokedAt: now }).where(and(eq(schema.adminSessions.adminId, adminId), isNull(schema.adminSessions.revokedAt))).returning({ id: schema.adminSessions.id });
       await tx.insert(schema.auditLogs).values({ id: randomUUID(), actorType: "admin_identity", actorId, entityType: "admin_identity", entityId: adminId, field: "sessions", oldValue: String(rows.length), newValue: "0", action: "revoke_admin_sessions", reason: null, createdAt: now });

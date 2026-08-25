@@ -4,6 +4,7 @@ import { AdminPersonForm } from "@/components/a3lam/AdminPersonForm";
 import { adminRepository } from "@/lib/data/adminRepository";
 import { defaultLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
+import { getAdminPageAccess } from "@/lib/admin/pageAuth";
 
 export const metadata: Metadata = { title: "Edit person | A3LAM", robots: { index: false, follow: false } };
 
@@ -11,7 +12,9 @@ type PageProps = { params: Promise<{ id: string }> };
 
 export default async function EditPersonPage({ params }: PageProps) {
   const copy = getMessages(defaultLocale);
+  const access = await getAdminPageAccess("people.update");
   const { id } = await params;
+  if (!access.allowed) return <div className="admin-route"><p className="admin-alert" role="alert">{access.dependencyUnavailable ? copy.adminRequiresSchema : copy.adminUnauthorized}</p></div>;
   let data = null;
   let unavailable = false;
   try { data = await adminRepository.getEditorData(id); } catch { unavailable = true; }
