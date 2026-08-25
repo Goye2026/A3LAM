@@ -110,6 +110,15 @@ export type AdminEffectivePermissions = {
   effective: AdminPermissionCode[];
 };
 
+export type AdminUserManagementPage = {
+  items: AdminUserManagementSummary[];
+  total: number;
+  page: number;
+  pageSize: number;
+  query: string;
+  sort: "created_desc" | "created_asc" | "name" | "last_signed_in_desc";
+};
+
 export type AdminUserManagementSummary = AdminUserSummary & {
   email: string;
   accountStatus: "active" | "disabled";

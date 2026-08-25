@@ -3,23 +3,28 @@ import { adminErrorResponse, requirePermissionPrincipal } from "@/lib/admin/http
 import { parseId } from "@/lib/admin/input";
 import { adminRepository } from "@/lib/data/adminRepository";
 import { isSameOriginMutation } from "@/lib/user/requestSecurity";
+import { parsePositivePage } from "@/lib/admin/pagination";
 
 export const runtime = "nodejs";
+
+function parseSort(value: string | null) {
+  return value === "created_asc" || value === "name" || value === "last_signed_in_desc" ? value : "created_desc";
+}
 
 export async function GET(request: Request) {
   const gate = await requirePermissionPrincipal(request, "users.read");
   if (gate.response) return gate.response;
   try {
     const url = new URL(request.url);
-      const statusValue = url.searchParams.get("status") ?? "";
-      const profileStatusValue = url.searchParams.get("profileStatus") ?? "";
-      const visibilityValue = url.searchParams.get("visibility") ?? "";
-      const hasProfileValue = url.searchParams.get("hasProfile") ?? "";
-      const disabled = statusValue === "active" || statusValue === "disabled" ? statusValue : "";
-      const profileStatus = ["draft", "pending_review", "published", "archived"].includes(profileStatusValue) ? profileStatusValue as "draft" | "pending_review" | "published" | "archived" : "";
-      const visibility = ["private", "unlisted", "published"].includes(visibilityValue) ? visibilityValue as "private" | "unlisted" | "published" : "";
-      const hasProfile = hasProfileValue === "yes" || hasProfileValue === "no" ? hasProfileValue : "";
-      return NextResponse.json({ items: await adminRepository.listAdminUsers({ query: url.searchParams.get("q") ?? undefined, disabled, profileStatus, visibility, hasProfile, limit: 100 }) });
+    const statusValue = url.searchParams.get("status") ?? "";
+    const profileStatusValue = url.searchParams.get("profileStatus") ?? "";
+    const visibilityValue = url.searchParams.get("visibility") ?? "";
+    const hasProfileValue = url.searchParams.get("hasProfile") ?? "";
+    const disabled = statusValue === "active" || statusValue === "disabled" ? statusValue : "";
+    const profileStatus = ["draft", "pending_review", "published", "archived"].includes(profileStatusValue) ? profileStatusValue as "draft" | "pending_review" | "published" | "archived" : "";
+    const visibility = ["private", "unlisted", "published"].includes(visibilityValue) ? visibilityValue as "private" | "unlisted" | "published" : "";
+    const hasProfile = hasProfileValue === "yes" || hasProfileValue === "no" ? hasProfileValue : "";
+    return NextResponse.json({ page: await adminRepository.listAdminUsers({ query: url.searchParams.get("q") ?? undefined, disabled, profileStatus, visibility, hasProfile, page: parsePositivePage(url.searchParams.get("page")), pageSize: 20, sort: parseSort(url.searchParams.get("sort")) }) }, { headers: { "cache-control": "no-store" } });
   } catch (error) {
     return adminErrorResponse(error);
   }

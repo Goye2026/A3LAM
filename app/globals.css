@@ -2140,6 +2140,7 @@ textarea.admin-input { resize: vertical; }
 .status-pending { border-color: rgb(169 107 25 / 0.35); background: var(--color-accent-pale); color: var(--color-warning); }
 .status-unexpected, .status-inconsistent, .status-unavailable, .status-blocked { border-color: rgb(169 68 68 / 0.3); background: rgb(169 68 68 / 0.1); color: var(--color-danger); }
 .admin-pagination { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-block-start: var(--space-4); color: var(--color-ink-muted); font-size: 0.78rem; }
+.admin-current-session { display: inline-flex; margin-inline-start: var(--space-2); border-radius: 999px; padding: 0.15rem 0.45rem; background: var(--color-brand-pale); color: var(--color-brand); font-size: 0.68rem; font-weight: 700; white-space: nowrap; }
 
 .admin-editor-form { display: grid; gap: var(--space-5); }
 .admin-form-grid { display: grid; gap: var(--space-4); margin-block-start: var(--space-5); }

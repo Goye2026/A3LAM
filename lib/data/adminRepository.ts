@@ -21,7 +21,7 @@ import type { ContentStatus, ProfileStatus } from "@/lib/domain/a3lam";
 import { normalizeArabic } from "@/lib/domain/search";
 import { ADMIN_PERMISSIONS, applyPermissionOverrides, canRevokeSuperAdminSession, canSoleSuperAdminRetainCorePermissions, permissionListForRole } from "@/lib/admin/rbac";
 import { calculateProfileCompletion, getProfileForUser } from "@/lib/user/profileRepository";
-import { ADMIN_ROLE_CODES, type AdminAccountStatus, type AdminAuditLogItem, type AdminCategoryInput, type AdminCategorySummary, type AdminControlCenterSummary, type AdminDashboardData, type AdminEffectivePermissions, type AdminIdentitySummary, type AdminPermissionCode, type AdminUserDetail, type AdminPermissionOverrideSummary, type AdminPeoplePage, type AdminPersonEditorData, type AdminPersonListItem, type AdminRoleCode, type AdminSessionSummary, type AdminUserSummary } from "@/lib/admin/types";
+import { ADMIN_ROLE_CODES, type AdminAccountStatus, type AdminCategoryInput, type AdminCategorySummary, type AdminControlCenterSummary, type AdminDashboardData, type AdminEffectivePermissions, type AdminIdentitySummary, type AdminPermissionCode, type AdminUserDetail, type AdminPermissionOverrideSummary, type AdminPeoplePage, type AdminPersonEditorData, type AdminPersonListItem, type AdminRoleCode, type AdminSessionSummary, type AdminUserSummary } from "@/lib/admin/types";
 
 export const ADMIN_PAGE_SIZE = 20;
 
@@ -404,8 +404,10 @@ export const adminRepository = {
     }));
   },
 
-  async listAuditLogs(options: { actor?: string; action?: string; entityType?: string; entityId?: string; from?: string; to?: string; limit?: number } = {}): Promise<AdminAuditLogItem[]> {
+  async listAuditLogs(options: { actor?: string; action?: string; entityType?: string; entityId?: string; from?: string; to?: string; page?: number; pageSize?: number; limit?: number } = {}) {
     const db = getDb();
+    const pageSize = Math.min(Math.max(options.pageSize ?? options.limit ?? ADMIN_PAGE_SIZE, 1), 100);
+    const page = Math.max(options.page ?? 1, 1);
     const conditions = [];
     if (options.actor?.trim()) conditions.push(or(eq(schema.auditLogs.actorId, options.actor.trim()), eq(schema.auditLogs.actorType, options.actor.trim())));
     if (options.action?.trim()) conditions.push(ilike(schema.auditLogs.action, `%${options.action.trim()}%`));
@@ -413,17 +415,21 @@ export const adminRepository = {
     if (options.entityId?.trim()) conditions.push(eq(schema.auditLogs.entityId, options.entityId.trim()));
     if (options.from && !Number.isNaN(new Date(options.from).getTime())) conditions.push(gte(schema.auditLogs.createdAt, new Date(options.from)));
     if (options.to && !Number.isNaN(new Date(options.to).getTime())) conditions.push(lte(schema.auditLogs.createdAt, new Date(options.to)));
-    const rows = await db.select({
-      id: schema.auditLogs.id,
-      actorType: schema.auditLogs.actorType,
-      actorId: schema.auditLogs.actorId,
-      entityType: schema.auditLogs.entityType,
-      entityId: schema.auditLogs.entityId,
-      field: schema.auditLogs.field,
-      action: schema.auditLogs.action,
-      createdAt: schema.auditLogs.createdAt,
-    }).from(schema.auditLogs).where(conditions.length > 0 ? and(...conditions) : undefined).orderBy(desc(schema.auditLogs.createdAt)).limit(Math.min(Math.max(options.limit ?? 100, 1), 100));
-    return rows.map((row) => ({ ...row, createdAt: asIsoTimestamp(row.createdAt) }));
+    const where = conditions.length > 0 ? and(...conditions) : undefined;
+    const [rows, totalRows] = await Promise.all([
+      db.select({
+        id: schema.auditLogs.id,
+        actorType: schema.auditLogs.actorType,
+        actorId: schema.auditLogs.actorId,
+        entityType: schema.auditLogs.entityType,
+        entityId: schema.auditLogs.entityId,
+        field: schema.auditLogs.field,
+        action: schema.auditLogs.action,
+        createdAt: schema.auditLogs.createdAt,
+      }).from(schema.auditLogs).where(where).orderBy(desc(schema.auditLogs.createdAt)).limit(pageSize).offset((page - 1) * pageSize),
+      db.select({ count: sql<string>`count(*)` }).from(schema.auditLogs).where(where),
+    ]);
+    return { items: rows.map((row) => ({ ...row, createdAt: asIsoTimestamp(row.createdAt) })), total: Number(totalRows[0]?.count ?? 0), page, pageSize };
   },
 
   async getSystemStatus() {
@@ -516,8 +522,10 @@ export const adminRepository = {
     return this.getEditorData(id);
   },
 
-  async listAdminUsers(options: { query?: string; disabled?: "active" | "disabled" | ""; profileStatus?: ProfileStatus | ""; visibility?: "private" | "unlisted" | "published" | ""; hasProfile?: "yes" | "no" | ""; limit?: number } = {}) {
+  async listAdminUsers(options: { query?: string; disabled?: "active" | "disabled" | ""; profileStatus?: ProfileStatus | ""; visibility?: "private" | "unlisted" | "published" | ""; hasProfile?: "yes" | "no" | ""; page?: number; pageSize?: number; sort?: "created_desc" | "created_asc" | "name" | "last_signed_in_desc" } = {}) {
     const db = getDb();
+    const pageSize = Math.min(Math.max(options.pageSize ?? ADMIN_PAGE_SIZE, 1), 100);
+    const page = Math.max(options.page ?? 1, 1);
     const conditions = [];
     const query = options.query?.trim();
     if (query) conditions.push(or(ilike(schema.userAccounts.name, `%${query}%`), ilike(schema.userAccounts.email, `%${query}%`), ilike(schema.profiles.slug, `%${query}%`), ilike(schema.profiles.professionalTitle, `%${query}%`)));
@@ -527,6 +535,7 @@ export const adminRepository = {
     if (options.visibility) conditions.push(eq(schema.profiles.visibility, options.visibility));
     if (options.hasProfile === "yes") conditions.push(isNotNull(schema.profiles.id));
     if (options.hasProfile === "no") conditions.push(isNull(schema.profiles.id));
+    const where = conditions.length > 0 ? and(...conditions) : undefined;
     const completionPercent = sql<number>`round((
       (case when ${schema.profiles.name} <> '' and ${schema.profiles.nameArabic} <> '' and ${schema.profiles.slug} <> '' then 1 else 0 end) +
       (case when ${schema.profiles.imageUrl} is not null and ${schema.profiles.imageUrl} <> '' then 1 else 0 end) +
@@ -541,22 +550,29 @@ export const adminRepository = {
       (case when ${schema.profiles.contactEmail} is not null or ${schema.profiles.phone} is not null or exists (select 1 from profile_social_links psl2 where psl2.profile_id = ${schema.profiles.id}) then 1 else 0 end) +
       (case when exists (select 1 from profile_source_records psr where psr.profile_id = ${schema.profiles.id}) then 1 else 0 end)
     ) * 100 / 12)`;
-    const rows = await db.select({
-      user: schema.userAccounts,
-      profileId: schema.profiles.id,
-      profileNameArabic: schema.profiles.nameArabic,
-      profileStatus: schema.profiles.status,
-      profileVisibility: schema.profiles.visibility,
-      completionPercent,
-      activeSessions: sql<number>`count(${schema.userSessions.id})`,
-    }).from(schema.userAccounts)
-      .leftJoin(schema.profiles, eq(schema.profiles.userId, schema.userAccounts.id))
-      .leftJoin(schema.userSessions, and(eq(schema.userSessions.userId, schema.userAccounts.id), isNull(schema.userSessions.revokedAt), gt(schema.userSessions.expiresAt, new Date())))
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
-      .groupBy(schema.userAccounts.id, schema.profiles.id)
-      .orderBy(desc(schema.userAccounts.createdAt))
-      .limit(Math.min(Math.max(options.limit ?? 100, 1), 100));
-    return rows.map(({ user, profileId, profileNameArabic, profileStatus, profileVisibility, completionPercent, activeSessions }) => ({ id: user.id, name: user.name, email: user.email, createdAt: asIsoTimestamp(user.createdAt), lastSignedIn: user.lastSignedIn ? asIsoTimestamp(user.lastSignedIn) : null, accountStatus: user.disabledAt ? "disabled" as const : "active" as const, activeSessions: Number(activeSessions ?? 0), profileStatus: profileStatus ?? null, visibility: profileVisibility ?? null, completionPercent: profileId ? Number(completionPercent ?? 0) : null, profile: profileId ? { id: profileId, nameArabic: profileNameArabic ?? "", status: profileStatus ?? "draft", visibility: profileVisibility ?? "private" } : null }));
+    const orderBy = options.sort === "name" ? asc(schema.userAccounts.name) : options.sort === "created_asc" ? asc(schema.userAccounts.createdAt) : options.sort === "last_signed_in_desc" ? desc(schema.userAccounts.lastSignedIn) : desc(schema.userAccounts.createdAt);
+    const [rows, totalRows] = await Promise.all([
+      db.select({
+        user: schema.userAccounts,
+        profileId: schema.profiles.id,
+        profileNameArabic: schema.profiles.nameArabic,
+        profileStatus: schema.profiles.status,
+        profileVisibility: schema.profiles.visibility,
+        completionPercent,
+        activeSessions: sql<number>`count(${schema.userSessions.id})`,
+      }).from(schema.userAccounts)
+        .leftJoin(schema.profiles, eq(schema.profiles.userId, schema.userAccounts.id))
+        .leftJoin(schema.userSessions, and(eq(schema.userSessions.userId, schema.userAccounts.id), isNull(schema.userSessions.revokedAt), gt(schema.userSessions.expiresAt, new Date())))
+        .where(where)
+        .groupBy(schema.userAccounts.id, schema.profiles.id)
+        .orderBy(orderBy)
+        .limit(pageSize)
+        .offset((page - 1) * pageSize),
+      db.select({ count: sql<string>`count(distinct ${schema.userAccounts.id})` }).from(schema.userAccounts)
+        .leftJoin(schema.profiles, eq(schema.profiles.userId, schema.userAccounts.id))
+        .where(where),
+    ]);
+    return { items: rows.map(({ user, profileId, profileNameArabic, profileStatus, profileVisibility, completionPercent, activeSessions }) => ({ id: user.id, name: user.name, email: user.email, createdAt: asIsoTimestamp(user.createdAt), lastSignedIn: user.lastSignedIn ? asIsoTimestamp(user.lastSignedIn) : null, accountStatus: user.disabledAt ? "disabled" as const : "active" as const, activeSessions: Number(activeSessions ?? 0), profileStatus: profileStatus ?? null, visibility: profileVisibility ?? null, completionPercent: profileId ? Number(completionPercent ?? 0) : null, profile: profileId ? { id: profileId, nameArabic: profileNameArabic ?? "", status: profileStatus ?? "draft", visibility: profileVisibility ?? "private" } : null })), total: Number(totalRows[0]?.count ?? 0), page, pageSize, query: query ?? "", sort: options.sort ?? "created_desc" as const };
   },
 
   async getAdminUserDetail(id: string): Promise<AdminUserDetail | null> {

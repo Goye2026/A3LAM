@@ -56,6 +56,7 @@ export async function AdminShell({ children }: { children: ReactNode }) {
               {can("audit.read") ? <Link href="/admin/audit">{copy.adminAudit}</Link> : null}
             </NavGroup>
             <NavGroup label={copy.adminProductGroup}>
+              {can("homepage.read") ? <Link href="/admin/site">{copy.adminSiteExperienceCenter}</Link> : null}
               {can("homepage.read") ? <Link href="/admin/homepage">{copy.adminHomepage}</Link> : null}
               {can("homepage.read") ? <Link href="/admin/homepage/preview">{copy.adminPreview}</Link> : null}
               {can("appearance.read") ? <Link href="/admin/appearance">{copy.adminAppearance}</Link> : null}

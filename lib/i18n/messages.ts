@@ -325,6 +325,8 @@ export type FoundationMessages = {
   adminSystem: string;
   adminSettings: string;
   adminSiteExperienceDescription: string;
+  adminSiteExperienceCenter: string;
+  adminSiteExperienceCenterDescription: string;
   adminPublishDraft: string;
   adminDraftVersion: string;
   adminPublishedVersion: string;
@@ -526,6 +528,7 @@ export type FoundationMessages = {
   adminClearFilters: string;
   adminNoAudit: string;
   adminSessionStatus: string;
+  adminCurrentSession: string;
   adminSessionActive: string;
   adminSessionRevoked: string;
   adminSessionExpired: string;
@@ -867,6 +870,8 @@ const ar: FoundationMessages = {
   adminSystem: "حالة النظام",
   adminSettings: "الإعدادات",
   adminSiteExperienceDescription: "إدارة آمنة لإعدادات تجربة الموقع مع مسودة ونشر منفصلين.",
+  adminSiteExperienceCenter: "تجربة الموقع",
+  adminSiteExperienceCenterDescription: "مركز موحد لإدارة الهوية والصفحة الرئيسية والتنقل والتذييل والمظهر وSEO وعرض الملفات المهنية.",
   adminPublishDraft: "نشر المسودة",
   adminDraftVersion: "المسودة الحالية",
   adminPublishedVersion: "الإصدار المنشور",
@@ -1068,6 +1073,7 @@ const ar: FoundationMessages = {
   adminClearFilters: "مسح التصفية",
   adminNoAudit: "لا توجد أحداث تدقيق في النطاق الحالي.",
   adminSessionStatus: "حالة الجلسة",
+  adminCurrentSession: "الجلسة الحالية",
   adminSessionActive: "نشطة",
   adminSessionRevoked: "مسحوبة",
   adminSessionExpired: "منتهية",
@@ -1409,6 +1415,8 @@ const en: FoundationMessages = {
   adminSystem: "System status",
   adminSettings: "Settings",
   adminSiteExperienceDescription: "Safely manage site experience settings with separate draft and published versions.",
+  adminSiteExperienceCenter: "Site experience",
+  adminSiteExperienceCenterDescription: "A unified center for identity, homepage, navigation, footer, appearance, SEO, and profile presentation.",
   adminPublishDraft: "Publish draft",
   adminDraftVersion: "Current draft",
   adminPublishedVersion: "Published version",
@@ -1610,6 +1618,7 @@ const en: FoundationMessages = {
   adminClearFilters: "Clear filters",
   adminNoAudit: "No audit events match the current scope.",
   adminSessionStatus: "Session status",
+  adminCurrentSession: "Current session",
   adminSessionActive: "Active",
   adminSessionRevoked: "Revoked",
   adminSessionExpired: "Expired",
