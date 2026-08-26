@@ -40,3 +40,15 @@ Vercel reports the Production deployment for commit `1d66d33581a0e581012270734e4
 - Git branch: `main`
 
 The production alias smoke checks above were executed after the deployment was serving the Phase 17.16 routes.
+
+## Final documentation deployment
+
+After the documentation closure commit was pushed, Vercel reported the new Production deployment as `READY`:
+
+- Commit: `fa274eb65d3528d3841f41f18675b56d45df268c`
+- Deployment ID: `dpl_BhfYEg3TrLqM6KyVatmHGc6vhx1Q`
+- Deployment URL: `https://a3-hl025yizq-goye2026s-projects.vercel.app`
+- Target: `production`
+- Alias used for application checks: `https://a3-lam.vercel.app`
+
+No Vercel project settings, environment variables, provider, bucket, domain, or DNS configuration was changed.
