@@ -35,7 +35,9 @@ describe("Phase 17.9 launch QA regressions", () => {
     const proxy = readProjectFile("proxy.ts");
     expect(proxy).toContain("personService.hasPublishedPersonSlug(slug)");
     expect(proxy).toContain("getUnlistedOrPublishedProfileBySlug(slug)");
-    expect(proxy).toContain("return hasPublishedPerson || Boolean(publicProfile) ? NextResponse.next() : notFoundResponse(request);");
+    expect(proxy).toContain("return hasPublishedPerson || Boolean(publicProfile) ? NextResponse.next() : notFoundResponse();");
+    expect(proxy).toContain('return new NextResponse("المورد المطلوب غير موجود.",');
+    expect(proxy).toContain("return notFoundResponse();");
   });
 
   it("keeps the admin profiles database error localized and generic", () => {

@@ -1,4 +1,4 @@
-import type { ProfileSocialPlatform, ProfileStatus, ProfileVisibility, ProfileWorkType, SourceType } from "@/lib/domain/a3lam";
+import type { ProfileSocialPlatform, ProfileVisibility, ProfileWorkType, SourceType } from "@/lib/domain/a3lam";
 import { getSafePublicUrl } from "@/lib/media/public";
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

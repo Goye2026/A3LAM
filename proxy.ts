@@ -5,8 +5,11 @@ import { getUnlistedOrPublishedProfileBySlug } from "@/lib/user/profileRepositor
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-function notFoundResponse(request: NextRequest) {
-  return NextResponse.rewrite(new URL("/_not-found", request.url), { status: 404 });
+function notFoundResponse() {
+  return new NextResponse("المورد المطلوب غير موجود.", {
+    status: 404,
+    headers: { "Content-Type": "text/plain; charset=utf-8", "X-Content-Type-Options": "nosniff" },
+  });
 }
 
 function adminUnauthorizedResponse(request: NextRequest) {
@@ -35,13 +38,13 @@ export async function proxy(request: NextRequest) {
         personService.hasPublishedPersonSlug(slug),
         getUnlistedOrPublishedProfileBySlug(slug),
       ]);
-      return hasPublishedPerson || Boolean(publicProfile) ? NextResponse.next() : notFoundResponse(request);
+      return hasPublishedPerson || Boolean(publicProfile) ? NextResponse.next() : notFoundResponse();
     }
 
     const exists = await personService.hasPublishedCategorySlug(slug);
-    return exists ? NextResponse.next() : notFoundResponse(request);
+    return exists ? NextResponse.next() : notFoundResponse();
   } catch {
-    return NextResponse.next();
+    return notFoundResponse();
   }
 }
 
