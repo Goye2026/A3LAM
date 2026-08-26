@@ -1,9 +1,9 @@
 import { InfoPage } from "@/components/a3lam/InfoPage";
 import { defaultLocale } from "@/lib/i18n/config";
-import { getMessages } from "@/lib/i18n/messages";
+import { getPublicMessages } from "@/lib/i18n/messages";
 import { pageMetadata } from "@/lib/seo/site";
 
-const copy = getMessages(defaultLocale);
+const copy = getPublicMessages(defaultLocale);
 
 export const metadata = pageMetadata(copy.contactTitle, copy.contactDescription, "/contact");
 

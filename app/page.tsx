@@ -12,7 +12,7 @@ import { toDisplayCategories, toDisplayPeople } from "@/lib/a3lam/catalog";
 import type { Category, Person } from "@/lib/domain/a3lam";
 import type { HomepageSettings } from "@/lib/site-experience/config";
 import { defaultLocale } from "@/lib/i18n/config";
-import { getMessages, getPublicMessages, type PublicMessages } from "@/lib/i18n/messages";
+import { getPublicMessages, type PublicMessages } from "@/lib/i18n/messages";
 import { withTimeout } from "@/lib/foundation/withTimeout";
 import { personService } from "@/lib/services/personService";
 import { siteExperienceDefaults, type HomepageSettings as HomepageConfig } from "@/lib/site-experience/config";
@@ -44,7 +44,7 @@ type HomepageCopy = PublicMessages & {
 
 type CatalogSectionsProps = {
   homepage: HomepageConfig;
-  copy: ReturnType<typeof getMessages>;
+  copy: PublicMessages;
   publicCopy: PublicMessages;
   homepageCopy: HomepageCopy;
 };
@@ -53,7 +53,7 @@ function isVisible(homepage: HomepageConfig, key: HomepageSettings["sections"][n
   return homepage.sections.find((section) => section.key === key)?.visible ?? true;
 }
 
-function buildHomepageCopy(homepage: HomepageConfig, copy: ReturnType<typeof getMessages>, publicCopy: PublicMessages): HomepageCopy {
+function buildHomepageCopy(homepage: HomepageConfig, copy: PublicMessages, publicCopy: PublicMessages): HomepageCopy {
   return {
     ...publicCopy,
     heroEyebrow: homepage.hero.eyebrow || copy.heroEyebrow,
@@ -83,7 +83,7 @@ function EmptyCatalogState({ message, alert = false }: { message: string; alert?
   );
 }
 
-function CatalogStats({ copy, peopleCount = null, categoriesCount = null, unavailable = false }: { copy: ReturnType<typeof getMessages>; peopleCount?: number | null; categoriesCount?: number | null; unavailable?: boolean }) {
+function CatalogStats({ copy, peopleCount = null, categoriesCount = null, unavailable = false }: { copy: PublicMessages; peopleCount?: number | null; categoriesCount?: number | null; unavailable?: boolean }) {
   const stats = [
     { value: unavailable || peopleCount === null ? "—" : String(peopleCount).padStart(2, "0"), label: copy.statsPeople },
     { value: unavailable || categoriesCount === null ? "—" : String(categoriesCount).padStart(2, "0"), label: copy.statsCategories },
@@ -200,8 +200,8 @@ function HomepageCatalogFallback({ homepage, copy, homepageCopy }: Pick<CatalogS
 }
 
 export default async function HomePage() {
-  const copy = getMessages(defaultLocale);
   const publicCopy = getPublicMessages(defaultLocale);
+  const copy = publicCopy;
   const homepage = await withTimeout(siteExperienceRepository.getPublishedResource("homepage"), 3000).catch(() => siteExperienceDefaults.homepage);
   const homepageCopy = buildHomepageCopy(homepage, copy, publicCopy);
 

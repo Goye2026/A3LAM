@@ -658,6 +658,36 @@ export type FoundationMessages = {
   adminWithProfile: string;
   adminWithoutProfile: string;
   adminCompletionShort: string;
+  adminAi: string;
+  adminAiDescription: string;
+  adminAiProvider: string;
+  adminAiDocumentProcessing: string;
+  adminAiPrivacyNotice: string;
+  adminAiCreateFromDocument: string;
+  adminAiConfigurationRequired: string;
+  adminAiDocuments: string;
+  adminAiProcessing: string;
+  adminAiCompleted: string;
+  adminAiFailed: string;
+  adminAiReviewRequired: string;
+  adminAiNoDocuments: string;
+  adminAiUploadHint: string;
+  adminAiSupportedTypes: string;
+  adminAiHumanReview: string;
+  adminAiDraftBoundary: string;
+  adminAiNoInference: string;
+  adminAiNoPersistence: string;
+  adminAiUnsupportedType: string;
+  adminAiInvalidSize: string;
+  adminAiRemoveSelection: string;
+  adminAiStructuredFields: string;
+  adminAiReviewField: string;
+  adminAiReviewValue: string;
+  adminAiReviewSource: string;
+  adminAiReviewConfidence: string;
+  adminAiReviewClassification: string;
+  adminAiReviewAction: string;
+  adminAiNoFacts: string;
 };
 
 const ar: FoundationMessages = {
@@ -1319,6 +1349,36 @@ const ar: FoundationMessages = {
   adminWithProfile: "لديه ملف",
   adminWithoutProfile: "بلا ملف",
   adminCompletionShort: "الاكتمال",
+  adminAi: "A3LAM AI",
+  adminAiDescription: "منشئ الملفات الذكية — أساس آمن لاستخلاص المعلومات من المستندات ومراجعتها بشريًا.",
+  adminAiProvider: "مزود الذكاء الاصطناعي",
+  adminAiDocumentProcessing: "معالجة المستندات",
+  adminAiPrivacyNotice: "المستندات الخاصة افتراضية؛ لا تُنشر ولا تظهر في البحث أو sitemap أو البيانات الوصفية العامة.",
+  adminAiCreateFromDocument: "إنشاء ملف من مستند",
+  adminAiConfigurationRequired: "هذه الميزة قيد التهيئة؛ لم يتم إعداد مزود AI أو مسار التخزين/المعالجة الكامل.",
+  adminAiDocuments: "المستندات",
+  adminAiProcessing: "قيد المعالجة",
+  adminAiCompleted: "مكتملة",
+  adminAiFailed: "فشلت",
+  adminAiReviewRequired: "تحتاج مراجعة",
+  adminAiNoDocuments: "لا توجد بيانات بعد.",
+  adminAiUploadHint: "يدعم العقد المستقبلي PDF وDOCX وTXT. الرفع الإنتاجي معطل حتى تهيئة التخزين والمعالجة.",
+  adminAiSupportedTypes: "الأنواع المدعومة في العقد",
+  adminAiHumanReview: "مراجعة بشرية",
+  adminAiDraftBoundary: "أي ناتج مستقبلي يدخل كمسودة ولا ينتقل تلقائيًا إلى النشر.",
+  adminAiNoInference: "لم تُنفذ أي عملية inference أو اتصال بمزود AI في هذه المرحلة.",
+  adminAiNoPersistence: "لم تُنشأ persistence لمهام AI بعد؛ لذلك لا نعرض عدادات اصطناعية.",
+  adminAiUnsupportedType: "نوع الملف غير مدعوم. استخدم PDF أو DOCX أو TXT.",
+  adminAiInvalidSize: "حجم الملف غير مسموح.",
+  adminAiRemoveSelection: "إزالة الاختيار",
+  adminAiStructuredFields: "الهوية · المجال المهني · التعليم · المسار الوظيفي · الإنجازات · الجوائز · المنشورات · المهارات · اللغات · الروابط · المصادر",
+  adminAiReviewField: "الحقل",
+  adminAiReviewValue: "القيمة المقترحة",
+  adminAiReviewSource: "المصدر / الدليل",
+  adminAiReviewConfidence: "الثقة",
+  adminAiReviewClassification: "التصنيف",
+  adminAiReviewAction: "الإجراء",
+  adminAiNoFacts: "لا توجد معلومات مستخرجة للمراجعة بعد.",
 };
 
 const en: FoundationMessages = {
@@ -1980,6 +2040,36 @@ const en: FoundationMessages = {
   adminWithProfile: "Has profile",
   adminWithoutProfile: "No profile",
   adminCompletionShort: "Completion",
+  adminAi: "A3LAM AI",
+  adminAiDescription: "Smart profile builder — a safe foundation for extracting and human-reviewing document information.",
+  adminAiProvider: "AI provider",
+  adminAiDocumentProcessing: "Document processing",
+  adminAiPrivacyNotice: "Documents are private by default; they are not published or exposed in search, sitemaps, or public metadata.",
+  adminAiCreateFromDocument: "Create a profile from a document",
+  adminAiConfigurationRequired: "This feature requires configuration; the AI provider and complete storage/processing path are not configured.",
+  adminAiDocuments: "Documents",
+  adminAiProcessing: "Processing",
+  adminAiCompleted: "Completed",
+  adminAiFailed: "Failed",
+  adminAiReviewRequired: "Review required",
+  adminAiNoDocuments: "No data yet.",
+  adminAiUploadHint: "The future contract supports PDF, DOCX, and TXT. Production upload is disabled until storage and processing are configured.",
+  adminAiSupportedTypes: "Contract-supported types",
+  adminAiHumanReview: "Human review",
+  adminAiDraftBoundary: "Future output enters as a draft and cannot move automatically to publication.",
+  adminAiNoInference: "No inference or AI provider call was executed in this phase.",
+  adminAiNoPersistence: "AI job persistence is not initialized; synthetic counters are not shown.",
+  adminAiUnsupportedType: "Unsupported file type. Use PDF, DOCX, or TXT.",
+  adminAiInvalidSize: "The file size is not allowed.",
+  adminAiRemoveSelection: "Remove selection",
+  adminAiStructuredFields: "Identity · Professional · Education · Career · Achievements · Awards · Publications · Skills · Languages · Links · Sources",
+  adminAiReviewField: "Field",
+  adminAiReviewValue: "Suggested value",
+  adminAiReviewSource: "Source / evidence",
+  adminAiReviewConfidence: "Confidence",
+  adminAiReviewClassification: "Classification",
+  adminAiReviewAction: "Action",
+  adminAiNoFacts: "No extracted information is available for review yet.",
 };
 
 export const messages: Record<Locale, FoundationMessages> = { ar, en };

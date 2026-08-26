@@ -2,10 +2,10 @@ import Link from "next/link";
 import { SiteFooter } from "@/components/a3lam/SiteFooter";
 import { SiteHeader } from "@/components/a3lam/SiteHeader";
 import { defaultLocale } from "@/lib/i18n/config";
-import { getMessages } from "@/lib/i18n/messages";
+import { getPublicMessages } from "@/lib/i18n/messages";
 
 export function NotFoundView() {
-  const copy = getMessages(defaultLocale);
+  const copy = getPublicMessages(defaultLocale);
 
   return (
     <main className="a3lam-page">

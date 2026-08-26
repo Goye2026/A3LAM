@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
-import type { FoundationMessages } from "@/lib/i18n/messages";
+import type { PublicMessages } from "@/lib/i18n/messages";
 
 export type InfoPageProps = {
-  copy: FoundationMessages;
+  copy: PublicMessages;
   title: string;
   description: string;
   active?: "about" | "home" | "contact" | "privacy";

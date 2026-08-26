@@ -1,8 +1,8 @@
 import { defaultLocale } from "@/lib/i18n/config";
-import { getMessages } from "@/lib/i18n/messages";
+import { getPublicErrorMessages } from "@/lib/i18n/public-error";
 
 export default function Loading() {
-  const copy = getMessages(defaultLocale);
+  const copy = getPublicErrorMessages(defaultLocale);
   return (
     <main className="a3lam-page" aria-busy="true" aria-live="polite">
       <div className="a3lam-shell">

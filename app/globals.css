@@ -3515,3 +3515,16 @@ textarea.admin-input { resize: vertical; }
 .admin-media-card-body { min-width: 0; }
 .admin-media-card-body h2 { overflow-wrap: anywhere; }
 @media (max-width: 640px) { .admin-media-preview { align-items: flex-start; } .admin-media-library-toolbar { grid-template-columns: 1fr; } .admin-media-card { grid-template-columns: 1fr; } .admin-media-card > img, .admin-media-card-fallback { width: 100%; height: 10rem; } }
+
+/* A3LAM AI foundation */
+.ai-workspace-panel,
+.ai-uploader { margin-block-end: var(--space-5); }
+.ai-workspace-panel h2,
+.ai-uploader h2 { margin: 0; color: var(--color-ink); font-size: 1.25rem; }
+.ai-uploader-dropzone { display: grid; gap: var(--space-3); margin-block-start: var(--space-4); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-surface-muted); padding: clamp(1rem, 4vw, 2rem); }
+.ai-uploader-dropzone input[type="file"] { width: 100%; min-width: 0; color: var(--color-ink-soft); font-size: 0.78rem; }
+.ai-uploader-dropzone input[type="file"]:focus-visible,
+.ai-uploader .button:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 3px; }
+.ai-uploader-file { overflow-wrap: anywhere; margin: 0; color: var(--color-brand-deep); font-weight: 700; }
+.ai-stat-grid { margin-block-end: 0; }
+@media (min-width: 52rem) { .ai-stat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }

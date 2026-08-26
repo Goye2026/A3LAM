@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { defaultLocale } from "@/lib/i18n/config";
-import { getMessages } from "@/lib/i18n/messages";
+import { getPublicErrorMessages } from "@/lib/i18n/public-error";
 
 export default function Error({
   error,
@@ -12,7 +12,7 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const copy = getMessages(defaultLocale);
+  const copy = getPublicErrorMessages(defaultLocale);
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "production") {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { resolveFoundationMessage, resolveMessage } from "@/lib/i18n/resolve";
+import { getPublicMessages } from "@/lib/i18n/messages";
 
 const catalogs = {
   ar: {
@@ -43,6 +44,13 @@ describe("localization resolution", () => {
       missing: true,
       usedFallback: false,
     });
+  });
+
+  it("keeps admin-only copy out of the public message projection", () => {
+    const publicMessages = getPublicMessages("ar");
+    expect("adminAi" in publicMessages).toBe(false);
+    expect("adminAiPrivacyNotice" in publicMessages).toBe(false);
+    expect(publicMessages.statsPeople).toBeTruthy();
   });
 
   it("uses the configured locale fallback when the primary key is absent", () => {

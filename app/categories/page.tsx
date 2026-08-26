@@ -6,19 +6,19 @@ import { SiteHeader } from "@/components/a3lam/SiteHeader";
 import { toDisplayCategories } from "@/lib/a3lam/catalog";
 import type { Category } from "@/lib/domain/a3lam";
 import { defaultLocale } from "@/lib/i18n/config";
-import { getMessages } from "@/lib/i18n/messages";
+import { getPublicMessages } from "@/lib/i18n/messages";
 import { personService } from "@/lib/services/personService";
 import { pageMetadata } from "@/lib/seo/site";
 
 export const dynamic = "force-dynamic";
 
 export function generateMetadata(): Metadata {
-  const copy = getMessages(defaultLocale);
+  const copy = getPublicMessages(defaultLocale);
   return pageMetadata(copy.categoriesPageTitle, copy.categoriesPageDescription, "/categories");
 }
 
 export default async function CategoriesPage() {
-  const copy = getMessages(defaultLocale);
+  const copy = getPublicMessages(defaultLocale);
   let categories: Category[] = [];
   let unavailable = false;
 

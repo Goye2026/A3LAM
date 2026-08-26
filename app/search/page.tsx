@@ -5,14 +5,14 @@ import { SiteHeader } from "@/components/a3lam/SiteHeader";
 import { SearchDiscovery } from "@/components/a3lam/SearchDiscovery";
 import type { Category } from "@/lib/domain/a3lam";
 import { defaultLocale } from "@/lib/i18n/config";
-import { getMessages, getPublicMessages } from "@/lib/i18n/messages";
+import { getPublicMessages } from "@/lib/i18n/messages";
 import { personService } from "@/lib/services/personService";
 import { pageMetadata } from "@/lib/seo/site";
 
 export const dynamic = "force-dynamic";
 
 export function generateMetadata(): Metadata {
-  const copy = getMessages(defaultLocale);
+  const copy = getPublicMessages(defaultLocale);
   return {
     ...pageMetadata(copy.searchPageTitle, copy.searchPageDescription, "/search"),
     robots: { index: false, follow: true },
@@ -28,7 +28,7 @@ function firstParam(value: string | string[] | undefined) {
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const copy = getMessages(defaultLocale);
+  const copy = getPublicMessages(defaultLocale);
   const publicCopy = getPublicMessages(defaultLocale);
   const params = await searchParams;
   let categories: Category[] = [];
