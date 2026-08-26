@@ -268,6 +268,7 @@ export type FoundationMessages = {
   adminBirthPlace: string;
   adminDeathPlace: string;
   adminImageUrl: string;
+  adminImageUrlHint: string;
   adminOccupations: string;
   adminOccupationsHint: string;
   adminCategories: string;
@@ -843,6 +844,7 @@ const ar: FoundationMessages = {
   adminBirthPlace: "مكان الميلاد",
   adminDeathPlace: "مكان الوفاة",
   adminImageUrl: "رابط الصورة",
+  adminImageUrlHint: "استخدم رابط HTTPS عامًا لمصدر صورة حقيقي ومرخّص فقط. رفع صور الشخصيات التحريرية يحتاج إعداد مزود الوسائط وبنية حفظ مخصصة.",
   adminOccupations: "المهن، مفصولة بفواصل",
   adminOccupationsHint: "اكتب كل مهنة في سطر أو افصل بينها بفواصل.",
   adminCategories: "التصنيفات",
@@ -1418,6 +1420,7 @@ const en: FoundationMessages = {
   adminBirthPlace: "Birth place",
   adminDeathPlace: "Death place",
   adminImageUrl: "Image URL",
+  adminImageUrlHint: "Use an HTTPS public URL only for a real, licensed image source. Editorial-person uploads require media-provider configuration and dedicated persistence.",
   adminOccupations: "Occupations, comma-separated",
   adminOccupationsHint: "Enter one occupation per line or separate them with commas.",
   adminCategories: "Categories",

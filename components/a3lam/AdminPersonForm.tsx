@@ -8,6 +8,7 @@ import type { AdminPersonInput } from "@/lib/admin/types";
 import type { FoundationMessages } from "@/lib/i18n/messages";
 
 type FormState = AdminPersonInput;
+type MediaStatus = "ready" | "requires_configuration";
 
 const sourceTypes: SourceType[] = ["official", "institution", "government", "media", "professional", "academic", "secondary"];
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -57,7 +58,7 @@ function fromRecord(record: PersonRecord): FormState {
   };
 }
 
-export function AdminPersonForm({ copy, categories, record, personId }: { copy: FoundationMessages; categories: Category[]; record?: PersonRecord; personId?: string }) {
+export function AdminPersonForm({ copy, categories, record, personId, mediaStatus }: { copy: FoundationMessages; categories: Category[]; record?: PersonRecord; personId?: string; mediaStatus: MediaStatus }) {
   const [form, setForm] = useState<FormState>(() => record ? fromRecord(record) : blankForm());
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState("");
@@ -142,7 +143,7 @@ export function AdminPersonForm({ copy, categories, record, personId }: { copy: 
           <label>{copy.adminArabicName}<input className="admin-input" value={form.nameArabic} onChange={(event) => update("nameArabic", event.target.value)} required /></label>
           <label>{copy.adminEnglishName}<input className="admin-input" dir="ltr" value={form.name} onChange={(event) => update("name", event.target.value)} required /></label>
           <label>{copy.adminSlug}<input className="admin-input" dir="ltr" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" value={form.slug} onChange={(event) => update("slug", event.target.value)} required /></label>
-          <label>{copy.adminImageUrl}<input className="admin-input" dir="ltr" type="url" value={form.image} onChange={(event) => update("image", event.target.value)} /></label>
+          <label className="admin-form-wide admin-media-field"><span className="admin-media-field-heading"><span>{copy.adminImageUrl}</span><strong className={`admin-status admin-status-${mediaStatus === "ready" ? "published" : "draft"}`}>{mediaStatus === "ready" ? copy.adminAvailable : copy.adminRequiresConfiguration}</strong></span><input className="admin-input" dir="ltr" type="url" value={form.image} onChange={(event) => update("image", event.target.value)} /><span className="admin-field-hint">{copy.adminImageUrlHint}</span><span className="admin-field-hint">{copy.adminMediaSafetyNote}</span></label>
           <label className="admin-form-wide">{copy.adminShortBio}<textarea className="admin-input" rows={3} value={form.shortBio} onChange={(event) => update("shortBio", event.target.value)} /></label>
           <label className="admin-form-wide">{copy.adminBiography}<span className="admin-field-hint">{copy.adminBiography} — paragraphs, headings with `#`, lists with `-`, and `**emphasis**`.</span><textarea className="admin-input admin-biography-input" rows={14} value={form.biography} onChange={(event) => update("biography", event.target.value)} /></label>
           <label>{copy.adminBirthDate}<input className="admin-input" type="date" value={form.birthDate} onChange={(event) => update("birthDate", event.target.value)} /></label>

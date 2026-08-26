@@ -1848,6 +1848,8 @@ a {
 }
 
 @media (max-width: 30rem) {
+  .admin-media-field-heading { align-items: flex-start; flex-direction: column; }
+
   .profile-hero {
     gap: var(--space-4);
     padding-block: var(--space-6);
@@ -2264,6 +2266,9 @@ textarea.admin-input { resize: vertical; }
 .link-button.danger { color: var(--color-danger); }
 .editor-footer-actions { justify-content: flex-start; margin-block-start: var(--space-6); }
 .admin-status-pending_review { background: #f4ead7; color: var(--color-warning); }
+.admin-media-field-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.admin-media-field-heading > span:first-child { font-weight: 700; }
+.admin-media-field-heading .admin-status { width: fit-content; }
 .profile-moderation .admin-recent-row { align-items: flex-start; }
 .profile-moderation-actions { justify-content: flex-end; }
 .professional-profile .profile-latin-name { margin: -0.5rem 0 0.5rem; color: var(--color-ink-muted); font-family: var(--font-latin); }

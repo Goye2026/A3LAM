@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { getSafePublicImageUrl } from "@/lib/media/public";
 
 type PersonPortraitProps = {
   src: string | null;
@@ -12,13 +13,14 @@ type PersonPortraitProps = {
 
 export function PersonPortrait({ src, alt, initials, tone, className = "" }: PersonPortraitProps) {
   const [failed, setFailed] = useState(false);
-  const showImage = Boolean(src) && !failed;
+  const safeSrc = getSafePublicImageUrl(src);
+  const showImage = Boolean(safeSrc) && !failed;
 
   if (showImage) {
     return (
       <span className={`person-portrait person-portrait-image ${className}`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src ?? ""} alt={alt} loading="lazy" decoding="async" onError={() => setFailed(true)} />
+        <img src={safeSrc ?? ""} alt={alt} loading="lazy" decoding="async" onError={() => setFailed(true)} />
       </span>
     );
   }

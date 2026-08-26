@@ -171,4 +171,10 @@ describe("Phase 11 admin input", () => {
   it("requires timeline source references to have source IDs in the same payload", () => {
     expect(() => parseAdminPersonInput({ name: "Draft Person", nameArabic: "مسودة شخصية", slug: "draft-person", status: "draft", categoryIds: [], occupations: [], sources: [], timeline: [{ date: "2026-01-01", title: "حدث", description: "وصف", sourceIds: ["missing"] }], education: [] })).toThrow(/source/);
   });
+
+  it("accepts public HTTPS image URLs and rejects unsafe image schemes", () => {
+    const safe = parseAdminPersonInput({ name: "Image Person", nameArabic: "شخصية صورة", slug: "image-person", status: "draft", image: "https://cdn.example.com/portrait.webp", categoryIds: [], occupations: [], sources: [], timeline: [], education: [] });
+    expect(safe.image).toBe("https://cdn.example.com/portrait.webp");
+    expect(() => parseAdminPersonInput({ name: "Image Person", nameArabic: "شخصية صورة", slug: "image-person", status: "draft", image: "javascript:alert(1)", categoryIds: [], occupations: [], sources: [], timeline: [], education: [] })).toThrow(/image/);
+  });
 });

@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Category, ContentStatus, PersonRecord, Source, SourceType } from "@/lib/domain/a3lam";
+import { getSafePublicImageUrl } from "@/lib/media/public";
 import type { AdminCategoryInput, AdminEducationInput, AdminPersonInput, AdminSourceInput, AdminTimelineInput } from "@/lib/admin/types";
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -57,6 +58,14 @@ function safeUrl(value: unknown, field: string) {
   }
   if (!['http:', 'https:'].includes(url.protocol)) throw new AdminInputError(`${field} must use http or https`);
   return url.toString();
+}
+
+function optionalImageUrl(value: unknown) {
+  const normalized = text(value, "image", { max: 2000 });
+  if (!normalized) return "";
+  const safe = getSafePublicImageUrl(normalized);
+  if (!safe) throw new AdminInputError("image must use a valid http or https URL");
+  return safe;
 }
 
 export function parseAdminCategoryInput(value: unknown, status: ContentStatus = "published"): AdminCategoryInput {
@@ -156,7 +165,7 @@ export function parseAdminPersonInput(value: unknown): AdminPersonInput {
     deathDate: optionalDate(item.deathDate, "deathDate") ?? "",
     birthPlace: text(item.birthPlace, "birthPlace", { max: 300 }),
     deathPlace: text(item.deathPlace, "deathPlace", { max: 300 }),
-    image: text(item.image, "image", { max: 2000 }),
+    image: optionalImageUrl(item.image),
     status,
     categoryIds: stringArray(item.categoryIds ?? [], "categoryIds", 30),
     occupations: stringArray(item.occupations ?? [], "occupations", 30),

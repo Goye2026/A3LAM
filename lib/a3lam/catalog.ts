@@ -1,4 +1,5 @@
 import type { Category, ContentStatus, Person } from "@/lib/domain/a3lam";
+import { getSafePublicImageUrl } from "@/lib/media/public";
 
 export type DisplayPerson = {
   id: string;
@@ -75,7 +76,7 @@ export function toDisplayPeople(people: Person[], categories: Category[]): Displ
       role: category?.name ?? person.occupations[0] ?? "غير مصنف",
       meta: statusMeta(person.status),
       initials: visuals.initials,
-      image: person.image,
+      image: getSafePublicImageUrl(person.image),
       tone: visuals.tone,
       tags: person.occupations,
       status: person.status,
