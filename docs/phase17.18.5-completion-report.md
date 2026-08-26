@@ -177,7 +177,21 @@
 
 ## 14. Production Smoke
 
-لم تُنفذ Production mutations. بعد deployment يجب إجراء GET/HEAD-only smoke على `/`، `/api/health`، `/categories`، `/search`، `/robots.txt`، `/sitemap.xml`، `/admin`، و`/admin/ai`، مع التحقق من anonymous admin redirect، وanonymous AI API `401`، وpublic privacy scan. أي نتيجة غير منفذة تُسجّل `NOT TESTED` ولا تُحوّل إلى PASS بالاستنتاج.
+أُجري smoke بعد deployment باستخدام GET فقط، دون POST/PUT/PATCH/DELETE أو upload. Deployment: `dpl_3hzkufcx3QdWXEFzEERJsiFj7eAT`، target `production`، state `READY`، مرتبط بالـcommit `45983062948ba7cc32b81d9ddd536c1b3f89a735`، والـalias `https://a3-lam.vercel.app`.
+
+| المسار/الفحص | النتيجة |
+|---|---|
+| `/` | PASS — HTTP 200 |
+| `/api/health` | PASS — HTTP 200 |
+| `/categories` | PASS — HTTP 200 |
+| `/search` | PASS — HTTP 200 |
+| `/robots.txt` | PASS — HTTP 200 |
+| `/sitemap.xml` | PASS — HTTP 200 |
+| anonymous `/admin` | PASS — HTTP 307 إلى `/admin/login?next=%2Fadmin` |
+| anonymous `/api/admin/ai/documents` | PASS — HTTP 401، `application/json` |
+| public privacy scan | PASS — لا تطابقات للمؤشرات الخاصة أو prompts أو tokens أو job tables |
+
+لم تُنفذ Production mutations، ولم تُرفع ملفات، ولم تُنشأ مستندات أو jobs أو claims. هذا smoke يثبت سلامة السطح العام والحدود المجهولة فقط، ولا يثبت تهيئة dependencies الإنتاجية.
 
 ## 15. Data Safety Counters
 
@@ -204,9 +218,9 @@
 
 ## 16. Git and Deployment
 
-التزم التنفيذ بفرع `main` وبـnormal commits فقط، دون reset أو rebase أو force-push أو history rewrite، ودون حذف أو تعديل migrations سابقة. يجب أن تكون نتيجة الإغلاق النهائية `HEAD == origin/main` وworking tree clean بعد commit/push.
+التزم التنفيذ بفرع `main` وبـnormal commits فقط، دون reset أو rebase أو force-push أو history rewrite، ودون حذف أو تعديل migrations سابقة. commit التنفيذ الأول هو `4598306` (`feat: add isolated AI profile builder readiness gate`) وقد دُفع إلى `origin/main`. بعد توثيق smoke يُنشأ commit توثيقي عادي مستقل، ثم تُتحقق مساواة `HEAD == origin/main` وworking tree clean.
 
-Deployment smoke، إن تم، يبقى read-only ولا يشمل migration أو upload أو provider provisioning أو environment changes.
+Deployment smoke بقي read-only ولم يشمل migration أو upload أو provider provisioning أو environment changes.
 
 ## 17. Limitations
 
