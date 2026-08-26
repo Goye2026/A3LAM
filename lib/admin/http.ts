@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminPrincipalFromRequest, isAdminRequest } from "@/lib/admin/auth";
+import { MediaSchemaUnavailableError, MediaConflictError } from "@/lib/media/repository";
+import { MediaInputError } from "@/lib/media/validation";
 import { safeErrors } from "@/lib/errors/taxonomy";
 import { hasEffectiveAdminPermission, type AdminPermission } from "@/lib/admin/rbac";
 
@@ -44,11 +46,17 @@ export async function requirePermissionPrincipal(request: Request, permission: A
 }
 
 export function adminErrorResponse(error: unknown) {
-  if (error instanceof Error && (error.name === "AdminInputError" || error.name === "AdminValidationError")) {
+  if (error instanceof Error && (error.name === "AdminInputError" || error.name === "AdminValidationError" || error instanceof MediaInputError)) {
     return NextResponse.json({ error: safeErrors.INVALID_INPUT.code, message: safeErrors.INVALID_INPUT.publicMessage }, { status: safeErrors.INVALID_INPUT.status });
   }
   if (error instanceof Error && ["AdminConflictError", "MigrationRegistryInconsistentError", "MigrationAlreadyAppliedError", "MigrationPrerequisiteError", "MigrationStateChangedError"].includes(error.name)) {
     return NextResponse.json({ error: safeErrors.CONFLICT.code, message: safeErrors.CONFLICT.publicMessage }, { status: safeErrors.CONFLICT.status });
+  }
+  if (error instanceof MediaConflictError) {
+    return NextResponse.json({ error: safeErrors.CONFLICT.code, message: safeErrors.CONFLICT.publicMessage }, { status: safeErrors.CONFLICT.status });
+  }
+  if (error instanceof MediaSchemaUnavailableError) {
+    return NextResponse.json({ error: safeErrors.DEPENDENCY_UNAVAILABLE.code, message: safeErrors.DEPENDENCY_UNAVAILABLE.publicMessage }, { status: safeErrors.DEPENDENCY_UNAVAILABLE.status });
   }
   if (typeof error === "object" && error !== null && "code" in error && (error as { code?: unknown }).code === "23505") {
     return NextResponse.json({ error: safeErrors.CONFLICT.code, message: safeErrors.CONFLICT.publicMessage }, { status: safeErrors.CONFLICT.status });

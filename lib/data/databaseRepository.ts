@@ -17,6 +17,7 @@ import {
   validateTimelineEvent,
 } from "@/lib/domain/a3lam";
 import { normalizeArabic } from "@/lib/domain/search";
+import { getSafePublicImageUrl } from "@/lib/media/public";
 import type { PersonRepository, PersonSearchQuery } from "./repository";
 
 type Database = PostgresJsDatabase<typeof schema>;
@@ -48,6 +49,16 @@ function assertValidRecord(record: PersonRecord) {
       ];
   if (issues.length > 0) {
     throw new Error(`Invalid A3LAM record: ${issues.map((item) => `${item.path}: ${item.message}`).join("; ")}`);
+  }
+}
+
+async function getPublicPortraitUrl(db: Database, personId: string) {
+  try {
+    const rows = await db.select({ publicUrl: schema.mediaAssets.publicUrl }).from(schema.personMedia).innerJoin(schema.mediaAssets, eq(schema.personMedia.mediaAssetId, schema.mediaAssets.id)).where(and(eq(schema.personMedia.personId, personId), eq(schema.personMedia.usageType, "portrait"), eq(schema.personMedia.isPrimary, true), eq(schema.mediaAssets.status, "ready"), eq(schema.mediaAssets.visibility, "public"))).limit(1);
+    return getSafePublicImageUrl(rows[0]?.publicUrl ?? null);
+  } catch (error) {
+    if (typeof error === "object" && error !== null && "code" in error && (error as { code?: unknown }).code === "42P01") return null;
+    throw error;
   }
 }
 
@@ -110,6 +121,7 @@ async function hydratePerson(db: Database, row: PersonRow): Promise<PersonRecord
     });
   }
 
+  const publicPortraitUrl = await getPublicPortraitUrl(db, row.id);
   const person: Person = {
     id: row.id,
     slug: row.slug,
@@ -123,7 +135,7 @@ async function hydratePerson(db: Database, row: PersonRow): Promise<PersonRecord
     deathPlace: row.deathPlace,
     categoryIds: categoryRows.map(({ category }) => category.id),
     occupations: occupationRows.map(({ occupation }) => occupation),
-    image: row.imageUrl,
+    image: publicPortraitUrl ?? getSafePublicImageUrl(row.imageUrl),
     status: row.status,
     createdAt: asIsoTimestamp(row.createdAt),
     updatedAt: asIsoTimestamp(row.updatedAt),

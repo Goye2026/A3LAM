@@ -14,7 +14,7 @@ export default async function AdminSystemPage() {
   const principal = await getAdminPrincipal((await cookies()).get(ADMIN_SESSION_COOKIE)?.value);
   if (!principal || !(await hasEffectiveAdminPermission(principal, "system.read"))) return <div className="admin-route"><p className="admin-alert" role="alert">{copy.adminUnauthorized}</p></div>;
   const [health, registry] = await Promise.all([getSystemHealthSnapshot(), getMigrationRegistryStatus()]);
-  const status = (value: string) => value === "available" || value === "ready" ? copy.adminAvailable : value === "requires_configuration" ? copy.adminRequiresConfiguration : value === "requires_migration" ? copy.adminRequiresMigration : value === "requires_schema" ? copy.adminRequiresSchema : copy.adminUnavailable;
+  const status = (value: string) => value === "available" || value === "ready" || value === "configured" ? copy.adminAvailable : value === "requires_configuration" || value === "not_configured" || value === "invalid_configuration" ? copy.adminRequiresConfiguration : value === "requires_migration" ? copy.adminRequiresMigration : value === "requires_schema" ? copy.adminRequiresSchema : copy.adminUnavailable;
   const count = (value: number | null) => value === null ? "—" : String(value);
   const registryStatus = registry.status === "healthy" ? copy.adminMigrationRegistryHealthy : registry.status === "pending" ? copy.adminMigrationRegistryPending : registry.status === "inconsistent" ? copy.adminMigrationRegistryInconsistent : copy.adminMigrationRegistryUnavailable;
   const rowStatus = (value: "APPLIED" | "PENDING" | "UNEXPECTED") => value === "APPLIED" ? copy.adminMigrationApplied : value === "PENDING" ? copy.adminMigrationPending : copy.adminMigrationUnexpected;
@@ -24,12 +24,12 @@ export default async function AdminSystemPage() {
     <section className="admin-stat-grid">
       <div className="admin-stat-card"><span>{copy.adminDatabaseStatus}</span><strong>{status(health.database)}</strong></div>
       <div className="admin-stat-card"><span>{copy.adminAuthStatus}</span><strong>{status(health.auth)}</strong></div>
-      <div className="admin-stat-card"><span>{copy.adminMediaProvider}</span><strong>{status(health.storage)}</strong></div>
+      <div className="admin-stat-card"><span>{copy.adminMediaProvider}</span><strong>{status(health.media.provider)}</strong><small>{copy.adminMediaProvider}: {status(health.media.metadata)}</small></div><div className="admin-stat-card"><span>{copy.adminMediaUpload}</span><strong>{status(health.media.upload)}</strong><small>{copy.adminMediaPublic}: {status(health.media.publicDelivery)}</small></div>
       <div className="admin-stat-card"><span>{copy.adminContactEmail}</span><strong>{status(health.email)}</strong></div>
       <div className="admin-stat-card"><span>{copy.adminSettings}</span><strong>{status(health.configuration)}</strong></div>
       <div className="admin-stat-card"><span>{copy.adminMigrationStatus}</span><strong>{status(health.migrations.status)}</strong><small>{copy.adminAppliedMigrations}: {count(health.migrations.applied)} · {copy.adminPendingMigrations}: {count(health.migrations.pending)}</small></div>
       <div className="admin-stat-card"><span>{copy.adminSiteExperienceStatus}</span><strong>{status(health.siteExperience.status)}</strong><small>{copy.adminPublishedResources}: {count(health.siteExperience.published)} · {copy.adminDraftResources}: {count(health.siteExperience.drafts)}</small></div>
-      <div className="admin-stat-card"><span>{copy.adminMedia}</span><strong>{health.mediaFiles === null ? "—" : health.mediaFiles}</strong></div>
+      <div className="admin-stat-card"><span>{copy.adminMedia}</span><strong>{health.media.assets === null ? "—" : health.media.assets}</strong><small>{copy.adminMediaLibrary}</small></div>
     </section>
     <section className="admin-panel" aria-labelledby="migration-registry-heading">
       <header className="admin-panel-heading"><div><h2 id="migration-registry-heading">{copy.adminMigrationRegistryTitle}</h2><p className="route-description">{copy.adminMigrationRegistryDescription}</p></div><span className={`status-badge status-${registry.status}`} role="status">{registryStatus}</span></header>

@@ -1,10 +1,15 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+/* External provider URLs are validated server-side and sanitized again before this admin preview. */
+/* eslint-disable @next/next/no-img-element */
+
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Category, ContentStatus, PersonRecord, SourceType } from "@/lib/domain/a3lam";
 import type { AdminPersonInput } from "@/lib/admin/types";
+import type { MediaAsset } from "@/lib/media/types";
+import { getSafePublicImageUrl } from "@/lib/media/public";
 import type { FoundationMessages } from "@/lib/i18n/messages";
 
 type FormState = AdminPersonInput;
@@ -58,11 +63,20 @@ function fromRecord(record: PersonRecord): FormState {
   };
 }
 
-export function AdminPersonForm({ copy, categories, record, personId, mediaStatus }: { copy: FoundationMessages; categories: Category[]; record?: PersonRecord; personId?: string; mediaStatus: MediaStatus }) {
+export function AdminPersonForm({ copy, categories, record, personId, mediaStatus, mediaProviderState, currentMedia }: { copy: FoundationMessages; categories: Category[]; record?: PersonRecord; personId?: string; mediaStatus: MediaStatus; mediaProviderState: "configured" | "not_configured" | "invalid_configuration"; currentMedia?: MediaAsset | null }) {
   const [form, setForm] = useState<FormState>(() => record ? fromRecord(record) : blankForm());
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [error, setError] = useState("");
+  const [mediaAsset, setMediaAsset] = useState<MediaAsset | null>(currentMedia ?? null);
+  const [mediaBusy, setMediaBusy] = useState(false);
+  const [mediaError, setMediaError] = useState("");
+  const [mediaFeedback, setMediaFeedback] = useState("");
+  const [mediaAltText, setMediaAltText] = useState(currentMedia?.altText ?? "");
+  const [mediaSource, setMediaSource] = useState(currentMedia?.sourceUrl ?? "");
+  const [mediaAttribution, setMediaAttribution] = useState(currentMedia?.attribution ?? "");
+  const [mediaLicense, setMediaLicense] = useState(currentMedia?.license ?? "");
+  const [mediaVisibility, setMediaVisibility] = useState<"private" | "public">(currentMedia?.visibility ?? "private");
   const [savedSnapshot, setSavedSnapshot] = useState(() => JSON.stringify(record ? fromRecord(record) : blankForm()));
   const router = useRouter();
   const sourceOptions = useMemo(() => form.sources.filter((source) => source.id), [form.sources]);
@@ -135,6 +149,51 @@ export function AdminPersonForm({ copy, categories, record, personId, mediaStatu
     setForm((current) => ({ ...current, education: current.education.map((item, itemIndex) => itemIndex === index ? { ...item, [key]: key === "sourceIds" ? value.split(",").map((entry) => entry.trim()).filter(Boolean) : value } : item) }));
   }
 
+  async function uploadPortrait(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (!personId) { setMediaError(copy.adminMediaRequiresPersonId); return; }
+    setMediaBusy(true); setMediaError(""); setMediaFeedback("");
+    try {
+      const body = new FormData();
+      body.set("file", file);
+      body.set("personId", personId);
+      body.set("altText", mediaAltText);
+      body.set("sourceUrl", mediaSource);
+      body.set("attribution", mediaAttribution);
+      body.set("license", mediaLicense);
+      body.set("visibility", mediaVisibility);
+      const response = await fetch("/api/admin/media", { method: "POST", body });
+      if (!response.ok) { const payload = await response.json().catch(() => null) as { message?: string } | null; setMediaError(payload?.message || (response.status === 503 ? copy.adminMediaNoProvider : copy.adminValidationError)); return; }
+      const result = await response.json() as { asset?: MediaAsset };
+      if (!result.asset) { setMediaError(copy.adminDatabaseError); return; }
+      setMediaAsset(result.asset); setMediaAltText(result.asset.altText); setMediaSource(result.asset.sourceUrl ?? ""); setMediaAttribution(result.asset.attribution); setMediaLicense(result.asset.license); setMediaVisibility(result.asset.visibility); update("image", result.asset.publicUrl); setMediaFeedback(copy.adminSaved);
+    } catch { setMediaError(copy.adminDatabaseError); } finally { setMediaBusy(false); }
+  }
+
+  async function saveMediaMetadata() {
+    if (!mediaAsset) return;
+    setMediaBusy(true); setMediaError(""); setMediaFeedback("");
+    try {
+      const response = await fetch(`/api/admin/media/${encodeURIComponent(mediaAsset.id)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ altText: mediaAltText, sourceUrl: mediaSource, attribution: mediaAttribution, license: mediaLicense, visibility: mediaVisibility }) });
+      if (!response.ok) { setMediaError(response.status === 409 ? copy.adminConflictError : copy.adminValidationError); return; }
+      const result = await response.json() as { asset?: MediaAsset };
+      if (result.asset) setMediaAsset(result.asset);
+      setMediaFeedback(copy.adminSaved);
+    } catch { setMediaError(copy.adminDatabaseError); } finally { setMediaBusy(false); }
+  }
+
+  async function detachPortrait() {
+    if (!personId || !mediaAsset) return;
+    setMediaBusy(true); setMediaError(""); setMediaFeedback("");
+    try {
+      const response = await fetch("/api/admin/media/attachments", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ personId, mediaAssetId: mediaAsset.id, usageType: "portrait" }) });
+      if (!response.ok) { setMediaError(response.status === 409 ? copy.adminConflictError : copy.adminDatabaseError); return; }
+      setMediaAsset(null); update("image", ""); setMediaFeedback(copy.adminSaved);
+    } catch { setMediaError(copy.adminDatabaseError); } finally { setMediaBusy(false); }
+  }
+
   return (
     <form className="admin-editor-form" onSubmit={submit}>
       <section className="admin-form-section" aria-labelledby="admin-basic-title">
@@ -143,7 +202,7 @@ export function AdminPersonForm({ copy, categories, record, personId, mediaStatu
           <label>{copy.adminArabicName}<input className="admin-input" value={form.nameArabic} onChange={(event) => update("nameArabic", event.target.value)} required /></label>
           <label>{copy.adminEnglishName}<input className="admin-input" dir="ltr" value={form.name} onChange={(event) => update("name", event.target.value)} required /></label>
           <label>{copy.adminSlug}<input className="admin-input" dir="ltr" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" value={form.slug} onChange={(event) => update("slug", event.target.value)} required /></label>
-          <label className="admin-form-wide admin-media-field"><span className="admin-media-field-heading"><span>{copy.adminImageUrl}</span><strong className={`admin-status admin-status-${mediaStatus === "ready" ? "published" : "draft"}`}>{mediaStatus === "ready" ? copy.adminAvailable : copy.adminRequiresConfiguration}</strong></span><input className="admin-input" dir="ltr" type="url" value={form.image} onChange={(event) => update("image", event.target.value)} /><span className="admin-field-hint">{copy.adminImageUrlHint}</span><span className="admin-field-hint">{copy.adminMediaSafetyNote}</span></label>
+          <div className="admin-form-wide admin-media-field"><div className="admin-media-field-heading"><span>{copy.adminImageUrl}</span><strong className={`admin-status admin-status-${mediaProviderState === "configured" || mediaStatus === "ready" ? "published" : "draft"}`}>{mediaProviderState === "configured" || mediaStatus === "ready" ? copy.adminAvailable : copy.adminRequiresConfiguration}</strong></div><input className="admin-input" dir="ltr" type="url" value={form.image} onChange={(event) => update("image", event.target.value)} /><span className="admin-field-hint">{copy.adminImageUrlHint}</span><span className="admin-field-hint">{copy.adminMediaSafetyNote}</span>{getSafePublicImageUrl(mediaAsset?.publicUrl ?? form.image) ? <div className="admin-media-preview"><img src={getSafePublicImageUrl(mediaAsset?.publicUrl ?? form.image) ?? undefined} alt={mediaAsset?.altText || form.nameArabic || copy.adminMediaCurrentPortrait} width={160} height={160} loading="lazy" /><div><strong>{copy.adminMediaCurrentPortrait}</strong>{mediaAsset ? <span className="admin-field-hint">{mediaAsset.originalName} · {mediaAsset.width && mediaAsset.height ? `${mediaAsset.width}×${mediaAsset.height}` : "—"}</span> : null}</div></div> : null}<div className="admin-form-grid admin-media-metadata"><label>{copy.adminMediaAltText}<input className="admin-input" value={mediaAltText} onChange={(event) => setMediaAltText(event.target.value)} /></label><label>{copy.adminMediaSource}<input className="admin-input" dir="ltr" type="url" value={mediaSource} onChange={(event) => setMediaSource(event.target.value)} /></label><label>{copy.adminMediaAttribution}<input className="admin-input" value={mediaAttribution} onChange={(event) => setMediaAttribution(event.target.value)} /></label><label>{copy.adminMediaLicense}<input className="admin-input" value={mediaLicense} onChange={(event) => setMediaLicense(event.target.value)} /></label><label className="admin-check"><input type="checkbox" checked={mediaVisibility === "public"} onChange={(event) => setMediaVisibility(event.target.checked ? "public" : "private")} /><span>{copy.adminMediaVisibility}: {mediaVisibility === "public" ? copy.adminMediaPublic : copy.adminMediaPrivate}</span></label></div><div className="admin-media-actions"><label className="button button-quiet">{copy.adminMediaUpload}<input className="admin-visually-hidden-input" type="file" accept="image/jpeg,image/png,image/webp" onChange={uploadPortrait} disabled={!personId || mediaBusy || mediaProviderState !== "configured"} /></label>{mediaAsset ? <><button className="button button-quiet" type="button" onClick={() => void saveMediaMetadata()} disabled={mediaBusy}>{copy.adminMediaSaveMetadata}</button><button className="button button-danger" type="button" onClick={() => void detachPortrait()} disabled={mediaBusy}>{copy.adminMediaDetach}</button></> : null}</div>{!personId ? <span className="admin-field-hint">{copy.adminMediaRequiresPersonId}</span> : mediaProviderState !== "configured" ? <span className="admin-field-hint">{copy.adminMediaNoProvider}</span> : null}{mediaError ? <span className="admin-alert" role="alert">{mediaError}</span> : mediaFeedback ? <span className="admin-form-feedback" role="status">{mediaFeedback}</span> : null}</div>
           <label className="admin-form-wide">{copy.adminShortBio}<textarea className="admin-input" rows={3} value={form.shortBio} onChange={(event) => update("shortBio", event.target.value)} /></label>
           <label className="admin-form-wide">{copy.adminBiography}<span className="admin-field-hint">{copy.adminBiography} — paragraphs, headings with `#`, lists with `-`, and `**emphasis**`.</span><textarea className="admin-input admin-biography-input" rows={14} value={form.biography} onChange={(event) => update("biography", event.target.value)} /></label>
           <label>{copy.adminBirthDate}<input className="admin-input" type="date" value={form.birthDate} onChange={(event) => update("birthDate", event.target.value)} /></label>

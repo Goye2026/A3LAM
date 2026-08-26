@@ -444,6 +444,24 @@ export type FoundationMessages = {
   adminAddGroup: string;
   adminAddSocialLink: string;
   adminMediaSafetyNote: string;
+  adminMediaLibrary: string;
+  adminMediaUpload: string;
+  adminMediaSelect: string;
+  adminMediaCurrentPortrait: string;
+  adminMediaAltText: string;
+  adminMediaSource: string;
+  adminMediaAttribution: string;
+  adminMediaLicense: string;
+  adminMediaVisibility: string;
+  adminMediaPublic: string;
+  adminMediaPrivate: string;
+  adminMediaSaveMetadata: string;
+  adminMediaDetach: string;
+  adminMediaArchive: string;
+  adminMediaNoAssets: string;
+  adminMediaNoProvider: string;
+  adminMediaRequiresPersonId: string;
+  adminMediaPendingMigration: string;
   adminUnavailableTitle: string;
   adminUnavailableDescription: string;
   adminRequiresSchema: string;
@@ -1020,6 +1038,24 @@ const ar: FoundationMessages = {
   adminAddGroup: "إضافة مجموعة",
   adminAddSocialLink: "إضافة رابط اجتماعي",
   adminMediaSafetyNote: "تُحفظ metadata فقط عبر مزود تخزين خارجي؛ لا يوجد fallback إلى filesystem أو تخزين bytes في PostgreSQL.",
+  adminMediaLibrary: "مكتبة الوسائط",
+  adminMediaUpload: "رفع صورة رئيسية",
+  adminMediaSelect: "اختر ملفًا",
+  adminMediaCurrentPortrait: "الصورة الرئيسية الحالية",
+  adminMediaAltText: "النص البديل",
+  adminMediaSource: "مصدر الصورة",
+  adminMediaAttribution: "نسبة الصورة",
+  adminMediaLicense: "الترخيص أو الحقوق",
+  adminMediaVisibility: "إتاحة عامة",
+  adminMediaPublic: "عامة",
+  adminMediaPrivate: "خاصة",
+  adminMediaSaveMetadata: "حفظ بيانات الوسائط",
+  adminMediaDetach: "إزالة الربط",
+  adminMediaArchive: "أرشفة الأصل",
+  adminMediaNoAssets: "لا توجد أصول وسائط في النطاق الحالي.",
+  adminMediaNoProvider: "رفع الوسائط معطل حتى تتم تهيئة مزود التخزين.",
+  adminMediaRequiresPersonId: "احفظ الشخصية أولًا قبل رفع الصورة.",
+  adminMediaPendingMigration: "تحتاج بنية Media إلى تطبيق migration 0007 في هذه البيئة.",
   adminUnavailableTitle: "هذه الوظيفة غير مفعلة بعد",
   adminUnavailableDescription: "تحتاج هذه المساحة إلى بنية بيانات أو إعداد خارجي غير متاح في الإصدار الحالي.",
   adminRequiresSchema: "تحتاج تهيئة بنية البيانات",
@@ -1596,6 +1632,24 @@ const en: FoundationMessages = {
   adminAddGroup: "Add group",
   adminAddSocialLink: "Add social link",
   adminMediaSafetyNote: "Only metadata is retained through an external storage provider; there is no filesystem or PostgreSQL-bytes fallback.",
+  adminMediaLibrary: "Media library",
+  adminMediaUpload: "Upload primary portrait",
+  adminMediaSelect: "Choose a file",
+  adminMediaCurrentPortrait: "Current primary portrait",
+  adminMediaAltText: "Alt text",
+  adminMediaSource: "Image source",
+  adminMediaAttribution: "Attribution",
+  adminMediaLicense: "License or rights",
+  adminMediaVisibility: "Public visibility",
+  adminMediaPublic: "Public",
+  adminMediaPrivate: "Private",
+  adminMediaSaveMetadata: "Save media metadata",
+  adminMediaDetach: "Detach",
+  adminMediaArchive: "Archive asset",
+  adminMediaNoAssets: "There are no media assets in the current scope.",
+  adminMediaNoProvider: "Media upload is disabled until a storage provider is configured.",
+  adminMediaRequiresPersonId: "Save the person before uploading a portrait.",
+  adminMediaPendingMigration: "The Media schema requires migration 0007 in this environment.",
   adminUnavailableTitle: "This function is not enabled yet",
   adminUnavailableDescription: "This area requires a data structure or external configuration that is not available in the current release.",
   adminRequiresSchema: "Requires schema configuration",

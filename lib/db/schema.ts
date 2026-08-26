@@ -507,6 +507,54 @@ export const profileFiles = pgTable(
   }),
 );
 
+export const mediaAssets = pgTable(
+  "media_assets",
+  {
+    id: text("id").primaryKey(),
+    provider: text("provider").notNull().default("external"),
+    storageKey: text("storage_key").notNull(),
+    publicUrl: text("public_url").notNull(),
+    originalName: text("original_name").notNull(),
+    mimeType: text("mime_type").notNull(),
+    extension: text("extension").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    width: integer("width"),
+    height: integer("height"),
+    altText: text("alt_text").notNull().default(""),
+    sourceUrl: text("source_url"),
+    attribution: text("attribution").notNull().default(""),
+    license: text("license").notNull().default(""),
+    status: text("status").$type<"ready" | "archived">().notNull().default("ready"),
+    visibility: text("visibility").$type<"private" | "public">().notNull().default("private"),
+    createdBy: text("created_by").references(() => adminIdentities.id, { onDelete: "set null" }),
+    updatedBy: text("updated_by").references(() => adminIdentities.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    storageKeyUnique: uniqueIndex("media_assets_storage_key_unique").on(table.storageKey),
+    statusVisibilityIndex: index("media_assets_status_visibility_idx").on(table.status, table.visibility),
+    createdAtIndex: index("media_assets_created_at_idx").on(table.createdAt),
+  }),
+);
+
+export const personMedia = pgTable(
+  "person_media",
+  {
+    personId: text("person_id").notNull().references(() => people.id, { onDelete: "cascade" }),
+    mediaAssetId: text("media_asset_id").notNull().references(() => mediaAssets.id, { onDelete: "restrict" }),
+    usageType: text("usage_type").$type<"portrait" | "secondary">().notNull().default("portrait"),
+    isPrimary: boolean("is_primary").notNull().default(false),
+    createdBy: text("created_by").references(() => adminIdentities.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    primaryKey: primaryKey({ columns: [table.personId, table.mediaAssetId, table.usageType] }),
+    assetIndex: index("person_media_asset_idx").on(table.mediaAssetId),
+    personIndex: index("person_media_person_idx").on(table.personId),
+  }),
+);
+
 export const dbSchema = {
   categories,
   people,
@@ -539,5 +587,7 @@ export const dbSchema = {
   profilePortfolioItems,
   profileSocialLinks,
   profileFiles,
+  mediaAssets,
+  personMedia,
   auditLogs,
 };

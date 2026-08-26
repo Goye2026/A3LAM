@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { hashPassword, USER_SESSION_COOKIE, userCookieOptions, verifyPassword, validatePassword } from "@/lib/user/auth";
 import { parseProfileInput, ProfileInputError, validateProfileForPublication } from "@/lib/user/profileValidation";
 import { InvalidUploadError, validateUpload } from "@/lib/storage/validation";
+import { parseMediaMetadataInput, MediaInputError, safeStorageKey } from "@/lib/media/validation";
+import { getSafePublicImageUrl } from "@/lib/media/public";
 import { ADMIN_SESSION_COOKIE } from "@/lib/admin/auth";
 import { isSameOriginMutation } from "@/lib/user/requestSecurity";
 import { calculateProfileCompletion, projectPublicProfile, type ProfileRecord } from "@/lib/user/profileRepository";
@@ -126,5 +128,26 @@ describe("Phase 13 upload validation", () => {
     await expect(validateUpload(exe, "document")).rejects.toBeInstanceOf(InvalidUploadError);
     const unsafe = new File([new Uint8Array([0xff, 0xd8, 0xff])], "../photo.jpg", { type: "image/jpeg" });
     await expect(validateUpload(unsafe, "portrait")).rejects.toBeInstanceOf(InvalidUploadError);
+  });
+});
+
+
+describe("Phase 17.16 media foundation", () => {
+  it("validates image signatures and extracts PNG dimensions", async () => {
+    const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00]);
+    await expect(validateUpload(new File([png], "portrait.png", { type: "image/png" }), "portrait")).resolves.toMatchObject({ extension: "png", mimeType: "image/png", dimensions: { width: 1, height: 1 } });
+    await expect(validateUpload(new File([png], "portrait.jpg", { type: "image/jpeg" }), "portrait")).rejects.toBeInstanceOf(InvalidUploadError);
+  });
+
+  it("requires source and license before public visibility", () => {
+    expect(() => parseMediaMetadataInput({ altText: "صورة", sourceUrl: null, attribution: "", license: "", visibility: "public" })).toThrow(MediaInputError);
+    expect(parseMediaMetadataInput({ altText: "صورة", sourceUrl: "https://example.com/image", attribution: "Example", license: "CC BY", visibility: "public" })).toMatchObject({ visibility: "public", sourceUrl: "https://example.com/image" });
+  });
+
+  it("accepts only controlled editorial storage keys and public URLs", () => {
+    expect(safeStorageKey("editorial/people/person-1/portrait-123e4567-e89b-12d3-a456-426614174000.png")).toContain("editorial/people/");
+    expect(() => safeStorageKey("../secret.png")).toThrow(MediaInputError);
+    expect(getSafePublicImageUrl("javascript:alert(1)")).toBeNull();
+    expect(getSafePublicImageUrl("https://cdn.example.com/portrait.png")).toBe("https://cdn.example.com/portrait.png");
   });
 });
