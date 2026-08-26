@@ -145,10 +145,10 @@ Existing pilot People and all existing Production content remained unmodified.
 | Branch | `main` |
 | Phase 17.17 implementation commit | `ce89e71482ec028e76cb704755d20946a4f276ea` — `feat: add production launch control` |
 | Final truthfulness fix commit | `b68d7f4858ba4d8a99fdec37abf896a44a072dc3` — `fix: keep launch readiness truthful` |
-| Documentation commit | Pending until this completion report and evidence are committed |
-| Current HEAD before documentation closeout | `b68d7f4858ba4d8a99fdec37abf896a44a072dc3` |
-| `HEAD == origin/main` before documentation closeout | Yes |
-| Working tree before documentation closeout | Clean |
+| Documentation commit | `f0be5110cffc1498b3f55551745a238a644e654d` — `docs: close phase 17.17 operations` |
+| Final HEAD | `f0be5110cffc1498b3f55551745a238a644e654d` |
+| `HEAD == origin/main` after documentation closeout | Yes |
+| Working tree after documentation closeout | Clean |
 
 ## Limitations
 

@@ -4,6 +4,7 @@
 **Alias:** https://a3-lam.vercel.app
 **Implementation commit:** `ce89e71482ec028e76cb704755d20946a4f276ea`
 **Final fix commit:** `b68d7f4858ba4d8a99fdec37abf896a44a072dc3`
+**Documentation closeout commit:** `f0be5110cffc1498b3f55551745a238a644e654d`
 **Final deployment:** `dpl_HKG8ef4CP3xAMeZeoqXZagseyaTP` — `READY` — `https://a3-ilml8doy0-goye2026s-projects.vercel.app`
 
 ## GET/HEAD smoke
