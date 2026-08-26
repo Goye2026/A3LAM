@@ -2,8 +2,10 @@
 
 **Date:** 2026-08-26
 **Alias:** https://a3-lam.vercel.app
-**Deployment:** `dpl_7kptXjk42hUkiqj7zQWc9kZzKSHF` — READY
-**Commit:** `4a4bc933b07be29209b0d1e91b91676f810f360b`
+**Code deployment:** `dpl_7kptXjk42hUkiqj7zQWc9kZzKSHF` — READY
+**Code commit:** `4a4bc933b07be29209b0d1e91b91676f810f360b`
+**Documentation closeout:** `dpl_22vjvphCZjZKrMxfECN85PvpCh2L` — READY
+**Documentation commit:** `d6c6c18d0432b32542d7a64f891577156f269273`
 
 ## Authenticated Launch Control
 

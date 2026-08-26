@@ -107,16 +107,17 @@ Public professional-profile projection لا يمرر user ID أو private contac
 | `3128e9a4670f23551bcb95dcf3e4c602e4bc0498` | public URL projection/input hardening، People PUT same-origin، bounded search، regression tests |
 | `4a4bc933b07be29209b0d1e91b91676f810f360b` | fail-closed direct 404 boundary وlint cleanup |
 
-سيُسجل commit توثيق الإغلاق النهائي بعد تثبيت هذا التقرير ودليل Production. يجب أن يبقى `HEAD == origin/main` وworking tree نظيفًا بعد closeout.
+تم تثبيت هذا التقرير ودليل Production في Documentation Closeout commit `d6c6c18d0432b32542d7a64f891577156f269273`. بعده أصبح `HEAD == origin/main` وworking tree نظيفًا.
 
 ## Deployment
 
 | Item | Value |
 |---|---|
 | Final code commit | `4a4bc933b07be29209b0d1e91b91676f810f360b` |
-| Deployment ID | `dpl_7kptXjk42hUkiqj7zQWc9kZzKSHF` |
-| Deployment state | `READY` |
-| Deployment URL | `https://a3-683xwxr3v-goye2026s-projects.vercel.app` |
+| Code deployment ID | `dpl_7kptXjk42hUkiqj7zQWc9kZzKSHF` — `READY` |
+| Documentation closeout commit | `d6c6c18d0432b32542d7a64f891577156f269273` |
+| Documentation deployment ID | `dpl_22vjvphCZjZKrMxfECN85PvpCh2L` — `READY` |
+| Documentation deployment URL | `https://a3-lw1ks4tz1-goye2026s-projects.vercel.app` |
 | Production alias | `https://a3-lam.vercel.app` |
 
 ## Remaining Limitations
