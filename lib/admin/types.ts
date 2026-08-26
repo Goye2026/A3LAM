@@ -1,4 +1,5 @@
 import type { Category, ContentStatus, Education, PersonRecord, ProfileStatus, ProfileVisibility, Source, SourceType, TimelineEvent } from "@/lib/domain/a3lam";
+import type { PersonListReadiness } from "@/lib/admin/launch";
 
 export const ADMIN_ROLE_CODES = ["SUPER_ADMIN", "ADMIN", "EDITOR", "MODERATOR"] as const;
 export type AdminRoleCode = (typeof ADMIN_ROLE_CODES)[number];
@@ -211,6 +212,7 @@ export type AdminPersonListItem = {
   categories: string[];
   createdAt: string;
   updatedAt: string;
+  readiness?: PersonListReadiness;
 };
 
 export type AdminDashboardData = {

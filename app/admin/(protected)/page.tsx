@@ -49,6 +49,7 @@ export default async function AdminDashboardPage() {
     { href: "/admin/site", title: copy.adminSiteExperienceCenter, detail: copy.adminSiteExperienceCenterDescription, permission: "homepage.read" as const },
     { href: "/admin/audit", title: copy.adminAudit, detail: copy.adminReadOnly, permission: "audit.read" as const },
     { href: "/admin/system", title: copy.adminSystem, detail: copy.adminReadOnly, permission: "system.read" as const },
+    { href: "/admin/launch", title: copy.adminLaunchControl, detail: copy.adminLaunchReadOnly, permission: "system.read" as const },
   ];
   const visibleQuickActions = [] as typeof quickActions;
   for (const action of quickActions) if (await can(action.permission)) visibleQuickActions.push(action);

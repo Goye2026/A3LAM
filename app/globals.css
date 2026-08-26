@@ -2133,6 +2133,27 @@ textarea.admin-input { resize: vertical; }
 .admin-table-action { border: 0; background: transparent; color: var(--color-brand); font-size: 0.75rem; font-weight: 700; text-decoration: none; }
 .admin-table-action:hover { color: var(--color-accent); text-decoration: underline; }
 .admin-table-action:disabled { cursor: wait; opacity: 0.55; }
+.admin-launch-readonly { margin-block: 0 var(--space-5); }
+.admin-launch-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.admin-launch-table-wrap { overflow-x: auto; }
+.admin-launch-table { min-width: 58rem; }
+.admin-launch-table th, .admin-launch-table td { vertical-align: top; }
+.admin-launch-table td { line-height: 1.65; }
+.admin-launch-status { display: inline-flex; width: fit-content; border-radius: 999px; padding: 0.25rem 0.6rem; font-size: 0.72rem; font-weight: 800; white-space: nowrap; }
+.admin-launch-status-ready { background: #e4f2ed; color: var(--color-success); }
+.admin-launch-status-ready_with_limitations { background: #f4ead7; color: var(--color-warning); }
+.admin-launch-status-requires_configuration, .admin-launch-status-not_tested { background: var(--color-surface-muted); color: var(--color-ink-soft); }
+.admin-launch-status-blocked { background: #f8e8e8; color: var(--color-danger); }
+.admin-launch-status-not_applicable { background: var(--color-surface-muted); color: var(--color-ink-muted); }
+.admin-launch-people-list { display: grid; gap: var(--space-2); }
+.admin-launch-person-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); border-block-start: 1px solid var(--color-border); padding-block: var(--space-3); color: var(--color-ink); text-decoration: none; }
+.admin-launch-person-row:hover { color: var(--color-brand); }
+.admin-launch-person-row > span { display: grid; gap: 0.25rem; min-width: 0; }
+.admin-launch-person-row > span:last-child { justify-items: end; text-align: end; }
+.admin-launch-person-row small { color: var(--color-ink-soft); }
+@media (min-width: 52rem) { .admin-launch-stat-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+@media (max-width: 38rem) { .admin-launch-person-row { align-items: flex-start; flex-direction: column; } .admin-launch-person-row > span:last-child { justify-items: start; text-align: start; } }
+
 .admin-status { display: inline-flex; width: fit-content; align-items: center; border: 1px solid transparent; border-radius: 999px; padding: 0.2rem 0.55rem; font-size: 0.68rem; font-weight: 700; white-space: nowrap; }
 .admin-status-draft { border-color: rgb(101 119 122 / 0.3); background: rgb(101 119 122 / 0.1); color: var(--color-ink-soft); }
 .admin-status-review { border-color: rgb(169 107 25 / 0.35); background: var(--color-accent-pale); color: var(--color-warning); }

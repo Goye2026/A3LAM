@@ -339,6 +339,73 @@ export type FoundationMessages = {
   adminOpaqueSessionId: string;
   adminControlCenter: string;
   adminControlCenterDescription: string;
+  adminLaunchControl: string;
+  adminLaunchControlDescription: string;
+  adminLaunchReadOnly: string;
+  adminLaunchStatus: string;
+  adminLaunchDomainLabel: string;
+  adminLaunchMode: string;
+  adminLaunchDomainCountSuffix: string;
+  adminLaunchEvidence: string;
+  adminLaunchOwner: string;
+  adminLaunchModeAutomatic: string;
+  adminLaunchModeManual: string;
+  adminLaunchModeExternal: string;
+  adminLaunchReady: string;
+  adminLaunchReadyWithLimitations: string;
+  adminLaunchRequiresConfiguration: string;
+  adminLaunchNotTested: string;
+  adminLaunchBlocked: string;
+  adminLaunchNotApplicable: string;
+  adminLaunchApplication: string;
+  adminLaunchDatabase: string;
+  adminLaunchMigrations: string;
+  adminLaunchAuthentication: string;
+  adminLaunchRbac: string;
+  adminLaunchEditorial: string;
+  adminLaunchMedia: string;
+  adminLaunchSeo: string;
+  adminLaunchSiteExperience: string;
+  adminLaunchOperations: string;
+  adminLaunchPortability: string;
+  adminLaunchAndroid: string;
+  adminLaunchDomain: string;
+  adminLaunchPeopleReadiness: string;
+  adminLaunchRequiredFields: string;
+  adminLaunchRecommendedFields: string;
+  adminLaunchSources: string;
+  adminLaunchPortrait: string;
+  adminLaunchOpen: string;
+  adminLaunchChecklist: string;
+  adminLaunchNoData: string;
+  adminLaunchLoading: string;
+  adminLaunchError: string;
+  adminLaunchNoMutation: string;
+  adminLaunchEvidenceApplication: string;
+  adminLaunchEvidenceDeployment: string;
+  adminLaunchEvidenceProtected: string;
+  adminLaunchEvidenceMigration: string;
+  adminLaunchEvidenceMigrationAction: string;
+  adminLaunchEvidenceAuthentication: string;
+  adminLaunchEvidenceRbac: string;
+  adminLaunchEvidenceEditorial: string;
+  adminLaunchEvidenceMedia: string;
+  adminLaunchEvidenceSeo: string;
+  adminLaunchEvidenceSiteExperience: string;
+  adminLaunchEvidenceOperations: string;
+  adminLaunchEvidencePortability: string;
+  adminLaunchEvidenceAndroid: string;
+  adminLaunchEvidenceDomain: string;
+  adminLaunchNextStep: string;
+  adminLaunchBackup: string;
+  adminLaunchRestore: string;
+  adminLaunchMonitoring: string;
+  adminLaunchEmail: string;
+  adminLaunchDocker: string;
+  adminLaunchCustomDomain: string;
+  adminLaunchBuild: string;
+  adminLaunchHealth: string;
+  adminLaunchPublicRoutes: string;
   adminPeopleGroup: string;
   adminOperationsGroup: string;
   adminProductGroup: string;
@@ -933,6 +1000,73 @@ const ar: FoundationMessages = {
   adminOpaqueSessionId: "معرّف جلسة opaque",
   adminControlCenter: "مركز التحكم",
   adminControlCenterDescription: "مساحة تشغيل موحدة لإدارة المحتوى والملفات المهنية وإعدادات المنتج بأمان.",
+  adminLaunchControl: "مركز الإطلاق والتشغيل",
+  adminLaunchControlDescription: "قراءة موحدة لحالة النظام والاستعداد التشغيلي دون تنفيذ تغييرات تلقائية.",
+  adminLaunchReadOnly: "قراءة فقط؛ لا توجد أزرار لتطبيق migrations أو الرفع أو الحذف أو provisioning.",
+  adminLaunchStatus: "الحالة",
+  adminLaunchDomainLabel: "المجال",
+  adminLaunchMode: "نوع التحقق",
+  adminLaunchDomainCountSuffix: "مجالات",
+  adminLaunchEvidence: "الدليل",
+  adminLaunchOwner: "المالك / الخطوة التالية",
+  adminLaunchModeAutomatic: "تلقائي",
+  adminLaunchModeManual: "مراجعة يدوية",
+  adminLaunchModeExternal: "بيئة خارجية",
+  adminLaunchReady: "جاهز",
+  adminLaunchReadyWithLimitations: "جاهز مع قيود",
+  adminLaunchRequiresConfiguration: "يتطلب إعدادًا",
+  adminLaunchNotTested: "لم يُختبر",
+  adminLaunchBlocked: "محجوب",
+  adminLaunchNotApplicable: "غير منطبق",
+  adminLaunchApplication: "التطبيق",
+  adminLaunchDatabase: "قاعدة البيانات",
+  adminLaunchMigrations: "الترحيلات",
+  adminLaunchAuthentication: "المصادقة",
+  adminLaunchRbac: "الصلاحيات والأدوار",
+  adminLaunchEditorial: "المحتوى التحريري",
+  adminLaunchMedia: "الوسائط",
+  adminLaunchSeo: "SEO والبيانات الوصفية",
+  adminLaunchSiteExperience: "تجربة الموقع",
+  adminLaunchOperations: "التشغيل",
+  adminLaunchPortability: "قابلية النقل",
+  adminLaunchAndroid: "Android",
+  adminLaunchDomain: "النطاق وDNS",
+  adminLaunchPeopleReadiness: "جاهزية الشخصيات",
+  adminLaunchRequiredFields: "الحقول الأساسية",
+  adminLaunchRecommendedFields: "الحقول الموصى بها",
+  adminLaunchSources: "المصادر",
+  adminLaunchPortrait: "الصورة التعريفية",
+  adminLaunchOpen: "فتح",
+  adminLaunchChecklist: "قائمة التحقق التشغيلية",
+  adminLaunchNoData: "لا تتوفر بيانات كافية لهذا المجال حاليًا.",
+  adminLaunchLoading: "جارٍ قراءة حالة التشغيل…",
+  adminLaunchError: "تعذر قراءة مركز الإطلاق. لم تُنفذ أي عملية تغيير.",
+  adminLaunchNoMutation: "لم تُنفذ أي عملية تغيير من هذه الصفحة.",
+  adminLaunchEvidenceApplication: "التطبيق الحالي يعمل؛ تحقق النشر والبناء الكامل موثق كدليل خارجي.",
+  adminLaunchEvidenceDeployment: "تم التحقق من deployment خارجيًا دون تغيير إعدادات Vercel.",
+  adminLaunchEvidenceProtected: "المسار محمي Server-side بواسطة system.read.",
+  adminLaunchEvidenceMigration: "ترحيلات متوقعة ومطبقة ومعلقة كما يعرض registry الحالي.",
+  adminLaunchEvidenceMigrationAction: "تتطلب أي migration معلقة إجراءً صريحًا مستقلًا؛ لا يوجد تنفيذ هنا.",
+  adminLaunchEvidenceAuthentication: "حالة مصادقة Admin الحالية مشتقة من health read model.",
+  adminLaunchEvidenceRbac: "تم تطبيق authorization Server-side وفق سجل RBAC الحالي.",
+  adminLaunchEvidenceEditorial: "تم تقييم عينة محدودة من الشخصيات بواسطة Quality Gate الحتمي.",
+  adminLaunchEvidenceMedia: "حالة provider وmetadata وupload وpublic delivery مشتقة من Media health الحالي.",
+  adminLaunchEvidenceSeo: "canonical وmetadata وsitemap وrobots وJSON-LD موجودة؛ تحقق crawler خارجي.",
+  adminLaunchEvidenceSiteExperience: "حالة draft وpublished وتجربة الموقع مشتقة من System Health.",
+  adminLaunchEvidenceOperations: "توثيق backup وrestore موجود؛ التنفيذ والـdrill خارجيان.",
+  adminLaunchEvidencePortability: "توثيق البيئة وDocker وself-hosting موجود؛ التحقق الخارجي معلق.",
+  adminLaunchEvidenceAndroid: "أساس Android والتوثيق موجودان؛ SDK والبناء والتوقيع لم تُختبر هنا.",
+  adminLaunchEvidenceDomain: "إجراءات النطاق وDNS موثقة؛ لم تُنفذ أي تغييرات خارجية.",
+  adminLaunchNextStep: "الخطوة التالية",
+  adminLaunchBackup: "النسخ الاحتياطي",
+  adminLaunchRestore: "الاستعادة",
+  adminLaunchMonitoring: "المراقبة",
+  adminLaunchEmail: "البريد الإلكتروني",
+  adminLaunchDocker: "Docker",
+  adminLaunchCustomDomain: "النطاق المخصص",
+  adminLaunchBuild: "إصدار البناء",
+  adminLaunchHealth: "health endpoint",
+  adminLaunchPublicRoutes: "المسارات العامة",
   adminPeopleGroup: "المحتوى التحريري",
   adminOperationsGroup: "التشغيل والمراجعة",
   adminProductGroup: "التحكم بالمنتج",
@@ -1527,6 +1661,73 @@ const en: FoundationMessages = {
   adminOpaqueSessionId: "Opaque session ID",
   adminControlCenter: "Control center",
   adminControlCenterDescription: "A unified operational space for content, professional profiles, and safe product controls.",
+  adminLaunchControl: "Launch and operations control",
+  adminLaunchControlDescription: "A read-only view of system state and operational readiness without automatic changes.",
+  adminLaunchReadOnly: "Read-only; no migration, upload, delete, provisioning, or deployment actions are available.",
+  adminLaunchStatus: "Status",
+  adminLaunchDomainLabel: "Domain",
+  adminLaunchMode: "Verification mode",
+  adminLaunchDomainCountSuffix: "domains",
+  adminLaunchEvidence: "Evidence",
+  adminLaunchOwner: "Owner / next step",
+  adminLaunchModeAutomatic: "Automatic",
+  adminLaunchModeManual: "Manual review",
+  adminLaunchModeExternal: "External environment",
+  adminLaunchReady: "Ready",
+  adminLaunchReadyWithLimitations: "Ready with limitations",
+  adminLaunchRequiresConfiguration: "Requires configuration",
+  adminLaunchNotTested: "Not tested",
+  adminLaunchBlocked: "Blocked",
+  adminLaunchNotApplicable: "Not applicable",
+  adminLaunchApplication: "Application",
+  adminLaunchDatabase: "Database",
+  adminLaunchMigrations: "Migrations",
+  adminLaunchAuthentication: "Authentication",
+  adminLaunchRbac: "RBAC",
+  adminLaunchEditorial: "Editorial content",
+  adminLaunchMedia: "Media",
+  adminLaunchSeo: "SEO and metadata",
+  adminLaunchSiteExperience: "Site experience",
+  adminLaunchOperations: "Operations",
+  adminLaunchPortability: "Portability",
+  adminLaunchAndroid: "Android",
+  adminLaunchDomain: "Domain and DNS",
+  adminLaunchPeopleReadiness: "People readiness",
+  adminLaunchRequiredFields: "Required fields",
+  adminLaunchRecommendedFields: "Recommended fields",
+  adminLaunchSources: "Sources",
+  adminLaunchPortrait: "Portrait",
+  adminLaunchOpen: "Open",
+  adminLaunchChecklist: "Operational checklist",
+  adminLaunchNoData: "Sufficient data is not available for this domain yet.",
+  adminLaunchLoading: "Reading operational state…",
+  adminLaunchError: "Launch Control could not read the current state. No mutation was performed.",
+  adminLaunchNoMutation: "No mutation was performed from this page.",
+  adminLaunchEvidenceApplication: "The current application is serving; full build and deployment verification is external evidence.",
+  adminLaunchEvidenceDeployment: "The deployment was verified externally without changing Vercel settings.",
+  adminLaunchEvidenceProtected: "This route is protected server-side by system.read.",
+  adminLaunchEvidenceMigration: "Expected, applied, and pending migrations are read from the current registry.",
+  adminLaunchEvidenceMigrationAction: "Any pending migration requires a separate explicit procedure; nothing runs here.",
+  adminLaunchEvidenceAuthentication: "Current Admin authentication state is derived from the health read model.",
+  adminLaunchEvidenceRbac: "Server-side authorization uses the existing RBAC registry.",
+  adminLaunchEvidenceEditorial: "A bounded sample is evaluated by the deterministic Editorial Quality Gate.",
+  adminLaunchEvidenceMedia: "Provider, metadata, upload, and public-delivery states come from current Media health.",
+  adminLaunchEvidenceSeo: "Canonical, metadata, sitemap, robots, and JSON-LD surfaces exist; crawler verification is external.",
+  adminLaunchEvidenceSiteExperience: "Draft, published, and site-experience state comes from System Health.",
+  adminLaunchEvidenceOperations: "Backup and restore documentation exists; execution and drills are external.",
+  adminLaunchEvidencePortability: "Environment, Docker, and self-hosting documentation exists; external verification is pending.",
+  adminLaunchEvidenceAndroid: "Android foundation and documentation exist; SDK, build, and signing are not tested here.",
+  adminLaunchEvidenceDomain: "Domain and DNS procedures are documented; no external changes were performed.",
+  adminLaunchNextStep: "Next step",
+  adminLaunchBackup: "Backup",
+  adminLaunchRestore: "Restore",
+  adminLaunchMonitoring: "Monitoring",
+  adminLaunchEmail: "Email",
+  adminLaunchDocker: "Docker",
+  adminLaunchCustomDomain: "Custom domain",
+  adminLaunchBuild: "Build version",
+  adminLaunchHealth: "Health endpoint",
+  adminLaunchPublicRoutes: "Public routes",
   adminPeopleGroup: "Editorial content",
   adminOperationsGroup: "Operations and review",
   adminProductGroup: "Product controls",

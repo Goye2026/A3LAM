@@ -15,6 +15,16 @@ function statusLabel(status: ContentStatus, copy: ReturnType<typeof getMessages>
   return status === "draft" ? copy.adminDraft : status === "review" ? copy.adminReview : status === "published" ? copy.adminPublished : copy.adminArchived;
 }
 
+function readinessLabel(state: NonNullable<Awaited<ReturnType<typeof adminRepository.listPeople>>["items"][number]["readiness"]>["state"], copy: ReturnType<typeof getMessages>) {
+  if (state === "INCOMPLETE") return copy.adminReadinessIncomplete;
+  if (state === "BLOCKED") return copy.adminReadinessBlockedLabel;
+  return copy.adminReadinessReady;
+}
+
+function readinessClass(state: NonNullable<Awaited<ReturnType<typeof adminRepository.listPeople>>["items"][number]["readiness"]>["state"]) {
+  return state === "BLOCKED" ? "is-blocked" : state === "INCOMPLETE" ? "is-incomplete" : "is-ready";
+}
+
 function transitionLabel(status: ContentStatus, copy: ReturnType<typeof getMessages>) {
   return status === "draft" ? copy.adminSendReview : status === "review" ? copy.adminPublish : status === "published" ? copy.adminArchive : copy.adminRestore;
 }
@@ -77,7 +87,7 @@ export default async function AdminPeoplePage({ searchParams }: PageProps) {
       {unavailable ? <p className="admin-alert" role="alert">{copy.adminDatabaseError}</p> : null}
       <section className="admin-panel" aria-labelledby="admin-people-table-title">
         <div className="admin-section-heading"><h2 id="admin-people-table-title">{copy.adminPeople}</h2><span className="admin-muted" aria-live="polite">{unavailable ? "—" : data?.total ?? 0}</span></div>
-        {!data?.items.length ? <p className="admin-empty">{copy.adminNoPeople}</p> : <div className="admin-table-wrap"><table className="admin-table"><caption className="sr-only">{copy.adminPeople}</caption><thead><tr><th scope="col">{copy.adminArabicName}</th><th scope="col">{copy.adminSlug}</th><th scope="col">{copy.adminStatusLabel}</th><th scope="col">{copy.adminCategories}</th><th scope="col">{copy.adminUpdated}</th><th scope="col">{copy.adminFilterAction}</th></tr></thead><tbody>{data.items.map((person) => <tr key={person.id}><th scope="row"><span className="admin-person-name">{person.nameArabic}</span><small>{person.name}</small></th><td dir="ltr">{person.slug}</td><td><b className={`admin-status admin-status-${person.status}`}>{statusLabel(person.status, copy)}</b></td><td>{person.categories.join(" · ") || "—"}</td><td><small>{formatDate(person.updatedAt)}</small></td><td><div className="admin-row-actions"><Link className="admin-table-action" href={`/admin/people/${person.id}`}>{copy.adminEdit}</Link><Link className="admin-table-action" href={`/admin/people/${person.id}/preview`}>{copy.adminPreview}</Link><AdminLifecycleAction id={person.id} status={person.status} label={transitionLabel(person.status, copy)} errorMessage={copy.adminStatusTransitionError} /></div></td></tr>)}</tbody></table></div>}
+        {!data?.items.length ? <p className="admin-empty">{copy.adminNoPeople}</p> : <div className="admin-table-wrap"><table className="admin-table"><caption className="sr-only">{copy.adminPeople}</caption><thead><tr><th scope="col">{copy.adminArabicName}</th><th scope="col">{copy.adminSlug}</th><th scope="col">{copy.adminStatusLabel}</th><th scope="col">{copy.adminReadinessTitle}</th><th scope="col">{copy.adminCategories}</th><th scope="col">{copy.adminUpdated}</th><th scope="col">{copy.adminFilterAction}</th></tr></thead><tbody>{data.items.map((person) => <tr key={person.id}><th scope="row"><span className="admin-person-name">{person.nameArabic}</span><small>{person.name}</small></th><td dir="ltr">{person.slug}</td><td><b className={`admin-status admin-status-${person.status}`}>{statusLabel(person.status, copy)}</b></td><td>{person.readiness ? <span className={`admin-readiness-badge ${readinessClass(person.readiness.state)}`}>{readinessLabel(person.readiness.state, copy)}<small>{person.readiness.requiredCompleted}/{person.readiness.requiredTotal}</small></span> : "—"}</td><td>{person.categories.join(" · ") || "—"}</td><td><small>{formatDate(person.updatedAt)}</small></td><td><div className="admin-row-actions"><Link className="admin-table-action" href={`/admin/people/${person.id}`}>{copy.adminEdit}</Link><Link className="admin-table-action" href={`/admin/people/${person.id}/preview`}>{copy.adminPreview}</Link><AdminLifecycleAction id={person.id} status={person.status} label={transitionLabel(person.status, copy)} errorMessage={copy.adminStatusTransitionError} /></div></td></tr>)}</tbody></table></div>}
       </section>
       <nav className="admin-pagination" aria-label={copy.adminPeople}>{page > 1 ? <Link className="button button-quiet" href={previousHref}>{copy.adminPagePrevious}</Link> : <span />}{page} / {data ? Math.max(Math.ceil(data.total / data.pageSize), 1) : 1}{hasNext ? <Link className="button button-quiet" href={nextHref}>{copy.adminPageNext}</Link> : <span />}</nav>
     </div>

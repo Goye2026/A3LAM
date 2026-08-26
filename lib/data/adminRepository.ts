@@ -19,6 +19,7 @@ import {
 } from "@/lib/domain/a3lam";
 import type { ContentStatus, ProfileStatus } from "@/lib/domain/a3lam";
 import { normalizeArabic } from "@/lib/domain/search";
+import { evaluatePersonListReadiness, type PersonListReadiness } from "@/lib/admin/launch";
 import { ADMIN_PERMISSIONS, applyPermissionOverrides, canRevokeSuperAdminSession, canSoleSuperAdminRetainCorePermissions, permissionListForRole } from "@/lib/admin/rbac";
 import { calculateProfileCompletion, getProfileForUser } from "@/lib/user/profileRepository";
 import { ADMIN_ROLE_CODES, type AdminAccountStatus, type AdminCategoryInput, type AdminCategorySummary, type AdminControlCenterSummary, type AdminDashboardData, type AdminEffectivePermissions, type AdminIdentitySummary, type AdminPermissionCode, type AdminUserDetail, type AdminPermissionOverrideSummary, type AdminPeoplePage, type AdminPersonEditorData, type AdminPersonListItem, type AdminRoleCode, type AdminSessionSummary, type AdminUserSummary } from "@/lib/admin/types";
@@ -202,7 +203,7 @@ function assertCategory(category: Category) {
   }
 }
 
-function listItem(row: PersonRow, categories: string[]): AdminPersonListItem {
+function listItem(row: PersonRow, categories: string[], readiness?: PersonListReadiness): AdminPersonListItem {
   return {
     id: row.id,
     slug: row.slug,
@@ -212,7 +213,41 @@ function listItem(row: PersonRow, categories: string[]): AdminPersonListItem {
     categories,
     createdAt: asIsoTimestamp(row.createdAt),
     updatedAt: asIsoTimestamp(row.updatedAt),
+    readiness,
   };
+}
+
+async function listReadinessForPeople(db: Database, peopleRows: PersonRow[]) {
+  const result = new Map<string, PersonListReadiness>();
+  const personIds = peopleRows.map((row) => row.id);
+  if (personIds.length === 0) return result;
+  const [categoryRows, occupationRows, sourceRows] = await Promise.all([
+    db.select({ personId: schema.personCategories.personId, total: sql<string>`count(*)`, published: sql<string>`count(*) filter (where ${schema.categories.status} = 'published')` }).from(schema.personCategories).innerJoin(schema.categories, eq(schema.personCategories.categoryId, schema.categories.id)).where(inArray(schema.personCategories.personId, personIds)).groupBy(schema.personCategories.personId),
+    db.select({ personId: schema.personOccupations.personId, total: sql<string>`count(*)` }).from(schema.personOccupations).where(inArray(schema.personOccupations.personId, personIds)).groupBy(schema.personOccupations.personId),
+    db.select({ personId: schema.personSources.personId, total: sql<string>`count(*)`, published: sql<string>`count(*) filter (where ${schema.sources.status} = 'published')` }).from(schema.personSources).innerJoin(schema.sources, eq(schema.personSources.sourceId, schema.sources.id)).where(inArray(schema.personSources.personId, personIds)).groupBy(schema.personSources.personId),
+  ]);
+  const categoryMap = new Map(categoryRows.map((row) => [row.personId, { total: Number(row.total), published: Number(row.published) }]));
+  const occupationMap = new Map(occupationRows.map((row) => [row.personId, Number(row.total)]));
+  const sourceMap = new Map(sourceRows.map((row) => [row.personId, { total: Number(row.total), published: Number(row.published) }]));
+  for (const row of peopleRows) {
+    const categories = categoryMap.get(row.id) ?? { total: 0, published: 0 };
+    const sources = sourceMap.get(row.id) ?? { total: 0, published: 0 };
+    result.set(row.id, evaluatePersonListReadiness({
+      status: row.status,
+      name: row.name,
+      nameArabic: row.nameArabic,
+      slug: row.slug,
+      shortBio: row.shortBio,
+      biography: row.biography,
+      categoryCount: categories.total,
+      publishedCategoryCount: categories.published,
+      occupationCount: occupationMap.get(row.id) ?? 0,
+      sourceCount: sources.total,
+      publishedSourceCount: sources.published,
+      imageUrl: row.imageUrl,
+    }));
+  }
+  return result;
 }
 
 async function listCategoriesForPeople(db: Database, personIds: string[]) {
@@ -305,9 +340,10 @@ export const adminRepository = {
       db.select().from(schema.people).where(where).orderBy(orderBy).limit(pageSize).offset((page - 1) * pageSize),
       db.select({ count: sql<string>`count(*)` }).from(schema.people).where(where),
     ]);
-    const categoryMap = await listCategoriesForPeople(db, rows.map((row) => row.id));
+    const personIds = rows.map((row) => row.id);
+    const [categoryMap, readinessMap] = await Promise.all([listCategoriesForPeople(db, personIds), listReadinessForPeople(db, rows)]);
     return {
-      items: rows.map((row) => listItem(row, categoryMap.get(row.id) ?? [])),
+      items: rows.map((row) => listItem(row, categoryMap.get(row.id) ?? [], readinessMap.get(row.id))),
       total: Number(totalRows[0]?.count ?? 0),
       page,
       pageSize,
