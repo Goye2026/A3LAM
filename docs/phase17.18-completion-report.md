@@ -107,9 +107,10 @@ Public professional-profile projection لا يمرر user ID أو private contac
 | `3128e9a4670f23551bcb95dcf3e4c602e4bc0498` | public URL projection/input hardening، People PUT same-origin، bounded search، regression tests |
 | `4a4bc933b07be29209b0d1e91b91676f810f360b` | fail-closed direct 404 boundary وlint cleanup |
 | `d6c6c18d0432b32542d7a64f891577156f269273` | Documentation Closeout |
-| `1a2cbf7377ee16bd701e8cf1dc4234b0472499d5` | Final documentation metadata |
+| `1a2cbf7377ee16bd701e8cf1dc4234b0472499d5` | Documentation metadata |
+| `0434bc499de71bb6f600784a636fdbd309566cbf` | Final Git record correction |
 
-تم تثبيت هذا التقرير ودليل Production في Documentation Closeout commit `d6c6c18d0432b32542d7a64f891577156f269273`، ثم في metadata commit النهائي `1a2cbf7377ee16bd701e8cf1dc4234b0472499d5`. أصبح `HEAD == origin/main` وworking tree نظيفًا.
+تم تثبيت هذا التقرير ودليل Production في Documentation Closeout commit `d6c6c18d0432b32542d7a64f891577156f269273`، ثم تحديث metadata في `1a2cbf7377ee16bd701e8cf1dc4234b0472499d5` وFinal Git record correction `0434bc499de71bb6f600784a636fdbd309566cbf`. أصبح `HEAD == origin/main` وworking tree نظيفًا.
 
 ## Deployment
 
