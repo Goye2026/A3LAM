@@ -46,14 +46,17 @@ export async function requirePermissionPrincipal(request: Request, permission: A
 }
 
 export function adminErrorResponse(error: unknown) {
-  if (error instanceof Error && (error.name === "AdminInputError" || error.name === "AdminValidationError" || error instanceof MediaInputError)) {
+  if (error instanceof Error && (error.name === "AdminInputError" || error.name === "AdminValidationError" || error.name === "AiDocumentValidationError" || error.name === "AiFactValidationError" || error instanceof MediaInputError)) {
     return NextResponse.json({ error: safeErrors.INVALID_INPUT.code, message: safeErrors.INVALID_INPUT.publicMessage }, { status: safeErrors.INVALID_INPUT.status });
   }
-  if (error instanceof Error && ["AdminConflictError", "MigrationRegistryInconsistentError", "MigrationAlreadyAppliedError", "MigrationPrerequisiteError", "MigrationStateChangedError"].includes(error.name)) {
+  if (error instanceof Error && ["AdminConflictError", "AiDocumentConflictError", "MigrationRegistryInconsistentError", "MigrationAlreadyAppliedError", "MigrationPrerequisiteError", "MigrationStateChangedError"].includes(error.name)) {
     return NextResponse.json({ error: safeErrors.CONFLICT.code, message: safeErrors.CONFLICT.publicMessage }, { status: safeErrors.CONFLICT.status });
   }
   if (error instanceof MediaConflictError) {
     return NextResponse.json({ error: safeErrors.CONFLICT.code, message: safeErrors.CONFLICT.publicMessage }, { status: safeErrors.CONFLICT.status });
+  }
+  if (error instanceof Error && ["AiPersistenceUnavailableError", "AiQueueUnavailableError", "DocumentStorageUnavailableError"].includes(error.name)) {
+    return NextResponse.json({ error: safeErrors.DEPENDENCY_UNAVAILABLE.code, message: safeErrors.DEPENDENCY_UNAVAILABLE.publicMessage }, { status: safeErrors.DEPENDENCY_UNAVAILABLE.status });
   }
   if (error instanceof MediaSchemaUnavailableError) {
     return NextResponse.json({ error: safeErrors.DEPENDENCY_UNAVAILABLE.code, message: safeErrors.DEPENDENCY_UNAVAILABLE.publicMessage }, { status: safeErrors.DEPENDENCY_UNAVAILABLE.status });

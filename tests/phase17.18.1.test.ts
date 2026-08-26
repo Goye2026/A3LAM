@@ -66,12 +66,15 @@ describe("Phase 17.18.1 provider and audit contracts", () => {
     vi.stubEnv("A3LAM_AI_PROVIDER_TOKEN", "configured-token");
     expect(getAiProviderState()).toBe("REQUIRES_CONFIGURATION");
     vi.unstubAllEnvs();
-    await expect(unavailableAiProvider.run({ operation: "extractProfile", outputType: "DATA_EXTRACTION", input: { metadata: { documentType: "txt", originalName: "x.txt", mimeType: "text/plain", sizeBytes: 1, extractedAt: "2026-01-01T00:00:00.000Z", extractor: "test" }, normalizedText: "x" } })).rejects.toThrow(/requires configuration/);
+    await expect(unavailableAiProvider.run({ operation: "extractProfile", outputType: "DATA_EXTRACTION", input: { metadata: { documentType: "txt", originalName: "x.txt", mimeType: "text/plain", sizeBytes: 1, checksumSha256: "a".repeat(64), extractedAt: "2026-01-01T00:00:00.000Z", extractor: "test" }, normalizedText: "x" } })).rejects.toThrow(/requires configuration/);
   });
 
-  it("keeps workspace counters unavailable without persistence", () => {
-    const snapshot = getAiWorkspaceSnapshot();
-    expect(snapshot.persistence).toBe("NOT_INITIALIZED");
+  it("keeps workspace counters unavailable without persistence", async () => {
+    const snapshot = await getAiWorkspaceSnapshot();
+    expect(["NOT_INITIALIZED", "REQUIRES_MIGRATION"]).toContain(snapshot.persistence);
+    expect(snapshot.queue).toBe("REQUIRES_CONFIGURATION");
+    expect(snapshot.malwareScanning).toBe("REQUIRES_CONFIGURATION");
+    expect(snapshot.retentionPolicy).toBe("REQUIRES_CONFIGURATION");
     expect(snapshot.counts).toBeNull();
     expect(snapshot.provider).toBe("REQUIRES_CONFIGURATION");
     expect(getAiWorkspaceCapabilities().supportedTypes).toEqual(["pdf", "docx", "txt"]);

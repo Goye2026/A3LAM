@@ -1,4 +1,5 @@
 import type { FoundationMessages } from "@/lib/i18n/messages";
+import { A3lamFactReviewActions } from "./A3lamFactReviewActions";
 import type { HumanReviewFact } from "@/lib/ai/types";
 
 function displayValue(value: unknown) {
@@ -28,7 +29,7 @@ function sourceSummary(fact: HumanReviewFact) {
   return details.join(" · ") || source.sourceType;
 }
 
-export function A3lamFactReviewTable({ facts, copy }: { facts: HumanReviewFact[]; copy: Pick<FoundationMessages, "adminAiReviewField" | "adminAiReviewValue" | "adminAiReviewSource" | "adminAiReviewConfidence" | "adminAiReviewClassification" | "adminAiReviewAction" | "adminAiNoFacts"> }) {
+export function A3lamFactReviewTable({ facts, copy }: { facts: HumanReviewFact[]; copy: Pick<FoundationMessages, "adminAiReviewField" | "adminAiReviewValue" | "adminAiReviewSource" | "adminAiReviewConfidence" | "adminAiReviewClassification" | "adminAiReviewAction" | "adminAiNoFacts" | "adminAiAccept" | "adminAiEdit" | "adminAiReject" | "adminAiReviewSaving" | "adminAiReviewError"> }) {
   return (
     <section className="admin-panel ai-workspace-panel" aria-labelledby="ai-facts-title">
       <div className="admin-panel-heading">
@@ -40,7 +41,7 @@ export function A3lamFactReviewTable({ facts, copy }: { facts: HumanReviewFact[]
             <thead><tr><th scope="col">{copy.adminAiReviewField}</th><th scope="col">{copy.adminAiReviewValue}</th><th scope="col">{copy.adminAiReviewSource}</th><th scope="col">{copy.adminAiReviewConfidence}</th><th scope="col">{copy.adminAiReviewClassification}</th><th scope="col">{copy.adminAiReviewAction}</th></tr></thead>
             <tbody>{facts.map((fact) => {
               const sourceUrl = safeSourceUrl(fact.provenance[0]?.sourceUrl);
-              return <tr key={fact.id}><th scope="row">{fact.fieldPath}</th><td>{displayValue(fact.value)}</td><td>{sourceUrl ? <a href={sourceUrl} target="_blank" rel="noreferrer">{sourceSummary(fact)}</a> : sourceSummary(fact)}</td><td>{fact.confidence}</td><td>{fact.classification}</td><td>{fact.allowedActions.join(" · ") || "—"}</td></tr>;
+              return <tr key={fact.id}><th scope="row">{fact.fieldPath}</th><td>{displayValue(fact.value)}</td><td>{sourceUrl ? <a href={sourceUrl} target="_blank" rel="noreferrer">{sourceSummary(fact)}</a> : sourceSummary(fact)}</td><td>{fact.confidence}</td><td>{fact.classification}</td><td>{fact.allowedActions.includes("ACCEPT") ? <A3lamFactReviewActions factId={fact.id} initialValue={displayValue(fact.value)} copy={copy} /> : fact.allowedActions.join(" · ") || "—"}</td></tr>;
             })}</tbody>
           </table>
         </div>

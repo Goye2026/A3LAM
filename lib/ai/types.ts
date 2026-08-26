@@ -9,6 +9,98 @@ export type AiProviderState = "CONFIGURED" | "REQUIRES_CONFIGURATION" | "INVALID
 export type DocumentProcessingState = "AVAILABLE" | "REQUIRES_CONFIGURATION" | "NOT_AVAILABLE";
 export type AiDraftStatus = "DRAFT" | "REVIEW" | "PUBLISHED";
 
+export const AI_DOCUMENT_STATUSES = ["UPLOADED", "VALIDATING", "EXTRACTING", "EXTRACTED", "NORMALIZING", "READY_FOR_REVIEW", "REVIEW_IN_PROGRESS", "APPROVED", "READY_FOR_GENERATION", "REJECTED", "EXTRACTION_FAILED", "PROCESSING_FAILED", "REVIEW_REJECTED", "ARCHIVED"] as const;
+export type AiDocumentStatus = (typeof AI_DOCUMENT_STATUSES)[number];
+export const AI_PROCESSING_JOB_STATUSES = ["QUEUED", "RUNNING", "SUCCEEDED", "FAILED", "CANCELLED"] as const;
+export type AiProcessingJobStatus = (typeof AI_PROCESSING_JOB_STATUSES)[number];
+export const AI_EXTRACTION_STATUSES = ["NOT_STARTED", "IN_PROGRESS", "SUCCEEDED", "FAILED", "UNAVAILABLE"] as const;
+export type AiExtractionStatus = (typeof AI_EXTRACTION_STATUSES)[number];
+export const AI_REVIEW_DECISIONS = ["UNREVIEWED", "ACCEPTED", "EDITED", "REJECTED"] as const;
+export type AiReviewDecision = (typeof AI_REVIEW_DECISIONS)[number];
+export const AI_OWNER_TYPES = ["ADMIN_IDENTITY", "USER"] as const;
+export type AiOwnerType = (typeof AI_OWNER_TYPES)[number];
+export const AI_FAILURE_CODES = ["VALIDATION_FAILED", "UNSUPPORTED_FORMAT", "MALFORMED_DOCUMENT", "EXTRACTION_UNAVAILABLE", "EXTRACTION_FAILED", "PROCESSING_FAILED", "REVIEW_REJECTED"] as const;
+export type AiFailureCode = (typeof AI_FAILURE_CODES)[number];
+export type AiQueueProviderState = "AVAILABLE" | "REQUIRES_CONFIGURATION";
+export type AiRetentionPolicyState = "AVAILABLE" | "REQUIRES_CONFIGURATION";
+
+export type AiDocumentRecord = {
+  id: string;
+  originalFilename: string;
+  normalizedFilename: string;
+  documentType: AiDocumentType;
+  mimeType: string;
+  sizeBytes: number;
+  checksumSha256: string;
+  ingestionStatus: AiDocumentStatus;
+  extractionStatus: AiExtractionStatus;
+  processingStatus: AiProcessingJobStatus;
+  ownerType: AiOwnerType;
+  ownerId: string;
+  storageKey: string | null;
+  retentionPolicy: AiRetentionPolicyState;
+  failureCode: AiFailureCode | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AiProcessingJobRecord = {
+  id: string;
+  documentId: string;
+  idempotencyKey: string;
+  attempt: number;
+  status: AiProcessingJobStatus;
+  errorCode: AiFailureCode | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AiExtractedSourceRecord = {
+  id: string;
+  documentId: string;
+  normalizedText: string;
+  extractor: string;
+  extractionStatus: AiExtractionStatus;
+  createdAt: string;
+};
+
+export type AiFactEvidenceRecord = {
+  id: string;
+  factId: string;
+  page: number | null;
+  section: string | null;
+  excerpt: string;
+  sourceUrl: string | null;
+};
+
+export type AiReviewInput = {
+  decision: Exclude<AiReviewDecision, "UNREVIEWED">;
+  reviewedValue?: unknown;
+  reviewerNote?: string;
+};
+
+export type AiFactReviewItem = {
+  id: string;
+  documentId: string;
+  fieldPath: string;
+  value: unknown;
+  confidence: ConfidenceClassification;
+  classification: FactClassification;
+  reviewStatus: AiReviewDecision;
+  provenance: DocumentProvenance[];
+};
+
+export type AiReviewDecisionRecord = {
+  id: string;
+  factId: string;
+  reviewerId: string;
+  decision: AiReviewDecision;
+  originalValue: unknown;
+  reviewedValue: unknown;
+  reviewerNote: string | null;
+  createdAt: string;
+};
+
 export type DocumentProvenance = {
   sourceType: AiDocumentSource;
   documentId?: string;
@@ -75,6 +167,7 @@ export type DocumentMetadata = {
   originalName: string;
   mimeType: string;
   sizeBytes: number;
+  checksumSha256: string;
   extractedAt: string;
   extractor: string;
 };
@@ -154,7 +247,10 @@ export type AiWorkspaceSnapshot = {
   provider: AiProviderState;
   documentProcessing: DocumentProcessingState;
   storage: "AVAILABLE" | "REQUIRES_CONFIGURATION";
-  persistence: "NOT_INITIALIZED" | "AVAILABLE";
+  persistence: "NOT_INITIALIZED" | "REQUIRES_MIGRATION" | "AVAILABLE";
+  queue: AiQueueProviderState;
+  malwareScanning: "AVAILABLE" | "REQUIRES_CONFIGURATION";
+  retentionPolicy: AiRetentionPolicyState;
   counts: null | {
     documents: number;
     processing: number;

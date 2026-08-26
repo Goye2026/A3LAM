@@ -52,6 +52,9 @@ export const ADMIN_PERMISSION_CODES = [
   "settings.read",
   "settings.manage",
   "system.read",
+  "ai.documents.read",
+  "ai.documents.create",
+  "ai.review",
   "system.migrations.execute",
 ] as const;
 export type AdminPermissionCode = (typeof ADMIN_PERMISSION_CODES)[number];

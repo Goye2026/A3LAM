@@ -65,7 +65,7 @@ export async function AdminShell({ children }: { children: ReactNode }) {
               {can("footer.read") ? <Link href="/admin/appearance/footer">{copy.adminFooterManager}</Link> : null}
               {can("profile_presentation.read") ? <Link href="/admin/profile-presentation">{copy.adminProfilePresentationSettings}</Link> : null}
               {can("media.read") ? <Link href="/admin/media">{copy.adminMedia}</Link> : null}
-              {can("system.read") ? <Link href="/admin/ai">{copy.adminAi}</Link> : null}
+              {can("ai.documents.read") ? <Link href="/admin/ai">{copy.adminAi}</Link> : null}
               {can("system.read") ? <Link href="/admin/launch">{copy.adminLaunchControl}</Link> : null}
               {can("seo.read") ? <Link href="/admin/seo">{copy.adminSeo}</Link> : null}
               {can("settings.read") ? <Link href="/admin/settings">{copy.adminSettings}</Link> : null}

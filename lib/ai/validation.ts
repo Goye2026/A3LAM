@@ -1,6 +1,8 @@
+import { createHash } from "node:crypto";
 import { AI_DOCUMENT_TYPES, type AiDocumentType } from "./types";
 
 export const AI_DOCUMENT_MAX_BYTES = 10 * 1024 * 1024;
+export const AI_EXTRACTED_TEXT_MAX_BYTES = 8 * 1024 * 1024;
 export const AI_DOCUMENT_MIME_TYPES: Record<AiDocumentType, readonly string[]> = {
   pdf: ["application/pdf"],
   docx: ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
@@ -17,6 +19,7 @@ export type ValidatedAiDocument = {
   originalName: string;
   mimeType: string;
   sizeBytes: number;
+  checksumSha256: string;
 };
 
 function extension(name: string) {
@@ -71,10 +74,23 @@ export async function validateAiDocument(file: File): Promise<ValidatedAiDocumen
     documentType,
     originalName: originalName.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 120),
     mimeType,
-    sizeBytes: bytes.byteLength,
+        sizeBytes: bytes.byteLength,
+    checksumSha256: createHash("sha256").update(bytes).digest("hex"),
   };
 }
-
 export function normalizeExtractedText(value: string) {
-  return value.replace(/\r\n?/g, "\n").replace(/[\t ]+/g, " ").replace(/\n{3,}/g, "\n\n").trim();
+  return value
+    .normalize("NFKC")
+    .replace(/\r\n?/g, "\n")
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
+    .replace(/[\t ]+/g, " ")
+    .replace(/\n +/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+export function assertExtractedText(value: string) {
+  const normalized = normalizeExtractedText(value);
+  if (!normalized) throw new AiDocumentValidationError("النص المستخرج فارغ");
+  if (new TextEncoder().encode(normalized).byteLength > AI_EXTRACTED_TEXT_MAX_BYTES) throw new AiDocumentValidationError("حجم النص المستخرج غير مسموح");
+  return normalized;
 }
