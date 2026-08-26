@@ -1,4 +1,5 @@
-import type { ProfileSocialPlatform, ProfileVisibility, ProfileWorkType, SourceType } from "@/lib/domain/a3lam";
+import type { ProfileSocialPlatform, ProfileStatus, ProfileVisibility, ProfileWorkType, SourceType } from "@/lib/domain/a3lam";
+import { getSafePublicUrl } from "@/lib/media/public";
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -71,14 +72,9 @@ function validateRange(startDate: string, endDate: string, field: string, isCurr
 function url(value: unknown, field: string, required = false) {
   const normalized = text(value, field, 2000, required);
   if (!normalized) return "";
-  let parsed: URL;
-  try {
-    parsed = new URL(normalized);
-  } catch {
-    throw new ProfileInputError(`${field} يجب أن يكون رابطًا صالحًا`);
-  }
-  if (!['http:', 'https:'].includes(parsed.protocol)) throw new ProfileInputError(`${field} يسمح فقط بروابط http وhttps`);
-  return parsed.toString();
+  const safe = getSafePublicUrl(normalized);
+  if (!safe) throw new ProfileInputError(`${field} يسمح فقط بروابط عامة http وhttps`);
+  return safe;
 }
 
 function stringArray(value: unknown, field: string, maxItems: number, maxLength = 200) {

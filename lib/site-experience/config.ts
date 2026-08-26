@@ -1,3 +1,5 @@
+import { getSafePublicUrl } from "@/lib/media/public";
+
 export const SITE_EXPERIENCE_RESOURCES = [
   "settings",
   "identity",
@@ -33,7 +35,7 @@ const text = (value: unknown, max: number, required = false): string => { if (ty
 const bool = (value: unknown): boolean => { if (typeof value !== "boolean") throw new Error("Invalid site experience configuration"); return value; };
 const oneOf = <T extends string>(value: unknown, values: readonly T[]): T => { if (typeof value !== "string" || !values.includes(value as T)) throw new Error("Invalid site experience configuration"); return value as T; };
 const arrayOf = <T>(value: unknown, parser: (entry: unknown) => T, max: number): T[] => { if (!Array.isArray(value) || value.length > max) throw new Error("Invalid site experience configuration"); return value.map(parser); };
-function safeUrl(value: unknown) { const candidate = text(value, 1_000); if (!candidate) return ""; if (candidate.startsWith("/") && !candidate.startsWith("//")) return candidate; try { const parsed = new URL(candidate); if (parsed.protocol === "http:" || parsed.protocol === "https:") return candidate; } catch { /* invalid */ } throw new Error("Invalid site experience configuration"); }
+function safeUrl(value: unknown) { const candidate = text(value, 1_000); if (!candidate) return ""; if (candidate.startsWith("/") && !candidate.startsWith("//")) return candidate; if (getSafePublicUrl(candidate)) return candidate; throw new Error("Invalid site experience configuration"); }
 function email(value: unknown) { const candidate = text(value, 320); if (!candidate || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(candidate)) return candidate; throw new Error("Invalid site experience configuration"); }
 function cta(value: unknown): SafeCta { if (!isRecord(value)) throw new Error("Invalid site experience configuration"); return { label: text(value.label, 100), href: safeUrl(value.href) }; }
 function navigationItem(value: unknown): NavigationItem { if (!isRecord(value)) throw new Error("Invalid site experience configuration"); return { id: text(value.id, 80, true), label: text(value.label, 120, true), href: safeUrl(value.href), kind: oneOf(value.kind, ["internal", "external"] as const), visible: bool(value.visible), order: numberValue(value.order, 0, 50) }; }

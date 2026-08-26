@@ -25,6 +25,7 @@ type Database = PostgresJsDatabase<typeof schema>;
 type PersonRow = typeof schema.people.$inferSelect;
 
 type NewPersonRecord = PersonRecord;
+const PUBLIC_SEARCH_LIMIT = 100;
 
 function asIsoDate(value: string | Date | null) {
   if (!value) return null;
@@ -214,7 +215,7 @@ async function searchPublishedPeople(db: Database, query: PersonSearchQuery) {
     if (ids.length === 0) return [];
     conditions.push(inArray(schema.people.id, ids));
   }
-  const rows = await db.select().from(schema.people).where(and(...conditions)).orderBy(asc(schema.people.name));
+  const rows = await db.select().from(schema.people).where(and(...conditions)).orderBy(asc(schema.people.name)).limit(PUBLIC_SEARCH_LIMIT);
   return Promise.all(rows.map((row) => hydratePerson(db, row)));
 }
 

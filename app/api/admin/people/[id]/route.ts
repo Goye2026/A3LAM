@@ -28,6 +28,9 @@ export async function PATCH(request: Request, { params }: RouteProps) {
 }
 
 export async function PUT(request: Request, { params }: RouteProps) {
+  const authenticated = await requireAdminAsync(request);
+  if (authenticated) return authenticated;
+  if (!isSameOriginMutation(request)) return NextResponse.json({ error: safeErrors.INVALID_INPUT.code, message: safeErrors.INVALID_INPUT.publicMessage }, { status: safeErrors.INVALID_INPUT.status });
   const gate = await requirePermissionPrincipal(request, "people.update");
   if (gate.response) return gate.response;
   try {

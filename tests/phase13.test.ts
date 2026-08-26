@@ -3,7 +3,7 @@ import { hashPassword, USER_SESSION_COOKIE, userCookieOptions, verifyPassword, v
 import { parseProfileInput, ProfileInputError, validateProfileForPublication } from "@/lib/user/profileValidation";
 import { InvalidUploadError, validateUpload } from "@/lib/storage/validation";
 import { parseMediaMetadataInput, MediaInputError, safeStorageKey } from "@/lib/media/validation";
-import { getSafePublicImageUrl } from "@/lib/media/public";
+import { getSafePublicImageUrl, getSafePublicUrl } from "@/lib/media/public";
 import { ADMIN_SESSION_COOKIE } from "@/lib/admin/auth";
 import { isSameOriginMutation } from "@/lib/user/requestSecurity";
 import { calculateProfileCompletion, projectPublicProfile, type ProfileRecord } from "@/lib/user/profileRepository";
@@ -48,6 +48,7 @@ describe("Phase 13 profile validation", () => {
 
   it("rejects unsafe links and invalid public data", () => {
     expect(() => parseProfileInput({ ...baseProfile, socialLinks: [{ platform: "website", url: "javascript:alert(1)" }] })).toThrow(ProfileInputError);
+    expect(() => parseProfileInput({ ...baseProfile, socialLinks: [{ platform: "website", url: "https://user:password@example.com/profile" }] })).toThrow(ProfileInputError);
     expect(validateProfileForPublication(parseProfileInput({ ...baseProfile, categoryIds: [] }))).toContain("يجب اختيار تصنيف واحد على الأقل للملف المنشور");
     expect(() => parseProfileInput({ ...baseProfile, experiences: [{ jobTitle: "باحث", organization: "مؤسسة", startDate: "2025-01-01", endDate: "2024-01-01", isCurrent: false }] })).toThrow(ProfileInputError);
     expect(() => parseProfileInput({ ...baseProfile, experiences: [{ jobTitle: "باحث", organization: "مؤسسة", startDate: "2025-01-01", endDate: "", isCurrent: true }] })).not.toThrow();
@@ -149,5 +150,20 @@ describe("Phase 17.16 media foundation", () => {
     expect(() => safeStorageKey("../secret.png")).toThrow(MediaInputError);
     expect(getSafePublicImageUrl("javascript:alert(1)")).toBeNull();
     expect(getSafePublicImageUrl("https://cdn.example.com/portrait.png")).toBe("https://cdn.example.com/portrait.png");
+    expect(getSafePublicUrl("https://user:password@example.com/file")).toBeNull();
+  });
+
+  it("sanitizes all public professional-profile URL projections", () => {
+    const record = {
+      profile: { id: "p", userId: "u", slug: "profile", name: "Name", nameArabic: "اسم", professionalTitle: "باحث", professionalSummary: "نبذة", biography: "", city: null, country: null, contactEmail: null, phone: null, emailPublic: false, phonePublic: false, imageUrl: "javascript:alert(1)", status: "published", visibility: "published", createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z" },
+      categories: [{ id: "science", slug: "science", name: "علوم", description: "", status: "published" }], source: { id: "s", title: "مصدر", publisher: "مؤسسة", url: "https://example.com/source", type: "official", status: "published" }, skills: [], experiences: [], educations: [], certifications: [{ id: "c", name: "شهادة", issuer: "جهة", obtainedDate: null, verificationUrl: "data:text/html,alert(1)" }], languages: [], portfolio: [{ id: "w", title: "عمل", description: "", url: "file:///tmp/work", coverUrl: "https://example.com/cover.png", workType: "project" }], socialLinks: [{ id: "x", platform: "website", url: "vbscript:alert(1)" }], files: [{ id: "f", url: "javascript:alert(1)", originalName: "public.pdf", mimeType: "application/pdf", extension: "pdf", sizeBytes: 20, fileType: "cv", isPublic: true }],
+    } as ProfileRecord;
+    const projection = projectPublicProfile(record);
+    expect(projection.imageUrl).toBeNull();
+    expect(projection.certifications[0]?.verificationUrl).toBeNull();
+    expect(projection.portfolio[0]?.url).toBeNull();
+    expect(projection.portfolio[0]?.coverUrl).toBe("https://example.com/cover.png");
+    expect(projection.socialLinks).toEqual([]);
+    expect(projection.files).toEqual([]);
   });
 });

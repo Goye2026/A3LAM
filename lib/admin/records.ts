@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Category, ContentStatus, PersonRecord, Source, SourceType } from "@/lib/domain/a3lam";
-import { getSafePublicImageUrl } from "@/lib/media/public";
+import { getSafePublicImageUrl, getSafePublicUrl } from "@/lib/media/public";
 import type { AdminCategoryInput, AdminEducationInput, AdminPersonInput, AdminSourceInput, AdminTimelineInput } from "@/lib/admin/types";
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -50,14 +50,9 @@ function stringArray(value: unknown, field: string, maxItems: number) {
 
 function safeUrl(value: unknown, field: string) {
   const normalized = text(value, field, { required: true, max: 2000 });
-  let url: URL;
-  try {
-    url = new URL(normalized);
-  } catch {
-    throw new AdminInputError(`${field} must be a valid URL`);
-  }
-  if (!['http:', 'https:'].includes(url.protocol)) throw new AdminInputError(`${field} must use http or https`);
-  return url.toString();
+  const safe = getSafePublicUrl(normalized);
+  if (!safe) throw new AdminInputError(`${field} must use a valid public http or https URL`);
+  return safe;
 }
 
 function optionalImageUrl(value: unknown) {

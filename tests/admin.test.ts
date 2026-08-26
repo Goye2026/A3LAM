@@ -94,6 +94,7 @@ describe("Phase 17.3 site experience contracts", () => {
 
   it("rejects unsafe URLs and duplicate homepage section keys", () => {
     expect(() => parseSiteExperienceConfig("identity", { ...siteExperienceDefaults.identity, logoUrl: "javascript:alert(1)" })).toThrow(/Invalid/);
+    expect(() => parseSiteExperienceConfig("identity", { ...siteExperienceDefaults.identity, logoUrl: "https://user:password@example.com/logo.png" })).toThrow(/Invalid/);
     const duplicate = { ...siteExperienceDefaults.homepage, sections: siteExperienceDefaults.homepage.sections.map((section, index) => index === 1 ? { ...section, key: "hero" as const } : section) };
     expect(() => parseSiteExperienceConfig("homepage", duplicate)).toThrow(/Invalid/);
   });

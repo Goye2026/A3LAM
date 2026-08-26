@@ -6,6 +6,7 @@ import * as schema from "@/lib/db/schema";
 import type { Category, ContentStatus, ProfileStatus, ProfileVisibility, SourceType } from "@/lib/domain/a3lam";
 import { normalizeArabic } from "@/lib/domain/search";
 import type { ProfileInput } from "@/lib/user/profileValidation";
+import { getSafePublicUrl } from "@/lib/media/public";
 
 export type ProfileExperience = { id: string; jobTitle: string; organization: string; location: string; startDate: string | null; endDate: string | null; isCurrent: boolean; description: string };
 export type ProfileEducation = { id: string; institution: string; degree: string; field: string; startDate: string | null; endDate: string | null; description: string };
@@ -94,6 +95,16 @@ function profileSource(row: typeof schema.profileSourceRecords.$inferSelect): Pr
   return { id: row.id, title: row.title, publisher: row.publisher, url: row.url, type: row.sourceType, status: row.status };
 }
 
+function publicUrl(value: string | null | undefined) {
+  return getSafePublicUrl(value);
+}
+
+function publicSource(source: ProfileSourceRecord | null) {
+  if (!source) return null;
+  const url = publicUrl(source.url);
+  return url ? { ...source, url } : null;
+}
+
 async function hydrateProfile(db: Database, row: ProfileRow): Promise<ProfileRecord> {
   const [categoryRows, sourceRows, experienceRows, educationRows, skillRows, certificationRows, languageRows, portfolioRows, socialRows, fileRows] = await Promise.all([
     db.select({ category: schema.categories }).from(schema.profileCategories).innerJoin(schema.categories, eq(schema.profileCategories.categoryId, schema.categories.id)).where(eq(schema.profileCategories.profileId, row.id)),
@@ -134,23 +145,27 @@ function publicValid(record: ProfileRecord) {
     && Boolean(record.profile.name.trim() && record.profile.nameArabic.trim() && record.profile.slug && (record.profile.professionalSummary.trim() || record.profile.biography.trim()))
     && record.categories.length > 0
     && record.categories.every((item) => item.status === "published")
-    && Boolean(record.source && record.source.status === "published");
+    && Boolean(record.source && record.source.status === "published" && publicUrl(record.source.url));
 }
 
 export function projectPublicProfile(record: ProfileRecord): PublicProfile {
   const { profile } = record;
+  const source = publicSource(record.source);
   return {
     id: profile.id, slug: profile.slug, name: profile.name, nameArabic: profile.nameArabic,
     professionalTitle: profile.professionalTitle, professionalSummary: profile.professionalSummary, biography: profile.biography,
-    city: profile.city, country: profile.country, imageUrl: profile.imageUrl,
+    city: profile.city, country: profile.country, imageUrl: publicUrl(profile.imageUrl),
     createdAt: profile.createdAt, updatedAt: profile.updatedAt,
     visibility: profile.visibility,
     email: profile.emailPublic ? profile.contactEmail : null,
     phone: profile.phonePublic ? profile.phone : null,
-    categories: record.categories, source: record.source, skills: record.skills,
-    experiences: record.experiences, educations: record.educations, certifications: record.certifications,
-    languages: record.languages, portfolio: record.portfolio, socialLinks: record.socialLinks,
-    files: record.files.filter((file) => file.isPublic),
+    categories: record.categories, source, skills: record.skills,
+    experiences: record.experiences, educations: record.educations,
+    certifications: record.certifications.map((item) => ({ ...item, verificationUrl: publicUrl(item.verificationUrl) })),
+    languages: record.languages,
+    portfolio: record.portfolio.map((item) => ({ ...item, url: publicUrl(item.url), coverUrl: publicUrl(item.coverUrl) })),
+    socialLinks: record.socialLinks.flatMap((item) => { const url = publicUrl(item.url); return url ? [{ ...item, url }] : []; }),
+    files: record.files.filter((file) => file.isPublic).flatMap((file) => { const url = publicUrl(file.url); return url ? [{ ...file, url }] : []; }),
   };
 }
 
@@ -299,7 +314,7 @@ export async function getPublicProfileCardsByIds(ids: string[]) {
   const db = getDb();
   const rows = await db.select().from(schema.profiles).where(and(inArray(schema.profiles.id, ids), eq(schema.profiles.status, "published"), eq(schema.profiles.visibility, "published")));
   const records = await Promise.all(rows.map((row) => hydrateProfile(db, row)));
-  return records.filter(publicValid).map((record) => ({ slug: record.profile.slug, nameArabic: record.profile.nameArabic, name: record.profile.name, professionalTitle: record.profile.professionalTitle, professionalSummary: record.profile.professionalSummary, imageUrl: record.profile.imageUrl, city: record.profile.city, country: record.profile.country, skills: record.skills.slice(0, 6), categories: record.categories.map((item) => item.name) }));
+  return records.filter(publicValid).map((record) => ({ slug: record.profile.slug, nameArabic: record.profile.nameArabic, name: record.profile.name, professionalTitle: record.profile.professionalTitle, professionalSummary: record.profile.professionalSummary, imageUrl: publicUrl(record.profile.imageUrl), city: record.profile.city, country: record.profile.country, skills: record.skills.slice(0, 6), categories: record.categories.map((item) => item.name) }));
 }
 
 export async function listProfileAuditLogs(profileId: string) {
