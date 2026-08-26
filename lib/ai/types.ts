@@ -21,6 +21,13 @@ export const AI_OWNER_TYPES = ["ADMIN_IDENTITY", "USER"] as const;
 export type AiOwnerType = (typeof AI_OWNER_TYPES)[number];
 export const AI_FAILURE_CODES = ["VALIDATION_FAILED", "UNSUPPORTED_FORMAT", "MALFORMED_DOCUMENT", "EXTRACTION_UNAVAILABLE", "EXTRACTION_FAILED", "PROCESSING_FAILED", "REVIEW_REJECTED"] as const;
 export type AiFailureCode = (typeof AI_FAILURE_CODES)[number];
+
+export const AI_EXTRACTION_ERROR_CODES = [
+  "UNSUPPORTED_TYPE", "INVALID_FILE", "EMPTY_DOCUMENT", "FILE_TOO_LARGE", "EXTRACTED_TEXT_TOO_LARGE",
+  "PDF_TEXT_UNAVAILABLE", "OCR_REQUIRED", "DOCX_INVALID", "DOCX_UNSAFE_ARCHIVE", "PARSER_FAILURE",
+  "NORMALIZATION_FAILURE", "TIMEOUT", "RESOURCE_LIMIT", "UNAVAILABLE", "MALFORMED_DOCUMENT",
+] as const;
+export type AiExtractionErrorCode = (typeof AI_EXTRACTION_ERROR_CODES)[number];
 export type AiQueueProviderState = "AVAILABLE" | "REQUIRES_CONFIGURATION";
 export type AiRetentionPolicyState = "AVAILABLE" | "REQUIRES_CONFIGURATION";
 
@@ -109,6 +116,8 @@ export type DocumentProvenance = {
   section?: string;
   excerpt?: string;
   sourceUrl?: string;
+  startOffset?: number;
+  endOffset?: number;
   actorId?: string;
 };
 
@@ -172,9 +181,70 @@ export type DocumentMetadata = {
   extractor: string;
 };
 
-export type DocumentExtractionResult = {
+export const AI_EXTRACTION_RESULT_STATUSES = ["PENDING", "PROCESSING", "COMPLETED", "PARTIAL", "FAILED", "UNAVAILABLE", "REJECTED"] as const;
+export type AiExtractionResultStatus = (typeof AI_EXTRACTION_RESULT_STATUSES)[number];
+
+export type ExtractionLanguage = "ar" | "en" | "mixed" | "unknown";
+
+export const AI_SECTION_TYPES = [
+  "PERSONAL_INFORMATION", "SUMMARY", "EDUCATION", "EXPERIENCE", "EMPLOYMENT", "POSITIONS",
+  "ACHIEVEMENTS", "AWARDS", "PUBLICATIONS", "SKILLS", "LANGUAGES", "PROJECTS", "CERTIFICATIONS",
+  "CONTACT", "UNKNOWN",
+] as const;
+export type AiSectionType = (typeof AI_SECTION_TYPES)[number];
+
+export type ExtractionBoundary = {
+  kind: "page" | "paragraph" | "section";
+  index: number;
+  startOffset: number;
+  endOffset: number;
+  page?: number;
+  section?: AiSectionType;
+  heading?: string;
+};
+
+export type ExtractionWarning = {
+  code: string;
+  message: string;
+  location?: "document" | "page" | "paragraph" | "section";
+  page?: number;
+};
+
+export type DetectedSection = {
+  type: AiSectionType;
+  heading: string;
+  confidence: ConfidenceClassification;
+  startOffset: number;
+  endOffset: number;
+};
+
+export type DocumentExtractionInput = {
   metadata: DocumentMetadata;
   normalizedText: string;
+};
+
+export type ExtractionCandidateFact = {
+  fieldPath: string;
+  value: unknown;
+  confidence: ConfidenceClassification;
+  classification: FactClassification;
+  provenance: DocumentProvenance[];
+  evidence: { excerpt: string; section?: string };
+};
+
+export type DocumentExtractionResult = DocumentExtractionInput & {
+  status: AiExtractionResultStatus;
+  characterCount: number;
+  pageCount: number | null;
+  boundaries: ExtractionBoundary[];
+  warnings: ExtractionWarning[];
+  language: ExtractionLanguage;
+  sections: DetectedSection[];
+  parserVersion: string;
+  extractionVersion: string;
+  checksumSha256: string;
+  provenance: DocumentProvenance;
+  candidateFacts: ExtractionCandidateFact[];
 };
 
 export type AiReviewAction = "ACCEPT" | "EDIT" | "REJECT" | "MARK_VERIFIED" | "MARK_FOR_VERIFICATION";
@@ -200,7 +270,7 @@ export type AiProviderOperation = "extractProfile" | "improveProfile" | "generat
 
 export type AiProviderRequest = {
   operation: AiProviderOperation;
-  input: StructuredProfileDraft | DocumentExtractionResult;
+  input: StructuredProfileDraft | DocumentExtractionResult | DocumentExtractionInput;
   outputType: AiOutputType;
 };
 

@@ -693,6 +693,11 @@ export type FoundationMessages = {
   adminAiInvalidSize: string;
   adminAiRemoveSelection: string;
   adminAiStructuredFields: string;
+  adminAiExtractionCapability: string;
+  adminAiParserStatus: string;
+  adminAiLimits: string;
+  adminAiParserAvailable: string;
+  adminAiParserUnavailable: string;
   adminAiReviewField: string;
   adminAiReviewValue: string;
   adminAiReviewSource: string;
@@ -1401,6 +1406,11 @@ const ar: FoundationMessages = {
   adminAiInvalidSize: "حجم الملف غير مسموح.",
   adminAiRemoveSelection: "إزالة الاختيار",
   adminAiStructuredFields: "الهوية · المجال المهني · التعليم · المسار الوظيفي · الإنجازات · الجوائز · المنشورات · المهارات · اللغات · الروابط · المصادر",
+  adminAiExtractionCapability: "قدرة الاستخلاص",
+  adminAiParserStatus: "حالة المحللات",
+  adminAiLimits: "الحدود الوقائية: 10MB للملف · 8MB للنص · 100 صفحة PDF · 5,000 فقرة · 500 خلية جدول · 200 عنصر DOCX",
+  adminAiParserAvailable: "متاح محليًا للاختبار المعزول فقط",
+  adminAiParserUnavailable: "غير متاح حاليًا",
   adminAiReviewField: "الحقل",
   adminAiReviewValue: "القيمة المقترحة",
   adminAiReviewSource: "المصدر / الدليل",
@@ -2109,6 +2119,11 @@ const en: FoundationMessages = {
   adminAiInvalidSize: "The file size is not allowed.",
   adminAiRemoveSelection: "Remove selection",
   adminAiStructuredFields: "Identity · Professional · Education · Career · Achievements · Awards · Publications · Skills · Languages · Links · Sources",
+  adminAiExtractionCapability: "Extraction capability",
+  adminAiParserStatus: "Parser status",
+  adminAiLimits: "Safety limits: 10MB file · 8MB text · 100 PDF pages · 5,000 paragraphs · 500 table cells · 200 DOCX entries",
+  adminAiParserAvailable: "Available for isolated local testing only",
+  adminAiParserUnavailable: "Currently unavailable",
   adminAiReviewField: "Field",
   adminAiReviewValue: "Suggested value",
   adminAiReviewSource: "Source / evidence",

@@ -100,9 +100,15 @@ export default async function AdminAiPage({ searchParams }: PageProps) {
       {selectedDocument ? <section className="admin-panel ai-workspace-panel" aria-labelledby="ai-selected-document-title"><div className="admin-panel-heading"><div><p className="eyebrow">{copy.adminAiDocuments}</p><h2 id="ai-selected-document-title">{selectedDocument.originalFilename}</h2></div><span className="admin-launch-status admin-launch-status-not_tested">{selectedDocument.ingestionStatus}</span></div><p className="admin-field-hint">{copy.adminAiPrivacyNotice}</p><section aria-labelledby="ai-extracted-text-title"><h3 id="ai-extracted-text-title">{copy.adminAiExtractedText}</h3>{privateDetail?.sources.length ? privateDetail.sources.map((source) => <details key={source.id}><summary>{source.extractor} · {source.extractionStatus}</summary><pre className="ai-private-text">{source.normalizedText}</pre></details>) : <p className="admin-empty">{copy.adminAiNoExtractedText}</p>}</section><A3lamFactReviewTable facts={reviewFacts} copy={copy} /></section> : <A3lamFactReviewTable facts={[]} copy={copy} />}
 
       <section className="admin-panel ai-workspace-panel" aria-labelledby="ai-contract-title">
-        <div className="admin-panel-heading"><div><p className="eyebrow">{copy.adminAiHumanReview}</p><h2 id="ai-contract-title">{copy.adminAiHumanReview}</h2></div></div>
+        <div className="admin-panel-heading"><div><p className="eyebrow">{copy.adminAiExtractionCapability}</p><h2 id="ai-contract-title">{copy.adminAiExtractionCapability}</h2></div></div>
         <p className="admin-field-hint">{copy.adminAiDraftBoundary}</p>
         <p className="admin-field-hint">{copy.adminAiSupportedTypes}: {capabilities.supportedTypes.join(" · ")}</p>
+        <p className="admin-field-hint">{copy.adminAiLimits}</p>
+        <div className="admin-table-wrap">
+          <table className="admin-table admin-responsive-table"><caption>{copy.adminAiParserStatus}</caption><thead><tr><th scope="col">{copy.adminAiSupportedTypes}</th><th scope="col">{copy.adminAiParserStatus}</th></tr></thead><tbody>
+            {capabilities.supportedTypes.map((type) => <tr key={type}><th scope="row">{type.toUpperCase()}</th><td>{capabilities.parserStatus[type] === "AVAILABLE_LOCAL_ONLY" ? copy.adminAiParserAvailable : copy.adminAiParserUnavailable}</td></tr>)}
+          </tbody></table>
+        </div>
         <p className="admin-field-hint">{copy.adminAiStructuredFields}</p>
       </section>
     </div>

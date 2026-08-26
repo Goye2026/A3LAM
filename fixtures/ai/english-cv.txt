@@ -1,0 +1,14 @@
+PERSONAL INFORMATION
+Name: Test Example
+
+SUMMARY
+A synthetic profile used only for parser tests.
+
+EDUCATION
+Example University — Bachelor of Testing
+
+EXPERIENCE
+Example Lab — Data Editor
+
+Email: example.english@example.test
+Website: https://example.test/en

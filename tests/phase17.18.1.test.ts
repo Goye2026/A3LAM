@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildAiAuditLogInput } from "@/lib/ai/audit";
 import { createStructuredFact, validateProvenance } from "@/lib/ai/facts";
-import { documentIngestionService, DocumentExtractionUnavailableError } from "@/lib/ai/ingestion";
+import { documentIngestionService } from "@/lib/ai/ingestion";
 import { getAiProviderState, unavailableAiProvider } from "@/lib/ai/provider";
 import { createHumanReviewWorkspace } from "@/lib/ai/review";
 import { getAiWorkspaceCapabilities, getAiWorkspaceSnapshot } from "@/lib/ai/workspace";
@@ -30,9 +30,9 @@ describe("Phase 17.18.1 AI document foundation", () => {
     await expect(validateAiDocument(new File(["not-a-docx"], "note.docx", { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }))).rejects.toBeInstanceOf(AiDocumentValidationError);
   });
 
-  it("does not pretend PDF/DOCX extraction is available", async () => {
-    const pdf = new File(["%PDF-1.7\n%%EOF"], "document.pdf", { type: "application/pdf" });
-    await expect(documentIngestionService.extract(pdf)).rejects.toBeInstanceOf(DocumentExtractionUnavailableError);
+  it("reports PDF and DOCX parser adapters as local-only capabilities", () => {
+    expect(getAiWorkspaceCapabilities().availableExtractors).toEqual(expect.arrayContaining(["pdf", "docx", "txt"]));
+    expect(getAiWorkspaceCapabilities().parserStatus).toEqual({ pdf: "AVAILABLE_LOCAL_ONLY", docx: "AVAILABLE_LOCAL_ONLY", txt: "AVAILABLE_LOCAL_ONLY" });
   });
 });
 

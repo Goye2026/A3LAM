@@ -4,6 +4,16 @@ import { getAvailableDocumentExtractors } from "./ingestion";
 import { getAiProviderState } from "./provider";
 import { getAiQueueProviderState } from "./queue";
 import { getDocumentStorageState } from "./storage";
+import {
+  AI_DOCUMENT_MAX_BYTES,
+  AI_EXTRACTED_TEXT_MAX_BYTES,
+  AI_MAX_DOCX_DECOMPRESSED_BYTES,
+  AI_MAX_DOCX_ENTRY_COUNT,
+  AI_MAX_DOCX_ENTRY_BYTES,
+  AI_MAX_PDF_PAGES,
+  AI_MAX_PARAGRAPHS,
+  AI_MAX_TABLE_CELLS,
+} from "./validation";
 import type { AiWorkspaceSnapshot, DocumentProcessingState } from "./types";
 
 export async function getAiPersistenceState(): Promise<AiWorkspaceSnapshot["persistence"]> {
@@ -35,6 +45,21 @@ export function getAiWorkspaceCapabilities() {
   return {
     supportedTypes: ["pdf", "docx", "txt"] as const,
     availableExtractors: getAvailableDocumentExtractors(),
+    parserStatus: {
+      pdf: "AVAILABLE_LOCAL_ONLY",
+      docx: "AVAILABLE_LOCAL_ONLY",
+      txt: "AVAILABLE_LOCAL_ONLY",
+    } as const,
+    limits: {
+      maxInputBytes: AI_DOCUMENT_MAX_BYTES,
+      maxExtractedTextBytes: AI_EXTRACTED_TEXT_MAX_BYTES,
+      maxPdfPages: AI_MAX_PDF_PAGES,
+      maxParagraphs: AI_MAX_PARAGRAPHS,
+      maxTableCells: AI_MAX_TABLE_CELLS,
+      maxDocxEntries: AI_MAX_DOCX_ENTRY_COUNT,
+      maxDocxDecompressedBytes: AI_MAX_DOCX_DECOMPRESSED_BYTES,
+      maxDocxEntryBytes: AI_MAX_DOCX_ENTRY_BYTES,
+    },
     inference: "DISABLED" as const,
     productionUpload: "DISABLED" as const,
     publicProjection: "DISABLED" as const,
