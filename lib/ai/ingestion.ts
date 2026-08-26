@@ -1,4 +1,4 @@
-import { normalizeExtractedText, validateAiDocument, type ValidatedAiDocument } from "./validation";
+import { assertExtractedText, validateAiDocument, type ValidatedAiDocument } from "./validation";
 import type { DocumentExtractionResult, DocumentMetadata, AiDocumentType } from "./types";
 
 export class DocumentExtractionUnavailableError extends Error {
@@ -15,11 +15,13 @@ const txtExtractor: DocumentExtractor = {
   name: "deterministic-utf8-text",
   documentType: "txt",
   async extract(bytes) {
+    let decoded: string;
     try {
-      return normalizeExtractedText(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
+      decoded = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
     } catch {
       throw new DocumentExtractionUnavailableError("تعذر قراءة ترميز المستند النصي");
     }
+    return assertExtractedText(decoded);
   },
 };
 
@@ -36,6 +38,7 @@ async function extractValidatedDocument(file: ValidatedAiDocument, extractor: Do
     originalName: file.originalName,
     mimeType: file.mimeType,
     sizeBytes: file.sizeBytes,
+    checksumSha256: file.checksumSha256,
     extractedAt: new Date().toISOString(),
     extractor: extractor.name,
   };

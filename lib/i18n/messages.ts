@@ -677,6 +677,18 @@ export type FoundationMessages = {
   adminAiDraftBoundary: string;
   adminAiNoInference: string;
   adminAiNoPersistence: string;
+  adminAiRequiresMigration: string;
+  adminAiQueue: string;
+  adminAiMalwareScanning: string;
+  adminAiRetention: string;
+  adminAiDocumentStatus: string;
+  adminAiNoDocumentSelected: string;
+  adminAiReviewStart: string;
+  adminAiReviewUnavailable: string;
+  adminAiExtractedText: string;
+  adminAiNoExtractedText: string;
+  adminAiRetry: string;
+  adminAiUploadProgress: string;
   adminAiUnsupportedType: string;
   adminAiInvalidSize: string;
   adminAiRemoveSelection: string;
@@ -687,6 +699,11 @@ export type FoundationMessages = {
   adminAiReviewConfidence: string;
   adminAiReviewClassification: string;
   adminAiReviewAction: string;
+  adminAiAccept: string;
+  adminAiEdit: string;
+  adminAiReject: string;
+  adminAiReviewSaving: string;
+  adminAiReviewError: string;
   adminAiNoFacts: string;
 };
 
@@ -1368,6 +1385,18 @@ const ar: FoundationMessages = {
   adminAiDraftBoundary: "أي ناتج مستقبلي يدخل كمسودة ولا ينتقل تلقائيًا إلى النشر.",
   adminAiNoInference: "لم تُنفذ أي عملية inference أو اتصال بمزود AI في هذه المرحلة.",
   adminAiNoPersistence: "لم تُنشأ persistence لمهام AI بعد؛ لذلك لا نعرض عدادات اصطناعية.",
+  adminAiRequiresMigration: "تحتاج persistence إلى migration additive غير مطبقة في Production.",
+  adminAiQueue: "طابور المعالجة",
+  adminAiMalwareScanning: "فحص البرمجيات الضارة",
+  adminAiRetention: "سياسة الاحتفاظ",
+  adminAiDocumentStatus: "حالة المستند",
+  adminAiNoDocumentSelected: "اختر مستندًا لمراجعة تفاصيله الخاصة.",
+  adminAiReviewStart: "بدء المراجعة البشرية",
+  adminAiReviewUnavailable: "لا تتوفر بيانات المراجعة قبل تطبيق migration المطلوبة.",
+  adminAiExtractedText: "النص المستخرج الخاص",
+  adminAiNoExtractedText: "لا يوجد نص مستخرج متاح للمراجعة.",
+  adminAiRetry: "إعادة المحاولة",
+  adminAiUploadProgress: "تقدم العملية",
   adminAiUnsupportedType: "نوع الملف غير مدعوم. استخدم PDF أو DOCX أو TXT.",
   adminAiInvalidSize: "حجم الملف غير مسموح.",
   adminAiRemoveSelection: "إزالة الاختيار",
@@ -1378,6 +1407,11 @@ const ar: FoundationMessages = {
   adminAiReviewConfidence: "الثقة",
   adminAiReviewClassification: "التصنيف",
   adminAiReviewAction: "الإجراء",
+  adminAiAccept: "قبول",
+  adminAiEdit: "تعديل وقبول",
+  adminAiReject: "رفض",
+  adminAiReviewSaving: "جارٍ حفظ قرار المراجعة…",
+  adminAiReviewError: "تعذر حفظ قرار المراجعة.",
   adminAiNoFacts: "لا توجد معلومات مستخرجة للمراجعة بعد.",
 };
 
@@ -2059,6 +2093,18 @@ const en: FoundationMessages = {
   adminAiDraftBoundary: "Future output enters as a draft and cannot move automatically to publication.",
   adminAiNoInference: "No inference or AI provider call was executed in this phase.",
   adminAiNoPersistence: "AI job persistence is not initialized; synthetic counters are not shown.",
+  adminAiRequiresMigration: "Persistence requires an additive migration that is not applied in Production.",
+  adminAiQueue: "Processing queue",
+  adminAiMalwareScanning: "Malware scanning",
+  adminAiRetention: "Retention policy",
+  adminAiDocumentStatus: "Document status",
+  adminAiNoDocumentSelected: "Select a document to review its private details.",
+  adminAiReviewStart: "Start human review",
+  adminAiReviewUnavailable: "Review data is unavailable until the required migration is applied.",
+  adminAiExtractedText: "Private extracted text",
+  adminAiNoExtractedText: "No extracted text is available for review.",
+  adminAiRetry: "Retry",
+  adminAiUploadProgress: "Operation progress",
   adminAiUnsupportedType: "Unsupported file type. Use PDF, DOCX, or TXT.",
   adminAiInvalidSize: "The file size is not allowed.",
   adminAiRemoveSelection: "Remove selection",
@@ -2069,6 +2115,11 @@ const en: FoundationMessages = {
   adminAiReviewConfidence: "Confidence",
   adminAiReviewClassification: "Classification",
   adminAiReviewAction: "Action",
+  adminAiAccept: "Accept",
+  adminAiEdit: "Edit and accept",
+  adminAiReject: "Reject",
+  adminAiReviewSaving: "Saving review decision…",
+  adminAiReviewError: "The review decision could not be saved.",
   adminAiNoFacts: "No extracted information is available for review yet.",
 };
 

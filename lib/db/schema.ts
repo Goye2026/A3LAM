@@ -1,6 +1,7 @@
 import { boolean, date, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import type { ContentStatus, ProfileStatus, ProfileVisibility, SourceType } from "@/lib/domain/a3lam";
 import type { AdminAccountStatus, AdminPermissionCode, AdminRoleCode } from "@/lib/admin/types";
+import type { AiDocumentStatus, AiDocumentType, AiExtractionStatus, AiFailureCode, AiOwnerType, AiProcessingJobStatus, AiRetentionPolicyState, AiReviewDecision, ConfidenceClassification, FactClassification } from "@/lib/ai/types";
 
 const lifecycleStatus = (column: string) => text(column).$type<ContentStatus>().notNull().default("draft");
 
@@ -555,6 +556,124 @@ export const personMedia = pgTable(
   }),
 );
 
+export const aiDocuments = pgTable(
+  "ai_documents",
+  {
+    id: text("id").primaryKey(),
+    originalFilename: text("original_filename").notNull(),
+    normalizedFilename: text("normalized_filename").notNull(),
+    documentType: text("document_type").$type<AiDocumentType>().notNull(),
+    mimeType: text("mime_type").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    checksumSha256: text("checksum_sha256").notNull(),
+    ingestionStatus: text("ingestion_status").$type<AiDocumentStatus>().notNull().default("UPLOADED"),
+    extractionStatus: text("extraction_status").$type<AiExtractionStatus>().notNull().default("NOT_STARTED"),
+    processingStatus: text("processing_status").$type<AiProcessingJobStatus>().notNull().default("QUEUED"),
+    ownerType: text("owner_type").$type<AiOwnerType>().notNull(),
+    ownerId: text("owner_id").notNull(),
+    storageKey: text("storage_key"),
+    retentionPolicy: text("retention_policy").$type<AiRetentionPolicyState>().notNull().default("REQUIRES_CONFIGURATION"),
+    failureCode: text("failure_code").$type<AiFailureCode>(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    checksumOwnerUnique: uniqueIndex("ai_documents_owner_checksum_unique").on(table.ownerType, table.ownerId, table.checksumSha256),
+    statusIndex: index("ai_documents_status_idx").on(table.ingestionStatus, table.processingStatus),
+    ownerIndex: index("ai_documents_owner_idx").on(table.ownerType, table.ownerId, table.createdAt),
+  }),
+);
+
+export const aiProcessingJobs = pgTable(
+  "ai_processing_jobs",
+  {
+    id: text("id").primaryKey(),
+    documentId: text("document_id").notNull().references(() => aiDocuments.id, { onDelete: "cascade" }),
+    idempotencyKey: text("idempotency_key").notNull(),
+    attempt: integer("attempt").notNull().default(0),
+    status: text("status").$type<AiProcessingJobStatus>().notNull().default("QUEUED"),
+    errorCode: text("error_code").$type<AiFailureCode>(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    idempotencyUnique: uniqueIndex("ai_processing_jobs_idempotency_unique").on(table.idempotencyKey),
+    documentIndex: index("ai_processing_jobs_document_idx").on(table.documentId, table.createdAt),
+    statusIndex: index("ai_processing_jobs_status_idx").on(table.status, table.updatedAt),
+  }),
+);
+
+export const aiExtractedSources = pgTable(
+  "ai_extracted_sources",
+  {
+    id: text("id").primaryKey(),
+    documentId: text("document_id").notNull().references(() => aiDocuments.id, { onDelete: "cascade" }),
+    normalizedText: text("normalized_text").notNull(),
+    textSha256: text("text_sha256").notNull(),
+    textBytes: integer("text_bytes").notNull(),
+    extractor: text("extractor").notNull(),
+    extractionStatus: text("extraction_status").$type<AiExtractionStatus>().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    documentTextUnique: uniqueIndex("ai_extracted_sources_document_text_unique").on(table.documentId, table.textSha256),
+    documentIndex: index("ai_extracted_sources_document_idx").on(table.documentId, table.createdAt),
+  }),
+);
+
+export const aiExtractedFacts = pgTable(
+  "ai_extracted_facts",
+  {
+    id: text("id").primaryKey(),
+    sourceId: text("source_id").notNull().references(() => aiExtractedSources.id, { onDelete: "cascade" }),
+    fieldPath: text("field_path").notNull(),
+    value: jsonb("value").notNull(),
+    confidence: text("confidence").$type<ConfidenceClassification>().notNull(),
+    classification: text("classification").$type<FactClassification>().notNull(),
+    reviewStatus: text("review_status").$type<AiReviewDecision>().notNull().default("UNREVIEWED"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    sourceIndex: index("ai_extracted_facts_source_idx").on(table.sourceId, table.createdAt),
+    reviewIndex: index("ai_extracted_facts_review_idx").on(table.reviewStatus, table.updatedAt),
+  }),
+);
+
+export const aiFactEvidence = pgTable(
+  "ai_fact_evidence",
+  {
+    id: text("id").primaryKey(),
+    factId: text("fact_id").notNull().references(() => aiExtractedFacts.id, { onDelete: "cascade" }),
+    page: integer("page"),
+    section: text("section"),
+    excerpt: text("excerpt").notNull(),
+    sourceUrl: text("source_url"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    factIndex: index("ai_fact_evidence_fact_idx").on(table.factId),
+  }),
+);
+
+export const aiReviewDecisions = pgTable(
+  "ai_review_decisions",
+  {
+    id: text("id").primaryKey(),
+    factId: text("fact_id").notNull().references(() => aiExtractedFacts.id, { onDelete: "cascade" }),
+    reviewerId: text("reviewer_id").references(() => adminIdentities.id, { onDelete: "set null" }),
+    decision: text("decision").$type<AiReviewDecision>().notNull(),
+    originalValue: jsonb("original_value").notNull(),
+    reviewedValue: jsonb("reviewed_value"),
+    reviewerNote: text("reviewer_note"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    factIndex: index("ai_review_decisions_fact_idx").on(table.factId, table.createdAt),
+    reviewerIndex: index("ai_review_decisions_reviewer_idx").on(table.reviewerId, table.createdAt),
+  }),
+);
+
 export const dbSchema = {
   categories,
   people,
@@ -590,4 +709,10 @@ export const dbSchema = {
   mediaAssets,
   personMedia,
   auditLogs,
+  aiDocuments,
+  aiProcessingJobs,
+  aiExtractedSources,
+  aiExtractedFacts,
+  aiFactEvidence,
+  aiReviewDecisions,
 };
