@@ -735,6 +735,84 @@ export type FoundationMessages = {
   adminAiPipelineApproved: string;
   adminAiGenerationStatus: string;
   adminAiQualityGate: string;
+  adminAiBack: string;
+  adminAiLocalOnly: string;
+  adminAiChooseLocalFile: string;
+  adminAiOcrNotice: string;
+  adminAiDocxNotice: string;
+  adminAiSourceA: string;
+  adminAiSourceB: string;
+  adminAiBoundaryDraftPerson: string;
+  adminAiBoundaryDraftProfile: string;
+  adminAiBoundaryDraftPublished: string;
+  adminAiDraftStatus: string;
+  adminAiLanguageArabic: string;
+  adminAiLanguageEnglish: string;
+  adminAiLanguageBilingual: string;
+  adminAiLanguageSource: string;
+  adminAiModeProfessionalCvDescription: string;
+  adminAiModeProfessionalProfileDescription: string;
+  adminAiModePersonDraftDescription: string;
+  adminAiModeBiographyDescription: string;
+  adminAiModeSeoDescription: string;
+  adminAiEditedSuffix: string;
+  adminAiWorkspaceTitle: string;
+  adminAiWorkspaceDescription: string;
+  adminAiStepDocument: string;
+  adminAiStepExtraction: string;
+  adminAiStepFacts: string;
+  adminAiStepGeneration: string;
+  adminAiStepDraft: string;
+  adminAiStepClaims: string;
+  adminAiStepReview: string;
+  adminAiRunIsolatedDemo: string;
+  adminAiLocalDemoNotice: string;
+  adminAiDropzoneHint: string;
+  adminAiSelectedDocument: string;
+  adminAiDetectedLanguage: string;
+  adminAiProcessingState: string;
+  adminAiSections: string;
+  adminAiParagraphs: string;
+  adminAiOpenSource: string;
+  adminAiEvidenceUnavailable: string;
+  adminAiConflictDetected: string;
+  adminAiNeedsHumanReview: string;
+  adminAiGenerationChooseMode: string;
+  adminAiGenerationChooseLanguage: string;
+  adminAiModeProfessionalCv: string;
+  adminAiModeProfessionalProfile: string;
+  adminAiModePersonDraft: string;
+  adminAiModeBiography: string;
+  adminAiModeSeo: string;
+  adminAiRunGeneration: string;
+  adminAiSourceBacked: string;
+  adminAiNeedsVerification: string;
+  adminAiAiWording: string;
+  adminAiFinalPrivateDraft: string;
+  adminAiPrivateDraftNotice: string;
+  adminAiSourceFact: string;
+  adminAiGeneratedClaim: string;
+  adminAiClaimAccept: string;
+  adminAiClaimEdit: string;
+  adminAiClaimReject: string;
+  adminAiClaimRequestSource: string;
+  adminAiEditorialReadiness: string;
+  adminAiIdentityCheck: string;
+  adminAiSourcesCheck: string;
+  adminAiEvidenceCheck: string;
+  adminAiConflictsCheck: string;
+  adminAiClaimsCheck: string;
+  adminAiCompletenessCheck: string;
+  adminAiPrivacyCheck: string;
+  adminAiPublicationCheck: string;
+  adminAiPass: string;
+  adminAiWarning: string;
+  adminAiBlocked: string;
+  adminAiProductionDisabled: string;
+  adminAiMockAvailable: string;
+  adminAiReviewRequiredBeforeProceed: string;
+  adminAiNoLocalDraft: string;
+  adminAiDemoGenerated: string;
 };
 
 const ar: FoundationMessages = {
@@ -1473,6 +1551,84 @@ const ar: FoundationMessages = {
   adminAiPipelineApproved: "معتمد كمسودة",
   adminAiGenerationStatus: "حالة التوليد",
   adminAiQualityGate: "بوابة الجودة",
+  adminAiBack: "رجوع",
+  adminAiLocalOnly: "محلي فقط",
+  adminAiChooseLocalFile: "اختيار ملف محلي",
+  adminAiOcrNotice: "PDF بلا طبقة نص يحتاج OCR؛ OCR غير مهيأ حاليًا.",
+  adminAiDocxNotice: "DOCX يخضع لحدود الأرشيف والفقرة والجدول؛ الملفات غير الآمنة تُرفض.",
+  adminAiSourceA: "المصدر A",
+  adminAiSourceB: "المصدر B",
+  adminAiBoundaryDraftPerson: "مسودة AI ليست شخصية",
+  adminAiBoundaryDraftProfile: "مسودة AI ليست ملفًا منشورًا",
+  adminAiBoundaryDraftPublished: "مسودة AI ليست محتوى منشورًا",
+  adminAiDraftStatus: "مسودة / DRAFT",
+  adminAiLanguageArabic: "العربية",
+  adminAiLanguageEnglish: "الإنجليزية",
+  adminAiLanguageBilingual: "ثنائي اللغة",
+  adminAiLanguageSource: "لغة المصدر",
+  adminAiModeProfessionalCvDescription: "ينظم الخبرات والتعليم في سيرة مهنية قابلة للمراجعة.",
+  adminAiModeProfessionalProfileDescription: "يبني ملفًا مهنيًا تحريريًا موجزًا ومدعومًا بالمصدر.",
+  adminAiModePersonDraftDescription: "مسودة بنية لشخصية A3LAM مستقبلية، وليست Person أو Profile منشورًا.",
+  adminAiModeBiographyDescription: "يقترح سيرة مختصرة مع إبقاء كل claim تحت المراجعة.",
+  adminAiModeSeoDescription: "ينشئ حقولًا تحريرية لمسودة SEO دون نشر تلقائي.",
+  adminAiEditedSuffix: "محررة",
+  adminAiWorkspaceTitle: "مساحة العمل التحريرية",
+  adminAiWorkspaceDescription: "مسار خاص ومتعدد الخطوات لفهم المصدر ومراجعة الحقائق وبناء مسودة قبل أي قرار تحريري لاحق.",
+  adminAiStepDocument: "المستند",
+  adminAiStepExtraction: "الاستخلاص",
+  adminAiStepFacts: "الحقائق",
+  adminAiStepGeneration: "التوليد",
+  adminAiStepDraft: "المسودة",
+  adminAiStepClaims: "الادعاءات",
+  adminAiStepReview: "المراجعة",
+  adminAiRunIsolatedDemo: "تشغيل العرض المعزول",
+  adminAiLocalDemoNotice: "هذا عرض محلي معزول باستخدام بيانات اصطناعية فقط. لا يتم رفع ملف ولا إنشاء سجل Production.",
+  adminAiDropzoneHint: "اختر PDF أو DOCX أو TXT للمراجعة المحلية؛ الرفع الإنتاجي معطل.",
+  adminAiSelectedDocument: "المستند المحدد",
+  adminAiDetectedLanguage: "اللغة المكتشفة",
+  adminAiProcessingState: "حالة المعالجة",
+  adminAiSections: "الأقسام",
+  adminAiParagraphs: "الفقرات",
+  adminAiOpenSource: "فتح المصدر",
+  adminAiEvidenceUnavailable: "الدليل غير متاح — المراجعة مطلوبة.",
+  adminAiConflictDetected: "تم اكتشاف تعارض",
+  adminAiNeedsHumanReview: "يحتاج مراجعة بشرية",
+  adminAiGenerationChooseMode: "اختر نمط المسودة",
+  adminAiGenerationChooseLanguage: "اختر لغة الإخراج",
+  adminAiModeProfessionalCv: "سيرة مهنية منظمة",
+  adminAiModeProfessionalProfile: "ملف مهني تحريري",
+  adminAiModePersonDraft: "مسودة شخصية A3LAM المستقبلية",
+  adminAiModeBiography: "سيرة موجزة",
+  adminAiModeSeo: "مسودة SEO",
+  adminAiRunGeneration: "إنشاء مسودة محلية",
+  adminAiSourceBacked: "مدعوم بالمصدر",
+  adminAiNeedsVerification: "يحتاج تحققًا",
+  adminAiAiWording: "صياغة مولدة تحتاج مراجعة",
+  adminAiFinalPrivateDraft: "مسودة خاصة نهائية",
+  adminAiPrivateDraftNotice: "هذا الملف مسودة خاصة ولم يتم نشره.",
+  adminAiSourceFact: "الحقيقة المصدرية",
+  adminAiGeneratedClaim: "الادعاء الناتج",
+  adminAiClaimAccept: "قبول",
+  adminAiClaimEdit: "تعديل وقبول",
+  adminAiClaimReject: "رفض",
+  adminAiClaimRequestSource: "طلب مصدر",
+  adminAiEditorialReadiness: "الجاهزية التحريرية",
+  adminAiIdentityCheck: "الهوية",
+  adminAiSourcesCheck: "المصادر",
+  adminAiEvidenceCheck: "الأدلة",
+  adminAiConflictsCheck: "التعارضات",
+  adminAiClaimsCheck: "الادعاءات",
+  adminAiCompletenessCheck: "الاكتمال",
+  adminAiPrivacyCheck: "الخصوصية",
+  adminAiPublicationCheck: "النشر",
+  adminAiPass: "ناجح",
+  adminAiWarning: "تحذير",
+  adminAiBlocked: "محجوب",
+  adminAiProductionDisabled: "AI Production Processing غير مفعّل.",
+  adminAiMockAvailable: "Mock AI متاح للاختبار المعزول فقط.",
+  adminAiReviewRequiredBeforeProceed: "تحتاج هذه الخطوة إلى مراجعة بشرية قبل المتابعة.",
+  adminAiNoLocalDraft: "لا توجد مسودة محلية بعد.",
+  adminAiDemoGenerated: "تم إنشاء مسودة محلية؛ بقيت خاصة وبحالة DRAFT.",
 };
 
 const en: FoundationMessages = {
@@ -2211,6 +2367,84 @@ const en: FoundationMessages = {
   adminAiPipelineApproved: "Approved as draft",
   adminAiGenerationStatus: "Generation status",
   adminAiQualityGate: "Quality gate",
+  adminAiBack: "Back",
+  adminAiLocalOnly: "Local only",
+  adminAiChooseLocalFile: "Choose local file",
+  adminAiOcrNotice: "A PDF without a text layer requires OCR; OCR is not configured.",
+  adminAiDocxNotice: "DOCX is bounded by archive, paragraph, and table limits; unsafe files are rejected.",
+  adminAiSourceA: "Source A",
+  adminAiSourceB: "Source B",
+  adminAiBoundaryDraftPerson: "An AI draft is not a Person",
+  adminAiBoundaryDraftProfile: "An AI draft is not a published Profile",
+  adminAiBoundaryDraftPublished: "An AI draft is not published content",
+  adminAiDraftStatus: "Draft / DRAFT",
+  adminAiLanguageArabic: "Arabic",
+  adminAiLanguageEnglish: "English",
+  adminAiLanguageBilingual: "Bilingual",
+  adminAiLanguageSource: "Source language",
+  adminAiModeProfessionalCvDescription: "Organizes experience and education into a reviewable professional CV.",
+  adminAiModeProfessionalProfileDescription: "Builds a concise, source-backed editorial professional profile.",
+  adminAiModePersonDraftDescription: "A future A3LAM Person structure; it is not a Person or published Profile.",
+  adminAiModeBiographyDescription: "Suggests a short biography while keeping every claim under review.",
+  adminAiModeSeoDescription: "Creates editorial SEO fields without automatic publication.",
+  adminAiEditedSuffix: "edited",
+  adminAiWorkspaceTitle: "Editorial workspace",
+  adminAiWorkspaceDescription: "A private, step-based workspace for understanding sources, reviewing facts, and building a draft before any later editorial decision.",
+  adminAiStepDocument: "Document",
+  adminAiStepExtraction: "Extraction",
+  adminAiStepFacts: "Facts",
+  adminAiStepGeneration: "Generation",
+  adminAiStepDraft: "Draft",
+  adminAiStepClaims: "Claims",
+  adminAiStepReview: "Review",
+  adminAiRunIsolatedDemo: "Run isolated demo",
+  adminAiLocalDemoNotice: "This is a local isolated demo using synthetic data only. No file is uploaded and no Production record is created.",
+  adminAiDropzoneHint: "Choose a PDF, DOCX, or TXT for local review; Production upload is disabled.",
+  adminAiSelectedDocument: "Selected document",
+  adminAiDetectedLanguage: "Detected language",
+  adminAiProcessingState: "Processing state",
+  adminAiSections: "Sections",
+  adminAiParagraphs: "Paragraphs",
+  adminAiOpenSource: "Open source",
+  adminAiEvidenceUnavailable: "Evidence unavailable — verification required.",
+  adminAiConflictDetected: "Conflict detected",
+  adminAiNeedsHumanReview: "Needs human review",
+  adminAiGenerationChooseMode: "Choose draft mode",
+  adminAiGenerationChooseLanguage: "Choose output language",
+  adminAiModeProfessionalCv: "Structured professional CV",
+  adminAiModeProfessionalProfile: "Editorial professional profile",
+  adminAiModePersonDraft: "Future A3LAM Person draft",
+  adminAiModeBiography: "Short biography",
+  adminAiModeSeo: "SEO draft",
+  adminAiRunGeneration: "Create local draft",
+  adminAiSourceBacked: "Source-backed",
+  adminAiNeedsVerification: "Needs verification",
+  adminAiAiWording: "AI-generated wording needs review",
+  adminAiFinalPrivateDraft: "Final private draft",
+  adminAiPrivateDraftNotice: "This file is private and has not been published.",
+  adminAiSourceFact: "Source fact",
+  adminAiGeneratedClaim: "Generated claim",
+  adminAiClaimAccept: "Accept",
+  adminAiClaimEdit: "Edit and accept",
+  adminAiClaimReject: "Reject",
+  adminAiClaimRequestSource: "Request source",
+  adminAiEditorialReadiness: "Editorial readiness",
+  adminAiIdentityCheck: "Identity",
+  adminAiSourcesCheck: "Sources",
+  adminAiEvidenceCheck: "Evidence",
+  adminAiConflictsCheck: "Conflicts",
+  adminAiClaimsCheck: "Claims",
+  adminAiCompletenessCheck: "Completeness",
+  adminAiPrivacyCheck: "Privacy",
+  adminAiPublicationCheck: "Publication",
+  adminAiPass: "Pass",
+  adminAiWarning: "Warning",
+  adminAiBlocked: "Blocked",
+  adminAiProductionDisabled: "AI Production Processing is disabled.",
+  adminAiMockAvailable: "Mock AI is available for isolated testing only.",
+  adminAiReviewRequiredBeforeProceed: "This step requires human review before proceeding.",
+  adminAiNoLocalDraft: "No local draft yet.",
+  adminAiDemoGenerated: "A local draft was created; it remains private and DRAFT.",
 };
 
 export const messages: Record<Locale, FoundationMessages> = { ar, en };

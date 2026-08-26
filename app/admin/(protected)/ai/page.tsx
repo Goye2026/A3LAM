@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { A3lamDocumentUploader } from "@/components/a3lam/ai/A3lamDocumentUploader";
 import { A3lamFactReviewTable } from "@/components/a3lam/ai/A3lamFactReviewTable";
 import { A3lamGenerationClaimReviewTable } from "@/components/a3lam/ai/A3lamGenerationClaimReviewTable";
+import { A3lamEditorialWorkspace } from "@/components/a3lam/ai/A3lamEditorialWorkspace";
 import { getAiProviderState } from "@/lib/ai/provider";
 import { getAdminAiDocumentPrivateDetail, listAdminAiDocuments, listAdminAiFacts } from "@/lib/ai/persistence";
 import { getAdminAiGenerationDocumentDetail } from "@/lib/ai/generation/persistence";
@@ -65,6 +66,8 @@ export default async function AdminAiPage({ searchParams }: PageProps) {
         <strong>{copy.adminAiPrivacyNotice}</strong>
         <p>{copy.adminAiNoInference}</p>
       </div>
+
+      <A3lamEditorialWorkspace copy={copy} />
 
       <section className="admin-stat-grid" aria-label={copy.adminAi}>
         <div className="admin-stat-card"><span>{copy.adminAiActivation}</span><strong>{snapshot.activation === "DISABLED" ? copy.adminAiActivationDisabled : copy.adminAiActivationEnabled}</strong></div>
