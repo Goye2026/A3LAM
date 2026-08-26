@@ -1,6 +1,37 @@
-import type { AiProfileProvider, AiProviderRequest, AiProviderResponse, AiProviderState, AiOutputType } from "./types";
+import type {
+  AiGenerationErrorCode,
+  AiGenerationRequest,
+  AiGenerationResult,
+  AiOutputType,
+  AiProfileProvider,
+  AiProvider,
+  AiProviderCapabilities,
+  AiProviderRequest,
+  AiProviderResponse,
+  AiProviderState,
+  AiProviderStatus,
+} from "./types";
 
 export const AI_PROVIDER_ENV_KEYS = ["A3LAM_AI_PROVIDER_URL", "A3LAM_AI_PROVIDER_TOKEN"] as const;
+
+export const AI_GENERATION_DEFAULT_CAPABILITIES: AiProviderCapabilities = {
+  structuredOutput: true,
+  maxInputBytes: 8 * 1024 * 1024,
+  maxOutputTokens: 2_000,
+  timeoutMs: 15_000,
+};
+
+export class AiProviderError extends Error {
+  readonly code: AiGenerationErrorCode;
+  readonly retryable: boolean;
+
+  constructor(message: string, code: AiGenerationErrorCode, retryable = false) {
+    super(message);
+    this.name = "AiProviderError";
+    this.code = code;
+    this.retryable = retryable;
+  }
+}
 
 function providerState(): AiProviderState {
   const endpoint = process.env.A3LAM_AI_PROVIDER_URL?.trim();
@@ -12,7 +43,7 @@ function providerState(): AiProviderState {
   } catch {
     return "INVALID_CONFIGURATION";
   }
-  // The foundation deliberately has no executable provider implementation.
+  // This foundation deliberately has no executable provider implementation.
   return "REQUIRES_CONFIGURATION";
 }
 
@@ -34,6 +65,10 @@ export function getAiProviderOperations(): readonly { operation: AiProviderReque
   ];
 }
 
+export function getAiGenerationProviderStatus(): AiProviderStatus {
+  return providerState() === "INVALID_CONFIGURATION" ? "ERROR" : "NOT_CONFIGURED";
+}
+
 export const unavailableAiProvider: AiProfileProvider = {
   name: "unconfigured",
   get state() { return providerState(); },
@@ -42,3 +77,19 @@ export const unavailableAiProvider: AiProfileProvider = {
     throw new Error("AI provider requires configuration");
   },
 };
+
+export const unconfiguredAiGenerationProvider: AiProvider = {
+  id: "unconfigured",
+  modelId: "unconfigured",
+  get status() { return getAiGenerationProviderStatus(); },
+  capabilities: AI_GENERATION_DEFAULT_CAPABILITIES,
+  async generate(request: AiGenerationRequest): Promise<AiGenerationResult> {
+    void request;
+    throw new AiProviderError("AI provider requires configuration", "PROVIDER_NOT_CONFIGURED");
+  },
+};
+
+export function assertProviderStatus(status: AiProviderStatus) {
+  if (status !== "READY") throw new AiProviderError("AI provider is not ready", "PROVIDER_NOT_CONFIGURED");
+  return status;
+}

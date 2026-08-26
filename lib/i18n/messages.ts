@@ -709,7 +709,29 @@ export type FoundationMessages = {
   adminAiReject: string;
   adminAiReviewSaving: string;
   adminAiReviewError: string;
+  adminAiReviewNote: string;
   adminAiNoFacts: string;
+  adminAiGeneration: string;
+  adminAiGenerationProvider: string;
+  adminAiGenerationModes: string;
+  adminAiOutputLanguages: string;
+  adminAiGenerationDisabled: string;
+  adminAiGenerationDraft: string;
+  adminAiGenerationQuality: string;
+  adminAiGenerationClaims: string;
+  adminAiGenerationNoClaims: string;
+  adminAiGenerationReview: string;
+  adminAiRequestSource: string;
+  adminAiConflict: string;
+  adminAiPipeline: string;
+  adminAiPipelineUploaded: string;
+  adminAiPipelineExtracted: string;
+  adminAiPipelineFacts: string;
+  adminAiPipelineGeneration: string;
+  adminAiPipelineReview: string;
+  adminAiPipelineApproved: string;
+  adminAiGenerationStatus: string;
+  adminAiQualityGate: string;
 };
 
 const ar: FoundationMessages = {
@@ -1422,7 +1444,29 @@ const ar: FoundationMessages = {
   adminAiReject: "رفض",
   adminAiReviewSaving: "جارٍ حفظ قرار المراجعة…",
   adminAiReviewError: "تعذر حفظ قرار المراجعة.",
+  adminAiReviewNote: "ملاحظة المراجع",
   adminAiNoFacts: "لا توجد معلومات مستخرجة للمراجعة بعد.",
+  adminAiGeneration: "التوليد المنظم",
+  adminAiGenerationProvider: "حالة مزود التوليد",
+  adminAiGenerationModes: "أنماط التوليد: سيرة مهنية · ملف مهني · مسودة شخصية A3LAM · سيرة مختصرة · مسودة SEO",
+  adminAiOutputLanguages: "لغات الإخراج: العربية · الإنجليزية · ثنائي اللغة · لغة المصدر",
+  adminAiGenerationDisabled: "التوليد معطل حتى تهيئة مزود مصرح به وتهيئة persistence الخاصة.",
+  adminAiGenerationDraft: "أي ناتج توليد يبقى مسودة DRAFT ولا يُنشر تلقائيًا.",
+  adminAiGenerationQuality: "بوابة جودة الناتج",
+  adminAiGenerationClaims: "الادعاءات الناتجة",
+  adminAiGenerationNoClaims: "لا توجد ادعاءات توليد قابلة للمراجعة.",
+  adminAiGenerationReview: "مراجعة الادعاء: المصدر ← المعلومة ← التفسير ← الادعاء ← القرار",
+  adminAiRequestSource: "طلب مصدر",
+  adminAiConflict: "متعارض ويحتاج مراجعة بشرية",
+  adminAiPipeline: "مسار المعالجة",
+  adminAiPipelineUploaded: "مرفوع",
+  adminAiPipelineExtracted: "مستخرج",
+  adminAiPipelineFacts: "الحقائق",
+  adminAiPipelineGeneration: "التوليد",
+  adminAiPipelineReview: "المراجعة",
+  adminAiPipelineApproved: "معتمد كمسودة",
+  adminAiGenerationStatus: "حالة التوليد",
+  adminAiQualityGate: "بوابة الجودة",
 };
 
 const en: FoundationMessages = {
@@ -2135,7 +2179,29 @@ const en: FoundationMessages = {
   adminAiReject: "Reject",
   adminAiReviewSaving: "Saving review decision…",
   adminAiReviewError: "The review decision could not be saved.",
+  adminAiReviewNote: "Reviewer note",
   adminAiNoFacts: "No extracted information is available for review yet.",
+  adminAiGeneration: "Structured generation",
+  adminAiGenerationProvider: "Generation provider status",
+  adminAiGenerationModes: "Modes: Professional CV · Professional profile · A3LAM Person draft · Biography · SEO draft",
+  adminAiOutputLanguages: "Output languages: Arabic · English · Bilingual · Source language",
+  adminAiGenerationDisabled: "Generation is disabled until an approved provider and private persistence are configured.",
+  adminAiGenerationDraft: "Every generated output remains a DRAFT and is never published automatically.",
+  adminAiGenerationQuality: "Output quality gate",
+  adminAiGenerationClaims: "Generated claims",
+  adminAiGenerationNoClaims: "No generated claims are available for review.",
+  adminAiGenerationReview: "Claim review: source → fact → interpretation → claim → decision",
+  adminAiRequestSource: "Request source",
+  adminAiConflict: "Conflicted; human review required",
+  adminAiPipeline: "Processing pipeline",
+  adminAiPipelineUploaded: "Uploaded",
+  adminAiPipelineExtracted: "Extracted",
+  adminAiPipelineFacts: "Facts",
+  adminAiPipelineGeneration: "Generation",
+  adminAiPipelineReview: "Review",
+  adminAiPipelineApproved: "Approved as draft",
+  adminAiGenerationStatus: "Generation status",
+  adminAiQualityGate: "Quality gate",
 };
 
 export const messages: Record<Locale, FoundationMessages> = { ar, en };

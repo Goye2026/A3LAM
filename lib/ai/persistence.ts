@@ -69,7 +69,7 @@ function safeFailureCode(error: unknown): AiFailureCode {
   return "EXTRACTION_FAILED";
 }
 
-function auditRow(action: AiAuditAction, actorId: string | null, entityType: "ai_document" | "ai_extraction" | "ai_fact" | "ai_draft" | "person" | "profile", entityId: string, field: string, oldValue: string | null, newValue: string | null) {
+function auditRow(action: AiAuditAction, actorId: string | null, entityType: "ai_document" | "ai_extraction" | "ai_fact" | "ai_draft" | "ai_generation_job" | "ai_generation_claim" | "person" | "profile", entityId: string, field: string, oldValue: string | null, newValue: string | null) {
   return buildAiAuditLogInput({ action, actorType: "admin", actorId, entityType, entityId, field, oldValue, newValue, reason: null }, randomUUID());
 }
 

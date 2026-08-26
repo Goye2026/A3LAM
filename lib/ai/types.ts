@@ -22,6 +22,150 @@ export type AiOwnerType = (typeof AI_OWNER_TYPES)[number];
 export const AI_FAILURE_CODES = ["VALIDATION_FAILED", "UNSUPPORTED_FORMAT", "MALFORMED_DOCUMENT", "EXTRACTION_UNAVAILABLE", "EXTRACTION_FAILED", "PROCESSING_FAILED", "REVIEW_REJECTED"] as const;
 export type AiFailureCode = (typeof AI_FAILURE_CODES)[number];
 
+export const AI_PROVIDER_STATUSES = ["NOT_CONFIGURED", "READY", "DEGRADED", "RATE_LIMITED", "ERROR", "DISABLED"] as const;
+export type AiProviderStatus = (typeof AI_PROVIDER_STATUSES)[number];
+export const AI_GENERATION_MODES = ["PROFESSIONAL_CV", "PROFESSIONAL_PROFILE", "A3LAM_PERSON_DRAFT", "BIOGRAPHY", "SEO_DRAFT"] as const;
+export type AiGenerationMode = (typeof AI_GENERATION_MODES)[number];
+export const AI_GENERATION_LANGUAGES = ["ARABIC", "ENGLISH", "BILINGUAL", "SOURCE_LANGUAGE"] as const;
+export type AiGenerationLanguage = (typeof AI_GENERATION_LANGUAGES)[number];
+export const AI_GENERATION_STATUSES = ["QUEUED", "RUNNING", "SUCCEEDED", "FAILED", "CANCELLED", "REQUIRES_CONFIGURATION"] as const;
+export type AiGenerationStatus = (typeof AI_GENERATION_STATUSES)[number];
+export const AI_QUALITY_GATE_STATUSES = ["PENDING", "PASS", "PASS_WITH_REVIEW", "REJECTED"] as const;
+export type AiQualityGateStatus = (typeof AI_QUALITY_GATE_STATUSES)[number];
+export const AI_CLAIM_STATUSES = ["VERIFIED", "NEEDS_VERIFICATION", "INFERRED", "MISSING", "CONFLICTED", "REJECTED"] as const;
+export type AiClaimStatus = (typeof AI_CLAIM_STATUSES)[number];
+export const AI_REVIEW_DECISION_ACTIONS = ["ACCEPT", "EDIT", "REJECT", "REQUEST_SOURCE"] as const;
+export type AiReviewDecisionAction = (typeof AI_REVIEW_DECISION_ACTIONS)[number];
+export const AI_GENERATION_ERROR_CODES = ["PROVIDER_NOT_CONFIGURED", "PROVIDER_TIMEOUT", "PROVIDER_RATE_LIMITED", "PROVIDER_UNAVAILABLE", "INVALID_OUTPUT", "VALIDATION_FAILED", "SOURCE_CONFLICT", "REVIEW_REQUIRED", "PRIVACY_BLOCKED", "PAYLOAD_TOO_LARGE", "UNSUPPORTED_LANGUAGE"] as const;
+export type AiGenerationErrorCode = (typeof AI_GENERATION_ERROR_CODES)[number];
+
+export type AiProviderCapabilities = {
+  structuredOutput: boolean;
+  maxInputBytes: number;
+  maxOutputTokens: number;
+  timeoutMs: number;
+};
+
+export type AiGenerationSourceFact = {
+  id: string;
+  fieldPath: string;
+  value: unknown;
+  evidenceIds: string[];
+  provenance: DocumentProvenance[];
+  confidence: ConfidenceClassification;
+  classification: FactClassification;
+};
+
+export type AiGenerationInput = {
+  documentId: string;
+  facts: AiGenerationSourceFact[];
+  normalizedText?: string;
+  sourceLanguage: ExtractionLanguage;
+};
+
+export type AiGeneratedClaim = {
+  id: string;
+  fieldPath: string;
+  value: unknown;
+  sourceFactIds: string[];
+  evidenceIds: string[];
+  confidence: ConfidenceClassification;
+  classification: FactClassification;
+  status: AiClaimStatus;
+  provenance: DocumentProvenance[];
+};
+
+export type AiGeneratedProfileDraft = {
+  mode: AiGenerationMode;
+  outputLanguage: AiGenerationLanguage;
+  identity: StructuredProfileDraft["identity"];
+  headline?: StructuredFact;
+  shortBio?: StructuredFact;
+  longBio?: StructuredFact;
+  education: StructuredProfileDraft["education"];
+  experience: StructuredProfileDraft["career"];
+  positions: StructuredProfileDraft["career"];
+  achievements: StructuredProfileDraft["achievements"];
+  skills: StructuredProfileDraft["skills"];
+  languages: StructuredProfileDraft["languages"];
+  locations: StructuredFact<string>[];
+  organizations: StructuredFact<string>[];
+  publications: StructuredProfileDraft["publications"];
+  awards: StructuredProfileDraft["awards"];
+  webLinks: StructuredProfileDraft["links"];
+  sources: StructuredProfileDraft["sources"];
+  claims: AiGeneratedClaim[];
+};
+
+export type AiPromptMessage = { role: "system" | "user"; content: string };
+
+export type AiGenerationPrompt = {
+  messages: AiPromptMessage[];
+  digest: string;
+  containsInstructionLikeText: boolean;
+};
+
+export type AiGenerationRequest = {
+  jobId: string;
+  mode: AiGenerationMode;
+  outputLanguage: AiGenerationLanguage;
+  input: AiGenerationInput;
+  prompt: AiGenerationPrompt;
+};
+
+export type AiGenerationResult = {
+  status: AiGenerationStatus;
+  draftStatus: "DRAFT";
+  mode: AiGenerationMode;
+  outputLanguage: AiGenerationLanguage;
+  providerId: string;
+  modelId: string;
+  draft?: AiGeneratedProfileDraft;
+  claims: AiGeneratedClaim[];
+  qualityGate: AiQualityGateStatus;
+  errorCode?: AiGenerationErrorCode;
+  errorMessage?: string;
+};
+
+export type AiGenerationJobRecord = {
+  id: string;
+  documentId: string;
+  idempotencyKey: string;
+  mode: AiGenerationMode;
+  outputLanguage: AiGenerationLanguage;
+  status: AiGenerationStatus;
+  providerId: string | null;
+  modelId: string | null;
+  attempt: number;
+  qualityGate: AiQualityGateStatus;
+  errorCode: AiGenerationErrorCode | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AiGenerationAttemptRecord = {
+  id: string;
+  jobId: string;
+  attempt: number;
+  status: AiGenerationStatus;
+  errorCode: AiGenerationErrorCode | null;
+  createdAt: string;
+};
+
+export type AiGenerationReviewInput = {
+  action: AiReviewDecisionAction;
+  reviewedValue?: unknown;
+  reviewerNote?: string;
+};
+
+export type AiProvider = {
+  readonly id: string;
+  readonly modelId: string;
+  readonly status: AiProviderStatus;
+  readonly capabilities: AiProviderCapabilities;
+  generate(request: AiGenerationRequest): Promise<AiGenerationResult>;
+};
+
 export const AI_EXTRACTION_ERROR_CODES = [
   "UNSUPPORTED_TYPE", "INVALID_FILE", "EMPTY_DOCUMENT", "FILE_TOO_LARGE", "EXTRACTED_TEXT_TOO_LARGE",
   "PDF_TEXT_UNAVAILABLE", "OCR_REQUIRED", "DOCX_INVALID", "DOCX_UNSAFE_ARCHIVE", "PARSER_FAILURE",
@@ -295,7 +439,13 @@ export type AiAuditAction =
   | "ai.extraction.failed"
   | "ai.generation.requested"
   | "ai.generation.completed"
+  | "ai.generation.failed"
   | "ai.human_review.started"
+  | "ai.human_review.requested"
+  | "ai.review.accepted"
+  | "ai.review.edited"
+  | "ai.review.rejected"
+  | "ai.review.requested"
   | "ai.fact.verified"
   | "ai.fact.rejected"
   | "ai.draft.created"
@@ -305,7 +455,7 @@ export type AiAuditEvent = {
   action: AiAuditAction;
   actorType: "admin" | "user" | "system" | "ai";
   actorId?: string | null;
-  entityType: "ai_document" | "ai_extraction" | "ai_fact" | "ai_draft" | "person" | "profile";
+  entityType: "ai_document" | "ai_extraction" | "ai_fact" | "ai_draft" | "ai_generation_job" | "ai_generation_claim" | "person" | "profile";
   entityId: string;
   field?: string;
   oldValue?: string | null;
@@ -315,6 +465,7 @@ export type AiAuditEvent = {
 
 export type AiWorkspaceSnapshot = {
   provider: AiProviderState;
+  generationProvider: AiProviderStatus;
   documentProcessing: DocumentProcessingState;
   storage: "AVAILABLE" | "REQUIRES_CONFIGURATION";
   persistence: "NOT_INITIALIZED" | "REQUIRES_MIGRATION" | "AVAILABLE";

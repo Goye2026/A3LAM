@@ -1,7 +1,7 @@
 import { boolean, date, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import type { ContentStatus, ProfileStatus, ProfileVisibility, SourceType } from "@/lib/domain/a3lam";
 import type { AdminAccountStatus, AdminPermissionCode, AdminRoleCode } from "@/lib/admin/types";
-import type { AiDocumentStatus, AiDocumentType, AiExtractionStatus, AiFailureCode, AiOwnerType, AiProcessingJobStatus, AiRetentionPolicyState, AiReviewDecision, ConfidenceClassification, FactClassification } from "@/lib/ai/types";
+import type { AiDocumentStatus, AiDocumentType, AiExtractionStatus, AiFailureCode, AiOwnerType, AiProcessingJobStatus, AiRetentionPolicyState, AiReviewDecision, ConfidenceClassification, FactClassification, AiGenerationMode, AiGenerationLanguage, AiGenerationStatus, AiQualityGateStatus, AiClaimStatus, AiReviewDecisionAction, AiGenerationErrorCode } from "@/lib/ai/types";
 
 const lifecycleStatus = (column: string) => text(column).$type<ContentStatus>().notNull().default("draft");
 
@@ -674,6 +674,86 @@ export const aiReviewDecisions = pgTable(
   }),
 );
 
+export const aiGenerationJobs = pgTable(
+  "ai_generation_jobs",
+  {
+    id: text("id").primaryKey(),
+    documentId: text("document_id").notNull().references(() => aiDocuments.id, { onDelete: "cascade" }),
+    idempotencyKey: text("idempotency_key").notNull(),
+    mode: text("mode").$type<AiGenerationMode>().notNull(),
+    outputLanguage: text("output_language").$type<AiGenerationLanguage>().notNull(),
+    status: text("status").$type<AiGenerationStatus>().notNull().default("QUEUED"),
+    providerId: text("provider_id"),
+    modelId: text("model_id"),
+    attempt: integer("attempt").notNull().default(0),
+    qualityGate: text("quality_gate").$type<AiQualityGateStatus>().notNull().default("PENDING"),
+    errorCode: text("error_code").$type<AiGenerationErrorCode>(),
+    outputJson: jsonb("output_json"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    idempotencyUnique: uniqueIndex("ai_generation_jobs_idempotency_unique").on(table.idempotencyKey),
+    documentIndex: index("ai_generation_jobs_document_idx").on(table.documentId, table.createdAt),
+    statusIndex: index("ai_generation_jobs_status_idx").on(table.status, table.updatedAt),
+  }),
+);
+
+export const aiGenerationAttempts = pgTable(
+  "ai_generation_attempts",
+  {
+    id: text("id").primaryKey(),
+    jobId: text("job_id").notNull().references(() => aiGenerationJobs.id, { onDelete: "cascade" }),
+    attempt: integer("attempt").notNull(),
+    status: text("status").$type<AiGenerationStatus>().notNull(),
+    errorCode: text("error_code").$type<AiGenerationErrorCode>(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    jobAttemptUnique: uniqueIndex("ai_generation_attempts_job_attempt_unique").on(table.jobId, table.attempt),
+    jobIndex: index("ai_generation_attempts_job_idx").on(table.jobId, table.createdAt),
+  }),
+);
+
+export const aiGenerationClaims = pgTable(
+  "ai_generation_claims",
+  {
+    id: text("id").primaryKey(),
+    jobId: text("job_id").notNull().references(() => aiGenerationJobs.id, { onDelete: "cascade" }),
+    fieldPath: text("field_path").notNull(),
+    value: jsonb("value"),
+    sourceFactIds: jsonb("source_fact_ids").notNull().default([]),
+    evidenceIds: jsonb("evidence_ids").notNull().default([]),
+    confidence: text("confidence").$type<ConfidenceClassification>().notNull(),
+    classification: text("classification").$type<FactClassification>().notNull(),
+    claimStatus: text("claim_status").$type<AiClaimStatus>().notNull(),
+    provenance: jsonb("provenance").notNull().default([]),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    jobIndex: index("ai_generation_claims_job_idx").on(table.jobId, table.createdAt),
+    statusIndex: index("ai_generation_claims_status_idx").on(table.claimStatus, table.createdAt),
+  }),
+);
+
+export const aiGenerationReviewDecisions = pgTable(
+  "ai_generation_review_decisions",
+  {
+    id: text("id").primaryKey(),
+    claimId: text("claim_id").notNull().references(() => aiGenerationClaims.id, { onDelete: "cascade" }),
+    reviewerId: text("reviewer_id").references(() => adminIdentities.id, { onDelete: "set null" }),
+    action: text("action").$type<AiReviewDecisionAction>().notNull(),
+    originalValue: jsonb("original_value"),
+    reviewedValue: jsonb("reviewed_value"),
+    reviewerNote: text("reviewer_note"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    claimIndex: index("ai_generation_review_claim_idx").on(table.claimId, table.createdAt),
+    reviewerIndex: index("ai_generation_review_reviewer_idx").on(table.reviewerId, table.createdAt),
+  }),
+);
+
 export const dbSchema = {
   categories,
   people,
@@ -715,4 +795,8 @@ export const dbSchema = {
   aiExtractedFacts,
   aiFactEvidence,
   aiReviewDecisions,
+  aiGenerationJobs,
+  aiGenerationAttempts,
+  aiGenerationClaims,
+  aiGenerationReviewDecisions,
 };

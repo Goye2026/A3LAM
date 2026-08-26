@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import { getAvailableDocumentExtractors } from "./ingestion";
-import { getAiProviderState } from "./provider";
+import { getAiGenerationProviderStatus, getAiProviderState } from "./provider";
 import { getAiQueueProviderState } from "./queue";
 import { getDocumentStorageState } from "./storage";
 import {
@@ -31,6 +31,7 @@ export async function getAiWorkspaceSnapshot(): Promise<AiWorkspaceSnapshot> {
   const documentProcessing: DocumentProcessingState = storage === "AVAILABLE" && getAvailableDocumentExtractors().length > 0 ? "AVAILABLE" : "REQUIRES_CONFIGURATION";
   return {
     provider: getAiProviderState(),
+    generationProvider: getAiGenerationProviderStatus(),
     documentProcessing,
     storage,
     persistence: await getAiPersistenceState(),
@@ -50,6 +51,8 @@ export function getAiWorkspaceCapabilities() {
       docx: "AVAILABLE_LOCAL_ONLY",
       txt: "AVAILABLE_LOCAL_ONLY",
     } as const,
+    generationModes: ["PROFESSIONAL_CV", "PROFESSIONAL_PROFILE", "A3LAM_PERSON_DRAFT", "BIOGRAPHY", "SEO_DRAFT"] as const,
+    outputLanguages: ["ARABIC", "ENGLISH", "BILINGUAL", "SOURCE_LANGUAGE"] as const,
     limits: {
       maxInputBytes: AI_DOCUMENT_MAX_BYTES,
       maxExtractedTextBytes: AI_EXTRACTED_TEXT_MAX_BYTES,

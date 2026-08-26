@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { A3lamDocumentUploader } from "@/components/a3lam/ai/A3lamDocumentUploader";
 import { A3lamFactReviewTable } from "@/components/a3lam/ai/A3lamFactReviewTable";
+import { A3lamGenerationClaimReviewTable } from "@/components/a3lam/ai/A3lamGenerationClaimReviewTable";
 import { getAiProviderState } from "@/lib/ai/provider";
 import { getAdminAiDocumentPrivateDetail, listAdminAiDocuments, listAdminAiFacts } from "@/lib/ai/persistence";
+import { getAdminAiGenerationDocumentDetail } from "@/lib/ai/generation/persistence";
 import { getAiWorkspaceCapabilities, getAiWorkspaceSnapshot } from "@/lib/ai/workspace";
 import type { HumanReviewFact } from "@/lib/ai/types";
 import { getAdminPageAccess } from "@/lib/admin/pageAuth";
@@ -43,6 +45,9 @@ export default async function AdminAiPage({ searchParams }: PageProps) {
   const selectedDocument = requestedDocument ? documents.items.find((item) => item.id === requestedDocument) ?? null : null;
   const persistedFacts = selectedDocument && !persistenceUnavailable ? await listAdminAiFacts(selectedDocument.id).catch(() => []) : [];
   const privateDetail = selectedDocument && !persistenceUnavailable ? await getAdminAiDocumentPrivateDetail(selectedDocument.id).catch(() => null) : null;
+  const generationDetail = selectedDocument && !persistenceUnavailable ? await getAdminAiGenerationDocumentDetail(selectedDocument.id).catch(() => null) : null;
+  const generationJob = generationDetail?.jobs[0] ?? null;
+  const generationClaims = generationDetail?.claims ?? [];
   const reviewFacts = reviewFactsFromPersisted(persistedFacts);
   const persistenceLabel = persistenceUnavailable ? (snapshot.persistence === "REQUIRES_MIGRATION" ? copy.adminAiRequiresMigration : copy.adminDatabaseError) : copy.adminAvailable;
 
@@ -75,6 +80,27 @@ export default async function AdminAiPage({ searchParams }: PageProps) {
         <div className="admin-panel-heading"><div><p className="eyebrow">{copy.adminAiProvider}</p><h2 id="ai-status-title">{copy.adminAiConfigurationRequired}</h2></div><span className="admin-launch-status admin-launch-status-requires_configuration">{statusText(provider, copy)}</span></div>
         <p className="admin-field-hint">{copy.adminAiConfigurationRequired}</p>
         <p className="admin-field-hint">{copy.adminAiUploadHint}</p>
+      </section>
+
+      <section className="admin-panel ai-workspace-panel" aria-labelledby="ai-generation-title">
+        <div className="admin-panel-heading"><div><p className="eyebrow">{copy.adminAiGeneration}</p><h2 id="ai-generation-title">{copy.adminAiGeneration}</h2></div><span className="admin-launch-status admin-launch-status-requires_configuration">{snapshot.generationProvider === "READY" ? copy.adminAvailable : copy.adminAiConfigurationRequired}</span></div>
+        <p className="admin-field-hint">{copy.adminAiGenerationProvider}: {snapshot.generationProvider === "READY" ? copy.adminAvailable : copy.adminAiConfigurationRequired}</p>
+        <p className="admin-field-hint">{copy.adminAiGenerationDisabled}</p>
+        <p className="admin-field-hint">{copy.adminAiGenerationDraft}</p>
+        <p className="admin-field-hint">{copy.adminAiGenerationModes}</p>
+        <p className="admin-field-hint">{copy.adminAiOutputLanguages}</p>
+        <div className="admin-stat-grid ai-stat-grid" aria-label={copy.adminAiPipeline}>
+          <div className="admin-stat-card"><span>{copy.adminAiPipelineUploaded}</span><strong>—</strong></div>
+          <div className="admin-stat-card"><span>{copy.adminAiPipelineExtracted}</span><strong>—</strong></div>
+          <div className="admin-stat-card"><span>{copy.adminAiPipelineFacts}</span><strong>—</strong></div>
+          <div className="admin-stat-card"><span>{copy.adminAiPipelineGeneration}</span><strong>{generationJob?.status ?? "—"}</strong></div>
+          <div className="admin-stat-card"><span>{copy.adminAiPipelineReview}</span><strong>—</strong></div>
+          <div className="admin-stat-card"><span>{copy.adminAiPipelineApproved}</span><strong>—</strong></div>
+        </div>
+        <p className="admin-field-hint">{copy.adminAiGenerationStatus}: {generationJob?.status ?? "—"}</p>
+        <p className="admin-field-hint">{copy.adminAiGenerationQuality}: {generationJob?.qualityGate ?? "—"}</p>
+        <p className="admin-field-hint">{copy.adminAiGenerationReview}</p>
+        <A3lamGenerationClaimReviewTable claims={generationClaims} copy={copy} />
       </section>
 
       <A3lamDocumentUploader copy={copy} disabled />

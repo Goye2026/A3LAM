@@ -54,6 +54,7 @@ export const ADMIN_PERMISSION_CODES = [
   "system.read",
   "ai.documents.read",
   "ai.documents.create",
+  "ai.generation.create",
   "ai.review",
   "system.migrations.execute",
 ] as const;
