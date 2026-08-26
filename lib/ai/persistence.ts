@@ -4,7 +4,7 @@ import { getDb } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 import { buildAiAuditLogInput } from "./audit";
 import { AiFactValidationError, validateProvenance, validateStructuredFact } from "./facts";
-import { DocumentExtractionUnavailableError } from "./ingestion";
+import { DocumentExtractionError, DocumentExtractionUnavailableError } from "./ingestion";
 import { assertExtractedText, type ValidatedAiDocument } from "./validation";
 import type { AiAuditAction, AiDocumentRecord, AiDocumentStatus, AiExtractedSourceRecord, AiFactReviewItem, AiFailureCode, AiOwnerType, AiProcessingJobRecord, AiProcessingJobStatus, AiReviewDecision, AiReviewInput, DocumentExtractionResult, StructuredFact } from "./types";
 
@@ -64,7 +64,9 @@ function safeJob(row: JobRow): AiProcessingJobRecord {
 }
 
 function safeFailureCode(error: unknown): AiFailureCode {
-  return error instanceof DocumentExtractionUnavailableError ? "EXTRACTION_UNAVAILABLE" : "EXTRACTION_FAILED";
+  if (error instanceof DocumentExtractionUnavailableError) return "EXTRACTION_UNAVAILABLE";
+  if (error instanceof DocumentExtractionError) return "EXTRACTION_FAILED";
+  return "EXTRACTION_FAILED";
 }
 
 function auditRow(action: AiAuditAction, actorId: string | null, entityType: "ai_document" | "ai_extraction" | "ai_fact" | "ai_draft" | "person" | "profile", entityId: string, field: string, oldValue: string | null, newValue: string | null) {
