@@ -464,6 +464,7 @@ export type AiAuditEvent = {
 };
 
 export type AiWorkspaceSnapshot = {
+  activation: "DISABLED" | "ENABLED";
   provider: AiProviderState;
   generationProvider: AiProviderStatus;
   documentProcessing: DocumentProcessingState;

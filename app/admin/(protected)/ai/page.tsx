@@ -67,6 +67,7 @@ export default async function AdminAiPage({ searchParams }: PageProps) {
       </div>
 
       <section className="admin-stat-grid" aria-label={copy.adminAi}>
+        <div className="admin-stat-card"><span>{copy.adminAiActivation}</span><strong>{snapshot.activation === "DISABLED" ? copy.adminAiActivationDisabled : copy.adminAiActivationEnabled}</strong></div>
         <div className="admin-stat-card"><span>{copy.adminAiProvider}</span><strong>{statusText(provider, copy)}</strong></div>
         <div className="admin-stat-card"><span>{copy.adminAiDocumentProcessing}</span><strong>{snapshot.documentProcessing === "AVAILABLE" ? copy.adminAvailable : copy.adminAiConfigurationRequired}</strong></div>
         <div className="admin-stat-card"><span>{copy.adminMedia}</span><strong>{snapshot.storage === "AVAILABLE" ? copy.adminAvailable : copy.adminAiConfigurationRequired}</strong></div>

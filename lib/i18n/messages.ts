@@ -659,6 +659,9 @@ export type FoundationMessages = {
   adminWithoutProfile: string;
   adminCompletionShort: string;
   adminAi: string;
+  adminAiActivation: string;
+  adminAiActivationDisabled: string;
+  adminAiActivationEnabled: string;
   adminAiDescription: string;
   adminAiProvider: string;
   adminAiDocumentProcessing: string;
@@ -1394,6 +1397,9 @@ const ar: FoundationMessages = {
   adminWithoutProfile: "بلا ملف",
   adminCompletionShort: "الاكتمال",
   adminAi: "A3LAM AI",
+  adminAiActivation: "تفعيل المعالجة الإنتاجية",
+  adminAiActivationDisabled: "معالجة AI الإنتاجية غير مفعّلة.",
+  adminAiActivationEnabled: "مفعّلة",
   adminAiDescription: "منشئ الملفات الذكية — أساس آمن لاستخلاص المعلومات من المستندات ومراجعتها بشريًا.",
   adminAiProvider: "مزود الذكاء الاصطناعي",
   adminAiDocumentProcessing: "معالجة المستندات",
@@ -2129,6 +2135,9 @@ const en: FoundationMessages = {
   adminWithoutProfile: "No profile",
   adminCompletionShort: "Completion",
   adminAi: "A3LAM AI",
+  adminAiActivation: "Production processing activation",
+  adminAiActivationDisabled: "AI Production Processing is disabled.",
+  adminAiActivationEnabled: "Enabled",
   adminAiDescription: "Smart profile builder — a safe foundation for extracting and human-reviewing document information.",
   adminAiProvider: "AI provider",
   adminAiDocumentProcessing: "Document processing",

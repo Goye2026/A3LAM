@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import { getAvailableDocumentExtractors } from "./ingestion";
 import { getAiGenerationProviderStatus, getAiProviderState } from "./provider";
+import { getAiProductionActivationState } from "./activation";
 import { getAiQueueProviderState } from "./queue";
 import { getDocumentStorageState } from "./storage";
 import {
@@ -30,6 +31,7 @@ export async function getAiWorkspaceSnapshot(): Promise<AiWorkspaceSnapshot> {
   const storage = getDocumentStorageState();
   const documentProcessing: DocumentProcessingState = storage === "AVAILABLE" && getAvailableDocumentExtractors().length > 0 ? "AVAILABLE" : "REQUIRES_CONFIGURATION";
   return {
+    activation: getAiProductionActivationState(),
     provider: getAiProviderState(),
     generationProvider: getAiGenerationProviderStatus(),
     documentProcessing,
