@@ -61,13 +61,13 @@
 
 ## Production verification
 
-تم نشر الكود بالطريقة المعتادة دون migration أو upload أو seed أو provider/environment change. deployment تنفيذ الكود هو `dpl_qY3rf9Ncjr234e79XUi1YfoeJue8` وحالته `READY`، ثم deployment وثائق الإغلاق للـHEAD النهائي هو `dpl_BBe7zVXztN6ddgXPaSzte1wnsFUN` وحالته `READY` على Production alias `https://a3-lam.vercel.app`. تنفيذ الكود كان على commit `6d5c77741957ba83f6c2742f2438410486de7bff`، وHEAD النهائي الحالي هو commit الوثائق `16cec431c7fbd87b85cb93abaf9cc115eb2e2512`.
+تم نشر الكود بالطريقة المعتادة دون migration أو upload أو seed أو provider/environment change. deployment تنفيذ الكود هو `dpl_qY3rf9Ncjr234e79XUi1YfoeJue8` وحالته `READY`، ثم deploymentا وثائق الإغلاق والتحقق هما `dpl_BBe7zVXztN6ddgXPaSzte1wnsFUN` و`dpl_BjsehT2vyo8MNvPpkrUTf3P3hjcc`، وكلاهما `READY` على Production alias `https://a3-lam.vercel.app`. تنفيذ الكود محفوظ في commit `6d5c77741957ba83f6c2742f2438410486de7bff`، ووثائق الإغلاق محفوظة في commits `16cec431c7fbd87b85cb93abaf9cc115eb2e2512` و`910cfb99a30e6063c6de22491f872c2aa6779b7f`.
 
 قراءة GET/HEAD-only أعطت `/` و`/api/health` حالة 200، و`/admin` و`/admin/ai` حالة 307 للزائر غير الموثق، و`/api/admin/ai/documents` حالة 401، و`sitemap.xml` و`robots.txt` حالة 200. public privacy scan المعزول لـ`/` و`/categories` و`/search` و`sitemap.xml` و`robots.txt` مرّ دون raw extracted text أو storage keys أو provider/internal AI markers؛ و`Disallow: /admin/` في robots قاعدة زحف مقصودة وليست تسريبًا لمحتوى Admin. وفي جلسة Admin المصادق عليها read-only ظهرت provider/storage/queue/malware/retention كـrequires configuration، وpersistence كـrequires migration، والـuploader disabled، وreview empty، دون اختيار أو رفع ملف.
 
 ## Git
 
-تم دفع التغييرات إلى `main` في repository `https://github.com/Goye2026/A3LAM`. بعد معالجة non-fast-forward عادي دون force push أو rebase، يطابق `HEAD` المحلي `origin/main` عند `16cec431c7fbd87b85cb93abaf9cc115eb2e2512`. commit الوثائق `docs: close phase 17.18.2` منفصل عن merge implementation commit، ولا يحتوي أي ملف أسرار.
+تم دفع التغييرات إلى `main` في repository `https://github.com/Goye2026/A3LAM` باستخدام push عادي دون force push أو rebase. merge implementation commit هو `6d5c77741957ba83f6c2742f2438410486de7bff`، وتلاه commitا الوثائق `16cec431c7fbd87b85cb93abaf9cc115eb2e2512` و`910cfb99a30e6063c6de22491f872c2aa6779b7f`. لا تحتوي هذه السلسلة على ملفات أسرار أو تغييرات خارج نطاق التوثيق.
 
 ## Limitations
 
