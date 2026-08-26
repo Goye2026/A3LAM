@@ -194,7 +194,7 @@ Public privacy scan بعد deployment كان `CLEAN`، ولم يجد raw documen
 | Code deployment | `dpl_9PGZWZfrnSF3qNbNUyfvK4cULuUn` |
 | Deployment state | `READY` |
 | Target | `production` |
-| Final docs deployment | سيتم إنشاؤه تلقائيًا بعد push وثائق الإغلاق، دون تغيير runtime behavior |
+| Docs closeout deployment | `dpl_6JBMFCDZnndPpaTb8tHSYsaoSFqk` — `READY` — commit `afedfcb4c718c750ecbdd976fa9528f547edd48e` |
 
 ## Limitations
 
