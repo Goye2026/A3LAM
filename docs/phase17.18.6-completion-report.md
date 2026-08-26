@@ -17,7 +17,7 @@
 | **Build** | PASS — 71/71 pages. |
 | **Production smoke** | PASS — GET-only على المسارات المطلوبة؛ `/admin` anonymous = 307 وprotected AI API = 401 وprivacy scan = PASS. |
 | **Git** | main، normal commits فقط، دون reset/rebase/force-push. |
-| **Deployment** | PASS — `dpl_CUhXrh2pGYG8fWRrG54Ez3uRfP9i`، READY، production، commit `86c529399265d11cb850b9888c209403b514ef72`. |
+| **Deployment** | PASS — functional deployment `dpl_CUhXrh2pGYG8fWRrG54Ez3uRfP9i` وverification deployment `dpl_6i33kabsNLEemqHUawNmCjpxCKtg` كلاهما READY على Production. |
 | **Population** | 0 — لم تُنشأ بيانات أشخاص أو ملفات شخصية. |
 | **Phase 18** | NOT STARTED. |
 
@@ -163,7 +163,7 @@
 
 ## 20. Production Verification
 
-أُجري التحقق بعد deployment `dpl_CUhXrh2pGYG8fWRrG54Ez3uRfP9i` باستخدام GET فقط، دون upload أو generation أو review أو أي mutation. أعادت `/` و`/api/health` و`/categories` و`/search` و`/robots.txt` و`/sitemap.xml` الحالة HTTP 200. أعاد anonymous `/admin` الحالة 307 إلى `/admin/login?next=%2Fadmin`، وأعاد anonymous `/api/admin/ai/documents` الحالة 401 مع `application/json`. نجح public privacy scan ولم يجد raw document/prompt/provider/token/job-table indicators.
+أُجري التحقق بعد deployment النهائي `dpl_6i33kabsNLEemqHUawNmCjpxCKtg` باستخدام GET فقط، دون upload أو generation أو review أو أي mutation. أعادت `/` و`/api/health` و`/categories` و`/search` و`/robots.txt` و`/sitemap.xml` الحالة HTTP 200. أعاد anonymous `/admin` الحالة 307 إلى `/admin/login?next=%2Fadmin`، وأعاد anonymous `/api/admin/ai/documents` الحالة 401 مع `application/json`. نجح public privacy scan ولم يجد raw document/prompt/provider/token/job-table indicators.
 
 فحص Chromium authenticated read-only موثق في `docs/phase17.18.6-browser-evidence.md`. لا يمثل هذا الفحص تفعيلًا إنتاجيًا ولا يثبت تهيئة dependencies.
 
@@ -208,7 +208,7 @@ Migrations `0007_phase17_16_media_architecture.sql` و`0008_phase17_18_2_ai_inge
 
 ## 24. Git and Deployment
 
-تمت التغييرات على `main` وبـnormal commits فقط، دون reset أو rebase أو force-push. commit التنفيذ هو `86c529399265d11cb850b9888c209403b514ef72` (`feat: build AI editorial workspace`) وقد دُفع إلى `origin/main`. بعد إضافة توثيق evidence يجب إنشاء commit توثيقي عادي مستقل، ثم التحقق من `HEAD == origin/main` وworking tree clean.
+تمت التغييرات على `main` وبـnormal commits فقط، دون reset أو rebase أو force-push. commit التنفيذ هو `86c529399265d11cb850b9888c209403b514ef72` (`feat: build AI editorial workspace`) ثم commit التوثيق هو `ac836d870766806bff735a9afdd924b3e3bd43b2` (`docs: record phase 17.18.6 verification`). كلاهما دُفع إلى `origin/main`، والتحقق النهائي أثبت `HEAD == origin/main` وworking tree clean.
 
 Deployment مرتبط بمستودع Git في Vercel. أي فحص deployment يظل read-only، ولا يتضمن environment changes أو migrations أو provisioning.
 
