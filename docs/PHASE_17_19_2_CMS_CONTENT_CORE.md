@@ -107,10 +107,10 @@ Person/Profile/User ظلوا كيانات منفصلة. لم تُضف أي آل�
 | الحقل | القيمة |
 | --- | --- |
 | Implementation commit | `2da0814fe9c310139ecb16da1d4f006b35db27c5` — `feat: advance A3LAM CMS content core` |
-| Documentation commit | سيُثبت في commit التوثيق النهائي بعد تسجيل هذه الوثيقة |
-| Final HEAD | سيُثبت بعد commit التوثيق النهائي |
-| origin parity | سيُثبت بعد push التوثيق النهائي |
-| Working tree | يجب أن يكون clean بعد commit/push التوثيق النهائي |
+| Documentation report commit | `96da6ba1e1c78bd610ea5751da177fb32b848180` — هذا التقرير |
+| Final alignment commit | سيُسجل في تقرير التسليم بعد هذا التحديث التوثيقي الطبيعي |
+| Final HEAD / origin parity | سيُتحقق منهما بعد push التوثيق النهائي |
+| Working tree | سيُتحقق من نظافته بعد push التوثيق النهائي |
 
 تم استخدام commits وpushes طبيعية فقط؛ لم يُستخدم reset أو rebase أو force-push.
 
