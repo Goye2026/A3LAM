@@ -119,6 +119,8 @@ Public search وsitemap يقرآن published people/public profiles فقط ول�
 
 ## Production Read-only Verification
 
+تم فحص deployment المرتبط مباشرة بcommit التنفيذ `38ef2913c3e02b9ee0a91f3979b16de65dcb6e1d` عبر Vercel read-only. deployment ID هو `dpl_8wihQxSRfHDHQYA47hKXrTXhp1Fx`، والهدف Production، والحالة `READY`، والalias هو `https://a3-lam.vercel.app`.
+
 تم تنفيذ GET-only smoke على alias `https://a3-lam.vercel.app`:
 
 | Route | Result |
@@ -135,7 +137,7 @@ Public search وsitemap يقرآن published people/public profiles فقط ول�
 
 اجتاز public privacy scan المسارات العامة دون ظهور AI document/job markers أو raw document metadata أو provider secrets أو `DATABASE_URL` أو session token markers. لم ينفذ التدقيق POST أو PUT أو PATCH أو DELETE أو upload أو document/job creation أو generation أو review أو publication.
 
-تم فحص deployment الوظيفي الأخير المعروف قبل closeout الحالي عبر Vercel read-only وكان `READY` على Production. بعد commit التوثيقي الأخير تعذرت إعادة قراءة metadata من Vercel connector في المحاولة الأخيرة؛ لذلك لا يُدّعى deployment مستقل للـcloseout التوثيقي. لا يغيّر commit التوثيقي runtime behavior، وتبقى أدلة smoke مرتبطة بالـfunctional deployment الجاهز الموثق.
+لم يُستخدم Admin session ولم تُنفذ أي عملية mutation أثناء هذا التدقيق. أدلة Production هنا anonymous/read-only فقط؛ لا تُعد تصريحًا برفع مستندات أو تشغيل generation. deployment الجاهز المذكور هو آخر deployment مرتبط مباشرة بتغيير الكود لهذه المرحلة.
 
 ## Counters
 
@@ -166,17 +168,19 @@ Public search وsitemap يقرآن published people/public profiles فقط ول�
 | Field | Value |
 |---|---|
 | Branch | `main` |
-| HEAD | `919686e4ce2dd50a22ff24f5d3bf26a7c4ec2c2a` |
-| `origin/main` | `919686e4ce2dd50a22ff24f5d3bf26a7c4ec2c2a` |
-| Equality | `HEAD == origin/main` |
+| Implementation commit | `38ef2913c3e02b9ee0a91f3979b16de65dcb6e1d` |
+| Branch at implementation push | `main` |
+| Equality after implementation push | `HEAD == origin/main` |
+| Documentation closeout | Pushed as a normal docs-only commit after implementation |
+| Final local state | Verified clean in final closeout command |
 | Working tree | clean |
 | History safety | no reset, no rebase, no force-push, no history rewrite |
 
 ## Deployment
 
-**Latest known functional deployment:** `dpl_AbK6f6nXWWtCrVp6v5BFtipzgGCT`, Production, `READY`, linked to implementation commit `d34c59cf681df318c3779a97a7717655ecff51e7`.
+**Latest known functional deployment for this phase:** `dpl_8wihQxSRfHDHQYA47hKXrTXhp1Fx`, Production, `READY`, linked to implementation commit `38ef2913c3e02b9ee0a91f3979b16de65dcb6e1d`.
 
-**Current closeout commits:** implementation commit `d34c59c` plus documentation commits `e359ce8` and `919686e`. The documentation-only closeout commits do not change runtime behavior. Vercel metadata for a deployment linked to `919686e` was not available in the final connector attempt, so no unsupported READY claim is made for that commit.
+**Current closeout:** implementation commit `38ef2913c3e02b9ee0a91f3979b16de65dcb6e1d` was pushed normally. The final report and audit notes are documentation-only additions relative to the implementation commit and do not change runtime behavior. The verified Vercel deployment for the implementation commit is `dpl_8wihQxSRfHDHQYA47hKXrTXhp1Fx`, READY on Production.
 
 ## Limitations
 
