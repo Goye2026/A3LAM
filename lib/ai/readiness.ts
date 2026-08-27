@@ -19,8 +19,10 @@ function item(
   evidence: string[],
   nextStep: string,
   blocker = status === "BLOCKED" || status === "REQUIRES_CONFIGURATION",
+  owner = "A3LAM AI Platform / Editorial Operations",
+  verificationMethod = "Read-only code/configuration review plus isolated acceptance test",
 ): AiReadinessItem {
-  return { key, domain, status, reason, evidence, nextStep, blocker };
+  return { key, domain, status, reason, evidence, nextStep, owner, verificationMethod, blocker };
 }
 
 function migrationSummary(preflight: Awaited<ReturnType<typeof getMigrationPreflight>>): AiReadinessReport["migration"] {
@@ -68,9 +70,12 @@ function buildItems(snapshot: AiWorkspaceSnapshot, migration: Awaited<ReturnType
     item("audit", "SECURITY", "READY_WITH_LIMITATIONS", "Audit event taxonomy and mapper exist; persistence-backed verification depends on the available audit database.", ["AI audit actions cover document, extraction, generation, review, draft, and publication decisions.", "No AI Production event was generated in this phase."], "Verify audit writes in an isolated environment and review access/retention controls."),
     item("rbac", "SECURITY", "READY", "Existing Admin RBAC preserves AI boundaries: Admin/Super Admin generation policy, Editor review/read policy, and no Moderator AI scope.", ["Readiness endpoint requires ai.documents.read.", "Mutation routes retain server-side permission and same-origin guards."], "Keep least privilege and review role overrides before any activation."),
     item("privacy", "SECURITY", "READY_WITH_LIMITATIONS", "Public AI data isolation and private-by-default contracts are present; real private storage has not been provisioned.", ["Public routes, search, sitemap, OG, and JSON-LD do not project AI documents.", "Public privacy scan is required after every deployment."], "Complete a security review of private storage, signed retrieval, access logs, and deletion before activation."),
+    item("promptBoundary", "SECURITY", "READY_WITH_LIMITATIONS", "Prompt construction separates fixed system instructions from untrusted document data; no real provider call was executed.", ["Prompt builder marks instruction-like text without elevating it to instructions.", "Generation validation rejects secret-like and instruction-like output.", "Phase 17.18.4 tests cover prompt-injection boundaries."], "Repeat the boundary test with the approved provider in an isolated environment before activation."),
     item("generation", "APPLICATION", "DISABLED", "Production generation is explicitly OFF even if a provider is later configured.", ["AI_GENERATION_ENABLED=false.", "AI_PRODUCTION_ENABLED=false.", "Generation routes reject before job creation."], "Enable only through a separate change after provider, storage, queue, persistence, cost, and security gates are proven."),
     item("humanReview", "APPLICATION", snapshot.persistence === "AVAILABLE" ? "READY_WITH_LIMITATIONS" : "REQUIRES_CONFIGURATION", "Human review contracts and Admin UI exist, but persistent review state depends on AI migrations.", ["Fact and claim review actions are explicit and bounded.", "AI output remains DRAFT and no auto-publication path exists."], "Verify persisted review/audit behavior in an isolated database before production activation."),
     item("publication", "SECURITY", "DISABLED", "Publication is a hard safety boundary and remains OFF in this phase.", ["AI_PUBLICATION_ENABLED=false.", "No automatic Person/Profile creation or publication path exists."], "Keep disabled until an independently approved editorial publication workflow is verified.", true),
+    item("publicationGuard", "SECURITY", "READY", "Publication firewall is explicit: AI results are DRAFT-only and no automatic Person/Profile or public publication path exists.", ["Generation result contract requires draftStatus=DRAFT.", "Generation routes are gate-protected and no publish mutation is present.", "Public projection/search/sitemap do not include AI entities."], "Retain the guard and require a separate editorial approval path for any future publication."),
+    item("rollback", "OPERATIONS", "READY_WITH_LIMITATIONS", "Application rollback is available through feature gates and normal deployment rollback; destructive database rollback is intentionally not used.", ["All production AI gates are OFF by default.", "No migration or Production DDL/DML was executed.", "Git history uses normal commits without rewrite."], "Document and rehearse rollback per provider, queue, storage, and database layer before activation."),
   ];
 }
 

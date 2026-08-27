@@ -9,11 +9,17 @@ import { getAiMalwareScannerState, unavailableAiMalwareScanner } from "@/lib/ai/
 import { getAiOcrStatus, AI_OCR_DEFAULT_POLICY, unavailableAiOcrAdapter } from "@/lib/ai/ocr";
 import { getAiRetentionReadiness } from "@/lib/ai/retention";
 import { getDocumentStorageReadiness } from "@/lib/ai/storage";
+import { AI_READINESS_KEYS } from "@/lib/ai/types";
 import { getRepositoryMigrationVersions } from "@/lib/admin/migrationRegistry";
 
 const root = resolve(process.cwd());
 
 describe("Phase 17.18.7 production activation readiness", () => {
+  it("keeps the readiness vocabulary complete and unique", () => {
+    expect(AI_READINESS_KEYS).toHaveLength(22);
+    expect(new Set(AI_READINESS_KEYS).size).toBe(AI_READINESS_KEYS.length);
+  });
+
   it("keeps every production feature gate OFF, including publication", () => {
     expect(AI_FEATURE_GATES).toEqual({
       AI_UPLOAD_ENABLED: false,
@@ -117,6 +123,8 @@ describe("Phase 17.18.7 production activation readiness", () => {
     expect(matrix).toContain("adminAiReadinessEvidence");
     expect(matrix).toContain("adminAiReadinessNextStep");
     expect(matrix).toContain("adminAiReadinessBlocker");
+    expect(matrix).toContain("adminAiReadinessOwner");
+    expect(matrix).toContain("adminAiReadinessVerificationMethod");
     expect(matrix).toContain("ai-readiness-grid");
     expect(route).toContain("AI_GENERATION_ENABLED");
     expect(uploadRoute).toContain("AI_UPLOAD_ENABLED");

@@ -790,6 +790,8 @@ export type FoundationMessages = {
   adminAiReadinessReason: string;
   adminAiReadinessEvidence: string;
   adminAiReadinessNextStep: string;
+  adminAiReadinessOwner: string;
+  adminAiReadinessVerificationMethod: string;
   adminAiReadinessBlocker: string;
   adminAiReadinessNoBlocker: string;
   adminAiReadinessInfrastructure: string;
@@ -824,9 +826,12 @@ export type FoundationMessages = {
   adminAiReadinessAudit: string;
   adminAiReadinessRbac: string;
   adminAiReadinessPrivacy: string;
+  adminAiReadinessPromptBoundary: string;
   adminAiReadinessGeneration: string;
   adminAiReadinessHumanReview: string;
   adminAiReadinessPublication: string;
+  adminAiReadinessPublicationGuard: string;
+  adminAiReadinessRollback: string;
   adminAiRunGeneration: string;
   adminAiSourceBacked: string;
   adminAiNeedsVerification: string;
@@ -1649,6 +1654,8 @@ const ar: FoundationMessages = {
   adminAiReadinessReason: "السبب",
   adminAiReadinessEvidence: "الدليل",
   adminAiReadinessNextStep: "الخطوة التالية",
+  adminAiReadinessOwner: "المالك",
+  adminAiReadinessVerificationMethod: "طريقة التحقق",
   adminAiReadinessBlocker: "مانع تفعيل",
   adminAiReadinessNoBlocker: "لا يوجد مانع مثبت",
   adminAiReadinessInfrastructure: "البنية التحتية",
@@ -1682,10 +1689,13 @@ const ar: FoundationMessages = {
   adminAiReadinessAudit: "سجل التدقيق",
   adminAiReadinessRbac: "RBAC",
   adminAiReadinessPrivacy: "الخصوصية والعزل العام",
+  adminAiReadinessPromptBoundary: "حدود prompt والبيانات غير الموثوقة",
   adminAiReadinessExtraction: "الاستخلاص",
   adminAiReadinessGeneration: "التوليد",
   adminAiReadinessHumanReview: "المراجعة البشرية",
   adminAiReadinessPublication: "سلامة النشر",
+  adminAiReadinessPublicationGuard: "Publication Guard",
+  adminAiReadinessRollback: "Rollback",
   adminAiRunGeneration: "إنشاء مسودة محلية",
   adminAiSourceBacked: "مدعوم بالمصدر",
   adminAiNeedsVerification: "يحتاج تحققًا",
@@ -2508,6 +2518,8 @@ const en: FoundationMessages = {
   adminAiReadinessReason: "Reason",
   adminAiReadinessEvidence: "Evidence",
   adminAiReadinessNextStep: "Required next step",
+  adminAiReadinessOwner: "Owner",
+  adminAiReadinessVerificationMethod: "Verification method",
   adminAiReadinessBlocker: "Activation blocker",
   adminAiReadinessNoBlocker: "No confirmed blocker",
   adminAiReadinessInfrastructure: "Infrastructure",
@@ -2541,10 +2553,13 @@ const en: FoundationMessages = {
   adminAiReadinessAudit: "Audit",
   adminAiReadinessRbac: "RBAC",
   adminAiReadinessPrivacy: "Privacy and public isolation",
+  adminAiReadinessPromptBoundary: "Prompt and untrusted-data boundary",
   adminAiReadinessExtraction: "Extraction",
   adminAiReadinessGeneration: "Generation",
   adminAiReadinessHumanReview: "Human review",
   adminAiReadinessPublication: "Publication safety",
+  adminAiReadinessPublicationGuard: "Publication Guard",
+  adminAiReadinessRollback: "Rollback",
   adminAiRunGeneration: "Create local draft",
   adminAiSourceBacked: "Source-backed",
   adminAiNeedsVerification: "Needs verification",

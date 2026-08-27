@@ -20,9 +20,12 @@ const keyLabels: Record<AiReadinessKey, keyof Copy> = {
   audit: "adminAiReadinessAudit",
   rbac: "adminAiReadinessRbac",
   privacy: "adminAiReadinessPrivacy",
+  promptBoundary: "adminAiReadinessPromptBoundary",
   generation: "adminAiReadinessGeneration",
   humanReview: "adminAiReadinessHumanReview",
   publication: "adminAiReadinessPublication",
+  publicationGuard: "adminAiReadinessPublicationGuard",
+  rollback: "adminAiReadinessRollback",
 };
 
 const domainLabels: Record<AiReadinessDomain, keyof Copy> = {
@@ -90,6 +93,8 @@ export function A3lamAiReadinessMatrix({ report, copy }: { report: AiReadinessRe
             <dl>
               <div><dt>{copy.adminAiReadinessReason}</dt><dd>{entry.reason}</dd></div>
               <div><dt>{copy.adminAiReadinessNextStep}</dt><dd>{entry.nextStep}</dd></div>
+              <div><dt>{copy.adminAiReadinessOwner}</dt><dd>{entry.owner}</dd></div>
+              <div><dt>{copy.adminAiReadinessVerificationMethod}</dt><dd>{entry.verificationMethod}</dd></div>
             </dl>
             <details>
               <summary>{copy.adminAiReadinessEvidence}</summary>

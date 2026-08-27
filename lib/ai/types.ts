@@ -486,7 +486,7 @@ export const AI_READINESS_STATUSES = ["READY", "READY_WITH_LIMITATIONS", "REQUIR
 export type AiReadinessStatus = (typeof AI_READINESS_STATUSES)[number];
 
 export const AI_READINESS_KEYS = [
-  "aiProvider", "privateStorage", "malwareScanner", "queue", "worker", "ocr", "persistence", "extraction", "migrations", "retention", "rateLimits", "costControls", "observability", "audit", "rbac", "privacy", "generation", "humanReview", "publication",
+  "aiProvider", "privateStorage", "malwareScanner", "queue", "worker", "ocr", "persistence", "extraction", "migrations", "retention", "rateLimits", "costControls", "observability", "audit", "rbac", "privacy", "promptBoundary", "generation", "humanReview", "publication", "publicationGuard", "rollback",
 ] as const;
 export type AiReadinessKey = (typeof AI_READINESS_KEYS)[number];
 export type AiReadinessDomain = "INFRASTRUCTURE" | "APPLICATION" | "SECURITY" | "OPERATIONS";
@@ -498,6 +498,8 @@ export type AiReadinessItem = {
   reason: string;
   evidence: string[];
   nextStep: string;
+  owner: string;
+  verificationMethod: string;
   blocker: boolean;
 };
 
