@@ -68,7 +68,11 @@
 
 ## Production Verification
 
-لم تُجرَ أي Production mutation أو provider/storage/queue provisioning. يلزم بعد deployment إجراء GET/HEAD-only smoke للمسارات العامة، والتحقق المجهول من redirect/401 للمسارات المحمية، وفحص عدم ظهور readiness أو AI private data على public surfaces. لا تُعتبر هذه المرحلة تفويضًا لاستخدام جلسة Admin أو رفع مستندات أو تشغيل generation.
+تم فحص deployment المرتبط مباشرة بـcommit `d34c59cf681df318c3779a97a7717655ecff51e7` عبر Vercel read-only. deployment ID هو `dpl_AbK6f6nXWWtCrVp6v5BFtipzgGCT`، والهدف Production، والحالة `READY`، والalias هو `https://a3-lam.vercel.app`.
+
+تم تنفيذ GET-only smoke على Production: `/` و`/api/health` و`/categories` و`/search` و`/robots.txt` و`/sitemap.xml` أعادت 200؛ `/admin/ai` أعاد 307 إلى `/admin/login`؛ و`/api/admin/ai/readiness` أعاد 401 للمستخدم المجهول. ظهرت security headers المتوقعة، بينما لا يُعد cache-control في رد 401 دليلًا على تخزين readiness data؛ المسار نفسه يعيد `Cache-Control: no-store` بعد نجاح المصادقة.
+
+اجتاز public privacy scan المسارات العامة دون ظهور `ai_documents` أو `ai_generation_jobs` أو `rawDocumentMetadata` أو `providerSecrets` أو `DATABASE_URL` أو provider token markers أو session token markers. لم تُجرَ أي Production mutation أو provider/storage/queue provisioning، ولم يُستخدم Admin session لإنشاء مستند أو job أو generation. لا تُعتبر هذه المرحلة تفويضًا لرفع مستندات أو تشغيل generation.
 
 ## Final GO/NO-GO Matrix
 
@@ -118,7 +122,17 @@
 
 ## Git / Deployment
 
-لم يتم بعد إنشاء commit أو deployment لهذه المرحلة وقت إنشاء هذا التقرير. سيتم تنفيذ commit عادي واحد فقط بعد اكتمال smoke المحلي النهائي، ثم push إلى `main` دون reset أو rebase أو force-push. يجب تثبيت `branch` و`HEAD` و`origin/main` و`HEAD == origin/main` وworking tree في closeout النهائي.
+تم إنشاء commit عادي واحد لهذه المرحلة:
+
+`d34c59cf681df318c3779a97a7717655ecff51e7` — `feat: add production activation readiness`
+
+تم دفعه إلى `origin/main` دون reset أو rebase أو force-push. closeout الحالي يثبت أن الفرع `main`، وأن `HEAD == origin/main == d34c59cf681df318c3779a97a7717655ecff51e7`، وأن working tree نظيف.
+
+Deployment Vercel المرتبط بالcommit أصبح `READY`:
+
+`dpl_AbK6f6nXWWtCrVp6v5BFtipzgGCT`
+
+Deployment لا يعني activation: كل feature gates بقيت OFF، ولم تُطبق migrations، ولم تُغير Vercel configuration أو secrets.
 
 ## Limitations
 
