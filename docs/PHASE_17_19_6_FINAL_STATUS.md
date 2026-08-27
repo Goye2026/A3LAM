@@ -96,7 +96,7 @@ The final diff scan was **CLEAN** for `DATABASE_URL`, admin access tokens, OpenA
 
 ## Production Smoke
 
-Production remained read-only. The Git-triggered deployment for implementation commit `53c666af89835cae7daa6d1b51d39eaa5c98d56c` was monitored to READY as `dpl_CG8KAQ2CdhLKb3Tfehm6jEBE6dm8`, target `production`, alias `https://a3-lam.vercel.app`.
+Production remained read-only. The Git-triggered deployment for the final documentation commit `74090a3bc2d1e3a83a83697877bb106c726f0b3c` was monitored to READY as `dpl_vhAve6z48xZm1BRGt5HVDPtGUxt2`, target `production`, alias `https://a3-lam.vercel.app`. The implementation commit is `53c666af89835cae7daa6d1b51d39eaa5c98d56c`.
 
 The final smoke used GET/HEAD only:
 
@@ -129,23 +129,25 @@ The scan found no `DATABASE_URL`, API keys, provider credentials, storage creden
 | Item | Value |
 |---|---|
 | Implementation commit | `53c666af89835cae7daa6d1b51d39eaa5c98d56c` — `fix: harden admin drawer focus behavior` |
-| Documentation commit | To be recorded in the final documentation-only commit |
-| Final HEAD at implementation evidence time | `53c666af89835cae7daa6d1b51d39eaa5c98d56c` |
+| Documentation commit | `74090a3bc2d1e3a83a83697877bb106c726f0b3c` — `docs: record phase 17.19.6 qa status` |
+| Final HEAD | `74090a3bc2d1e3a83a83697877bb106c726f0b3c` |
+| `origin/main` parity | `HEAD == origin/main` |
+| GitHub `main` parity | Matches final HEAD |
 | Branch | `main` |
-| Working tree before documentation commit | Clean |
+| Working tree before final delivery | Clean |
 | History safety | No reset, rebase, force-push, or history rewrite |
 
 ## Deployment
 
 | Item | Value |
 |---|---|
-| Deployment ID | `dpl_CG8KAQ2CdhLKb3Tfehm6jEBE6dm8` |
+| Deployment ID | `dpl_vhAve6z48xZm1BRGt5HVDPtGUxt2` |
 | State | READY |
 | Target | production |
 | Alias | `https://a3-lam.vercel.app` |
-| Source SHA | `53c666af89835cae7daa6d1b51d39eaa5c98d56c` |
+| Source SHA | `74090a3bc2d1e3a83a83697877bb106c726f0b3c` |
 
-The documentation-only commit is not a code deployment requirement; any later Git-triggered deployment must be treated as a separate evidence point.
+The final evidence above is tied to the READY deployment for the final documentation commit. Any later Git-triggered deployment must be treated as a separate evidence point.
 
 ## Counters
 
