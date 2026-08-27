@@ -106,27 +106,29 @@
 
 ## Production Smoke
 
-تمت المحافظة على سياسة Production read-only. لم يُنفّذ login أو POST أو PUT أو PATCH أو DELETE أو upload أو migration أو provider/OCR/AI call. deployment السابق الجاهز المستخدم للـbaseline كان `dpl_4NtvjgWDTLmVgzbdVhAFb4hNSrjm`؛ بعد push Phase 17.19.5 يجب رصد Git-triggered deployment الجديد إلى READY قبل تسجيل smoke النهائي، وإذا لم يتوفر metadata تُذكر limitation صراحةً.
+تمت المحافظة على سياسة Production read-only. لم يُنفّذ login أو POST أو PUT أو PATCH أو DELETE أو upload أو migration أو provider/OCR/AI call. deployment Phase 17.19.5 الجاهز هو `dpl_Hg1LN5pAAR5c1cYqoqVp1ndXWBuE`، المرتبط بـSHA `b5ebfe70daa594d06d8a572395594f9bb64d3091`.
 
-المسارات المسموحة للفحص النهائي هي `/` و`/api/health` و`/categories` و`/search` و`/robots.txt` و`/sitemap.xml` والمساحات الإدارية protected والـknown missing route، باستخدام GET/HEAD فقط.
+نتائج GET/HEAD النهائية على alias `https://a3-lam.vercel.app` هي: `/` 200، `/api/health` 200، `/categories` 200، `/search` 200، `/robots.txt` 200، `/sitemap.xml` 200؛ protected `/admin` و`/admin/ai` و`/admin/content/pages` و`/admin/content/posts` أعادت 307؛ anonymous `/api/admin/cms/pages` و`/api/admin/media/picker` أعادتا 401؛ والـknown missing route أعاد 404. النتيجة: **PASS** للمسارات المتوقعة.
+
+المسارات المسموحة للفحص النهائي استخدمت GET/HEAD فقط.
 
 ## Privacy Scan
 
-النتيجة المطلوبة والمرصودة في آخر baseline read-only scan كانت **CLEAN** بالنسبة إلى DATABASE_URL وA3LAM_ADMIN_ACCESS_TOKEN وOPENAI_API_KEY وstorage keys وsession tokens وprivate AI/audit markers. يجب اعتبار أي smoke بعد deployment الجديد هو evidence النهائي لهذه النسخة فقط.
+النتيجة المرصودة بعد deployment النهائي كانت **CLEAN** بالنسبة إلى DATABASE_URL وA3LAM_ADMIN_ACCESS_TOKEN وOPENAI_API_KEY وstorage keys وsession tokens وprivate AI/audit markers.
 
 ## Git
 
 | Item | Value |
 |---|---|
 | Implementation commit | `bd6cefc` — `feat: refine cms ux and theme foundation` |
-| Documentation commit | سيتم تسجيله بعد هذا التقرير في commit منفصل عادي |
+| Documentation commit | `b5ebfe7` — `docs: close phase 17.19.5 status` |
 | Branch | `main` |
 | Working tree before documentation commit | نظيف بعد implementation commit |
 | History safety | لا reset ولا rebase ولا force-push ولا history rewrite |
 
 ## Deployment
 
-لا يوجد deployment Phase 17.19.5 نهائي مسجل في لحظة إنشاء هذه الوثيقة. سيتم استخدام Git-triggered Vercel deployment العادي فقط، دون تعديل secrets أو environment variables أو DNS أو infrastructure. الحالة النهائية يجب أن تكون READY أو تُسجل كـBLOCKED/PASS WITH LIMITATIONS حسب metadata الفعلية.
+deployment Git-triggered النهائي المرتبط بـSHA التوثيق هو `dpl_Hg1LN5pAAR5c1cYqoqVp1ndXWBuE`، وحالته **READY**، وtarget `production`. alias المفحوص هو `https://a3-lam.vercel.app`. لم تُعدّل secrets أو environment variables أو DNS أو infrastructure.
 
 ## Counters
 
