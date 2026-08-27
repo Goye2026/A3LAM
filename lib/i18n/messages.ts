@@ -792,6 +792,9 @@ export type FoundationMessages = {
   adminAiReadinessNextStep: string;
   adminAiReadinessOwner: string;
   adminAiReadinessVerificationMethod: string;
+  adminAiReadinessLayer: string;
+  adminAiReadinessRisk: string;
+  adminAiDecisionNotTested: string;
   adminAiReadinessBlocker: string;
   adminAiReadinessNoBlocker: string;
   adminAiReadinessInfrastructure: string;
@@ -810,6 +813,12 @@ export type FoundationMessages = {
   adminAiDecisionActivationReadyWithLimitations: string;
   adminAiDecisionNotReady: string;
   adminAiDecisionBlocked: string;
+  adminAiReadinessAuthentication: string;
+  adminAiReadinessCsrf: string;
+  adminAiReadinessDocumentIngestion: string;
+  adminAiReadinessClaimsProvenance: string;
+  adminAiReadinessWorkflowStateMachine: string;
+  adminAiReadinessExternalQa: string;
   adminAiReadinessAiProvider: string;
   adminAiReadinessPrivateStorage: string;
   adminAiReadinessMalwareScanner: string;
@@ -1680,6 +1689,9 @@ const ar: FoundationMessages = {
   adminAiReadinessNextStep: "الخطوة التالية",
   adminAiReadinessOwner: "المالك",
   adminAiReadinessVerificationMethod: "طريقة التحقق",
+  adminAiReadinessLayer: "طبقة الجاهزية",
+  adminAiReadinessRisk: "مستوى الخطر",
+  adminAiDecisionNotTested: "لم يُختبر",
   adminAiReadinessBlocker: "مانع تفعيل",
   adminAiReadinessNoBlocker: "لا يوجد مانع مثبت",
   adminAiReadinessInfrastructure: "البنية التحتية",
@@ -1698,6 +1710,12 @@ const ar: FoundationMessages = {
   adminAiDecisionActivationReadyWithLimitations: "ACTIVATION READY WITH LIMITATIONS",
   adminAiDecisionNotReady: "NOT READY",
   adminAiDecisionBlocked: "BLOCKED",
+  adminAiReadinessAuthentication: "المصادقة",
+  adminAiReadinessCsrf: "حماية CSRF / المصدر نفسه",
+  adminAiReadinessDocumentIngestion: "إدخال المستندات",
+  adminAiReadinessClaimsProvenance: "الادعاءات ومصدرها",
+  adminAiReadinessWorkflowStateMachine: "آلة حالات سير العمل",
+  adminAiReadinessExternalQa: "اختبارات QA الخارجية",
   adminAiReadinessAiProvider: "مزود AI",
   adminAiReadinessPrivateStorage: "التخزين الخاص",
   adminAiReadinessMalwareScanner: "فحص البرمجيات الضارة",
@@ -2569,6 +2587,9 @@ const en: FoundationMessages = {
   adminAiReadinessNextStep: "Required next step",
   adminAiReadinessOwner: "Owner",
   adminAiReadinessVerificationMethod: "Verification method",
+  adminAiReadinessLayer: "Readiness layer",
+  adminAiReadinessRisk: "Risk level",
+  adminAiDecisionNotTested: "NOT TESTED",
   adminAiReadinessBlocker: "Activation blocker",
   adminAiReadinessNoBlocker: "No confirmed blocker",
   adminAiReadinessInfrastructure: "Infrastructure",
@@ -2587,6 +2608,12 @@ const en: FoundationMessages = {
   adminAiDecisionActivationReadyWithLimitations: "ACTIVATION READY WITH LIMITATIONS",
   adminAiDecisionNotReady: "NOT READY",
   adminAiDecisionBlocked: "BLOCKED",
+  adminAiReadinessAuthentication: "Authentication",
+  adminAiReadinessCsrf: "CSRF / same-origin protection",
+  adminAiReadinessDocumentIngestion: "Document ingestion",
+  adminAiReadinessClaimsProvenance: "Claims and provenance",
+  adminAiReadinessWorkflowStateMachine: "Workflow state machine",
+  adminAiReadinessExternalQa: "External QA/accessibility",
   adminAiReadinessAiProvider: "AI provider",
   adminAiReadinessPrivateStorage: "Private storage",
   adminAiReadinessMalwareScanner: "Malware scanner",

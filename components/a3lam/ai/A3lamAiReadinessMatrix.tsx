@@ -4,28 +4,34 @@ import type { AiReadinessDomain, AiReadinessKey, AiReadinessReport, AiReadinessS
 type Copy = FoundationMessages;
 
 const keyLabels: Record<AiReadinessKey, keyof Copy> = {
-  aiProvider: "adminAiReadinessAiProvider",
+  authentication: "adminAiReadinessAuthentication",
+  rbac: "adminAiReadinessRbac",
+  csrf: "adminAiReadinessCsrf",
+  documentIngestion: "adminAiReadinessDocumentIngestion",
   privateStorage: "adminAiReadinessPrivateStorage",
   malwareScanner: "adminAiReadinessMalwareScanner",
+  extraction: "adminAiReadinessExtraction",
+  ocr: "adminAiReadinessOcr",
   queue: "adminAiReadinessQueue",
   worker: "adminAiReadinessWorker",
-  ocr: "adminAiReadinessOcr",
+  aiProvider: "adminAiReadinessAiProvider",
+  promptBoundary: "adminAiReadinessPromptBoundary",
+  generation: "adminAiReadinessGeneration",
+  claimsProvenance: "adminAiReadinessClaimsProvenance",
+  humanReview: "adminAiReadinessHumanReview",
+  workflowStateMachine: "adminAiReadinessWorkflowStateMachine",
+  publicationGuard: "adminAiReadinessPublicationGuard",
   persistence: "adminAiReadinessPersistence",
-  extraction: "adminAiReadinessExtraction",
   migrations: "adminAiReadinessMigrations",
   retention: "adminAiReadinessRetention",
   rateLimits: "adminAiReadinessRateLimits",
   costControls: "adminAiReadinessCostControls",
   observability: "adminAiReadinessObservability",
   audit: "adminAiReadinessAudit",
-  rbac: "adminAiReadinessRbac",
-  privacy: "adminAiReadinessPrivacy",
-  promptBoundary: "adminAiReadinessPromptBoundary",
-  generation: "adminAiReadinessGeneration",
-  humanReview: "adminAiReadinessHumanReview",
-  publication: "adminAiReadinessPublication",
-  publicationGuard: "adminAiReadinessPublicationGuard",
   rollback: "adminAiReadinessRollback",
+  privacy: "adminAiReadinessPrivacy",
+  externalQa: "adminAiReadinessExternalQa",
+  publication: "adminAiReadinessPublication",
 };
 
 const domainLabels: Record<AiReadinessDomain, keyof Copy> = {
@@ -41,6 +47,7 @@ function statusLabel(status: AiReadinessStatus, copy: Copy) {
   if (status === "REQUIRES_CONFIGURATION") return copy.adminAiConfigurationRequired;
   if (status === "BLOCKED") return copy.adminAiDecisionBlocked;
   if (status === "DISABLED") return copy.adminAiProductionDisabled;
+  if (status === "NOT_TESTED") return copy.adminAiDecisionNotTested;
   return copy.adminAiDecisionNotReady;
 }
 
@@ -92,6 +99,8 @@ export function A3lamAiReadinessMatrix({ report, copy }: { report: AiReadinessRe
             </header>
             <dl>
               <div><dt>{copy.adminAiReadinessReason}</dt><dd>{entry.reason}</dd></div>
+              <div><dt>{copy.adminAiReadinessLayer}</dt><dd>{entry.layer}</dd></div>
+              <div><dt>{copy.adminAiReadinessRisk}</dt><dd>{entry.riskLevel}</dd></div>
               <div><dt>{copy.adminAiReadinessNextStep}</dt><dd>{entry.nextStep}</dd></div>
               <div><dt>{copy.adminAiReadinessOwner}</dt><dd>{entry.owner}</dd></div>
               <div><dt>{copy.adminAiReadinessVerificationMethod}</dt><dd>{entry.verificationMethod}</dd></div>

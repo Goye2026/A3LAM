@@ -16,7 +16,7 @@ const root = resolve(process.cwd());
 
 describe("Phase 17.18.7 production activation readiness", () => {
   it("keeps the readiness vocabulary complete and unique", () => {
-    expect(AI_READINESS_KEYS).toHaveLength(22);
+    expect(AI_READINESS_KEYS).toHaveLength(28);
     expect(new Set(AI_READINESS_KEYS).size).toBe(AI_READINESS_KEYS.length);
   });
 

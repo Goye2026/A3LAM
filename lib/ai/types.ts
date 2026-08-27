@@ -486,14 +486,18 @@ export const AI_READINESS_STATUSES = ["READY", "READY_WITH_LIMITATIONS", "REQUIR
 export type AiReadinessStatus = (typeof AI_READINESS_STATUSES)[number];
 
 export const AI_READINESS_KEYS = [
-  "aiProvider", "privateStorage", "malwareScanner", "queue", "worker", "ocr", "persistence", "extraction", "migrations", "retention", "rateLimits", "costControls", "observability", "audit", "rbac", "privacy", "promptBoundary", "generation", "humanReview", "publication", "publicationGuard", "rollback",
+  "authentication", "rbac", "csrf", "documentIngestion", "privateStorage", "malwareScanner", "extraction", "ocr", "queue", "worker", "aiProvider", "promptBoundary", "generation", "claimsProvenance", "humanReview", "workflowStateMachine", "publicationGuard", "persistence", "migrations", "retention", "rateLimits", "costControls", "observability", "audit", "rollback", "privacy", "externalQa", "publication",
 ] as const;
 export type AiReadinessKey = (typeof AI_READINESS_KEYS)[number];
 export type AiReadinessDomain = "INFRASTRUCTURE" | "APPLICATION" | "SECURITY" | "OPERATIONS";
+export type AiReadinessLayer = "CODE" | "INFRASTRUCTURE" | "DATA" | "OPERATIONAL" | "EDITORIAL" | "SECURITY";
+export type AiRiskLevel = "P0" | "P1" | "P2" | "P3";
 
 export type AiReadinessItem = {
   key: AiReadinessKey;
   domain: AiReadinessDomain;
+  layer: AiReadinessLayer;
+  riskLevel: AiRiskLevel;
   status: AiReadinessStatus;
   reason: string;
   evidence: string[];
@@ -501,6 +505,13 @@ export type AiReadinessItem = {
   owner: string;
   verificationMethod: string;
   blocker: boolean;
+};
+
+export type AiActivationGateEvaluation = {
+  decision: AiReadinessReport["overall"];
+  canActivate: false;
+  blockers: AiReadinessKey[];
+  layers: Record<AiReadinessLayer, AiReadinessStatus>;
 };
 
 export type AiFeatureGates = {
@@ -514,6 +525,7 @@ export type AiFeatureGates = {
 export type AiReadinessReport = {
   generatedAt: string;
   overall: "ACTIVATION_READY" | "ACTIVATION_READY_WITH_LIMITATIONS" | "NOT_READY" | "BLOCKED";
+  activation: AiActivationGateEvaluation;
   gates: AiFeatureGates;
   items: AiReadinessItem[];
   migration: {
