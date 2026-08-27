@@ -16,6 +16,21 @@ const CLASSIFICATION: readonly FactClassification[] = ["EXTRACTED", "USER_PROVID
 const SECRET_LIKE = /(?:sk-[a-z0-9]{16,}|bearer\s+[a-z0-9._-]{16,}|api[_ -]?key\s*[:=]|password\s*[:=]|secret\s*[:=]|token\s*[:=])/iu;
 const INSTRUCTION_LIKE = /ignore\s+(?:all\s+)?previous\s+instructions|reveal\s+(?:the\s+)?system\s+prompt|call\s+an\s+external\s+tool|publish\s+this\s+profile|تجاهل\s+(?:كل\s+)?التعليمات|كشف\s+(?:تعليمات\s+النظام|الموجه)|انشر\s+هذا\s+الملف/iu;
 const URL = /^https?:\/\/[^\s]+$/iu;
+const UNSAFE_URL_SCHEME = /^(?:javascript|data|file|vbscript):/iu;
+
+function assertSafeUrlString(value: unknown) {
+  if (typeof value !== "string") return;
+  const normalized = value.trim();
+  if (UNSAFE_URL_SCHEME.test(normalized)) throw new AiGenerationValidationError("رابط غير آمن", "INVALID_OUTPUT");
+  if (!/^https?:\/\//iu.test(normalized)) return;
+  try {
+    const parsed = new globalThis.URL(normalized);
+    if (parsed.username || parsed.password) throw new AiGenerationValidationError("رابط يحتوي بيانات اعتماد", "INVALID_OUTPUT");
+  } catch (error) {
+    if (error instanceof AiGenerationValidationError) throw error;
+    throw new AiGenerationValidationError("رابط غير صالح", "INVALID_OUTPUT");
+  }
+}
 
 function jsonSize(value: unknown) {
   try { return new TextEncoder().encode(JSON.stringify(value)).byteLength; } catch { return Number.POSITIVE_INFINITY; }
@@ -30,7 +45,10 @@ function assertProvenance(claim: AiGeneratedClaim) {
   if (!claim.sourceFactIds.length || !claim.evidenceIds.length || !claim.provenance.length) throw new AiGenerationValidationError("كل claim غير المفقود يحتاج source fact وevidence وprovenance", "REVIEW_REQUIRED");
   for (const item of claim.provenance) {
     if (item.excerpt && item.excerpt.length > 500) throw new AiGenerationValidationError("evidence أطول من الحد", "VALIDATION_FAILED");
-    if (item.sourceUrl && !URL.test(item.sourceUrl)) throw new AiGenerationValidationError("رابط provenance غير صالح", "VALIDATION_FAILED");
+    if (item.sourceUrl) {
+      assertSafeUrlString(item.sourceUrl);
+      if (!URL.test(item.sourceUrl)) throw new AiGenerationValidationError("رابط provenance غير صالح", "VALIDATION_FAILED");
+    }
   }
 }
 
@@ -69,11 +87,15 @@ function validateDraftFacts(value: unknown): void {
   if ("value" in value && "provenance" in value && "confidence" in value && "classification" in value) {
     const fact = value as { value: unknown; provenance: AiGeneratedClaim["provenance"]; confidence: ConfidenceClassification; classification: FactClassification };
     if (fact.value === null || fact.value === undefined) throw new AiGenerationValidationError("قيمة structured fact مطلوبة", "INVALID_OUTPUT");
+    assertSafeUrlString(fact.value);
     if (!CONFIDENCE.includes(fact.confidence) || !CLASSIFICATION.includes(fact.classification)) throw new AiGenerationValidationError("تصنيف structured fact غير صالح", "INVALID_OUTPUT");
     if (!Array.isArray(fact.provenance) || fact.provenance.length === 0) throw new AiGenerationValidationError("structured fact بلا provenance", "REVIEW_REQUIRED");
     for (const item of fact.provenance) {
       if (item.excerpt && item.excerpt.length > 500) throw new AiGenerationValidationError("evidence أطول من الحد", "VALIDATION_FAILED");
-      if (item.sourceUrl && !URL.test(item.sourceUrl)) throw new AiGenerationValidationError("رابط provenance غير صالح", "VALIDATION_FAILED");
+      if (item.sourceUrl) {
+        assertSafeUrlString(item.sourceUrl);
+        if (!URL.test(item.sourceUrl)) throw new AiGenerationValidationError("رابط provenance غير صالح", "VALIDATION_FAILED");
+      }
     }
     return;
   }
@@ -88,6 +110,7 @@ export function validateGeneratedClaim(claim: AiGeneratedClaim, input: AiGenerat
   if (claim.status !== "MISSING" && (claim.value === null || claim.value === undefined)) throw new AiGenerationValidationError("قيمة claim مطلوبة", "INVALID_OUTPUT");
   if (claim.status === "VERIFIED") throw new AiGenerationValidationError("AI لا يستطيع اعتماد claim تلقائيًا", "REVIEW_REQUIRED");
   assertProvenance(claim);
+  assertSafeUrlString(claim.value);
   const factIds = new Set(input.facts.map((fact) => fact.id));
   if (claim.sourceFactIds.some((id) => !factIds.has(id))) throw new AiGenerationValidationError("claim يشير إلى source fact غير موجود", "INVALID_OUTPUT");
   const evidenceIds = new Set(input.facts.flatMap((fact) => fact.evidenceIds));

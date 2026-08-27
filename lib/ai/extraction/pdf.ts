@@ -77,6 +77,8 @@ function inflateStream(stream: string, compressed: boolean, ascii85: boolean) {
 }
 
 function extractStream(objectBody: string) {
+  const filters = [...objectBody.matchAll(/\/([A-Za-z0-9]+)Decode\b/gu)].map((match) => match[1]);
+  if (filters.some((filter) => filter !== "Flate" && filter !== "ASCII85")) throw new PdfExtractionError("ضغط PDF غير مدعوم", "PARSER_FAILURE");
   const streamMarker = /\bstream\r?\n/u.exec(objectBody);
   if (!streamMarker) return "";
   const end = objectBody.indexOf("endstream", streamMarker.index + streamMarker[0].length);
