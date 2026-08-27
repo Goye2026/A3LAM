@@ -415,6 +415,11 @@ export type FoundationMessages = {
   adminAdministrators: string;
   adminEditors: string;
   adminContent: string;
+  adminCmsPages: string;
+  adminCmsPosts: string;
+  adminCmsTags: string;
+  adminCmsWidgets: string;
+  adminCmsUnavailable: string;
   adminHomepage: string;
   adminAppearance: string;
   adminMedia: string;
@@ -1315,6 +1320,11 @@ const ar: FoundationMessages = {
   adminAdministrators: "المديرون",
   adminEditors: "المحررون",
   adminContent: "كل المحتوى",
+  adminCmsPages: "الصفحات (غير متاحة)",
+  adminCmsPosts: "المقالات (غير متاحة)",
+  adminCmsTags: "الوسوم (غير متاحة)",
+  adminCmsWidgets: "الأدوات (غير متاحة)",
+  adminCmsUnavailable: "غير متاح حاليًا",
   adminHomepage: "الصفحة الرئيسية",
   adminAppearance: "المظهر",
   adminMedia: "الوسائط والملفات",
@@ -2216,6 +2226,11 @@ const en: FoundationMessages = {
   adminAdministrators: "Administrators",
   adminEditors: "Editors",
   adminContent: "All content",
+  adminCmsPages: "Pages (unavailable)",
+  adminCmsPosts: "Posts (unavailable)",
+  adminCmsTags: "Tags (unavailable)",
+  adminCmsWidgets: "Widgets (unavailable)",
+  adminCmsUnavailable: "Currently unavailable",
   adminHomepage: "Homepage",
   adminAppearance: "Appearance",
   adminMedia: "Media and files",

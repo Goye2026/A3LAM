@@ -6,8 +6,7 @@ import { HomepageDiscovery } from "@/components/a3lam/HomepageDiscovery";
 import { HomepageTrust } from "@/components/a3lam/HomepageTrust";
 import { PersonCard } from "@/components/a3lam/PersonCard";
 import { SearchDiscovery } from "@/components/a3lam/SearchDiscovery";
-import { SiteFooter } from "@/components/a3lam/SiteFooter";
-import { SiteHeader } from "@/components/a3lam/SiteHeader";
+import { SiteFrame } from "@/components/a3lam/SiteFrame";
 import { toDisplayCategories, toDisplayPeople } from "@/lib/a3lam/catalog";
 import type { Category, Person } from "@/lib/domain/a3lam";
 import type { HomepageSettings } from "@/lib/site-experience/config";
@@ -208,7 +207,7 @@ export default async function HomePage() {
   return (
     <main id="top" className="a3lam-page">
       <div className="a3lam-shell">
-        <SiteHeader copy={homepageCopy} active="home" />
+        <SiteFrame copy={homepageCopy} footerCopy={publicCopy} active="home" template="index">
 
         {isVisible(homepage, "hero") ? (
           <section className="a3lam-hero" aria-labelledby="hero-title">
@@ -264,7 +263,7 @@ export default async function HomePage() {
           </section>
         ) : null}
 
-        <SiteFooter copy={publicCopy} />
+        </SiteFrame>
       </div>
     </main>
   );

@@ -3749,3 +3749,57 @@ textarea.admin-input { resize: vertical; }
 .ai-review-note-field { display: grid; gap: .35rem; margin-block: .85rem; color: var(--color-ink-soft); font-size: .78rem; font-weight: 700; }
 .ai-review-note-field textarea { min-height: 5rem; resize: vertical; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-ink); padding: .65rem .75rem; }
 @media (prefers-reduced-motion: reduce) { .ai-progress-track span, .ai-mode-option { transition: none; } }
+
+
+/* Phase 17.19.1 CMS shell primitives: extends the existing A3LAM admin tokens. */
+.admin-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-block-end: 1px solid var(--color-border);
+  padding-block-end: var(--space-5);
+}
+.admin-shell-title { margin: 0; color: var(--color-ink); font-size: clamp(1.35rem, 2.4vw, 2rem); font-weight: 800; letter-spacing: -0.04em; }
+.admin-kicker { margin: 0 0 var(--space-2); color: var(--color-accent); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.admin-header-description { max-width: 42rem; margin: var(--space-2) 0 0; color: var(--color-ink-muted); }
+.admin-breadcrumbs { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-block: var(--space-4); color: var(--color-ink-muted); font-size: 0.76rem; }
+.admin-breadcrumbs a { color: var(--color-brand); text-decoration: none; }
+.admin-breadcrumbs a:hover { text-decoration: underline; }
+.admin-content-body { min-width: 0; }
+.admin-notifications { margin-block-end: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface-muted); color: var(--color-ink-soft); padding: var(--space-3) var(--space-4); }
+.admin-page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); margin-block-end: var(--space-5); }
+.admin-page-header h2 { margin: 0; color: var(--color-ink); font-size: clamp(1.35rem, 2.5vw, 2rem); }
+.admin-page-header p { margin: var(--space-2) 0 0; color: var(--color-ink-muted); }
+.admin-page-header-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.admin-nav-group { border-block-start: 1px solid rgb(244 244 239 / 0.12); padding-block-start: var(--space-2); }
+.admin-nav-group summary { cursor: pointer; list-style: none; }
+.admin-nav-group summary::-webkit-details-marker { display: none; }
+.admin-nav-group summary::after { content: "＋"; float: inline-end; color: rgb(244 244 239 / 0.55); }
+.admin-nav-group[open] summary::after { content: "－"; }
+.admin-nav-group-links { display: grid; gap: 0.15rem; margin-block-start: var(--space-2); }
+.admin-nav-link { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); border-radius: var(--radius-sm); color: rgb(244 244 239 / 0.78); padding: 0.55rem 0.65rem; font-size: 0.78rem; text-decoration: none; }
+.admin-nav-link:hover, .admin-nav-link:focus-visible { background: rgb(244 244 239 / 0.1); color: var(--color-paper); }
+.admin-nav-link[aria-current="page"] { background: var(--color-brand); color: var(--color-paper); font-weight: 800; }
+.admin-nav-link.is-disabled { cursor: not-allowed; color: rgb(244 244 239 / 0.42); }
+.admin-nav-link.is-disabled small { font-size: 0.62rem; }
+.admin-nav-group-label { color: rgb(244 244 239 / 0.62); font-size: 0.68rem; font-weight: 800; }
+.status-badge { display: inline-flex; width: fit-content; align-items: center; border-radius: 999px; padding: 0.2rem 0.55rem; font-size: 0.68rem; font-weight: 800; white-space: nowrap; }
+.status-neutral { background: var(--color-surface-muted); color: var(--color-ink-soft); }
+.status-success { background: #e4f2ed; color: var(--color-success); }
+.status-warning { background: var(--color-accent-pale); color: var(--color-warning); }
+.status-danger { background: #f8e8e8; color: var(--color-danger); }
+.admin-sidebar-footer { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-block-start: auto; }
+.admin-sidebar-footer a { color: rgb(244 244 239 / 0.78); font-size: 0.76rem; text-decoration: none; }
+.admin-sidebar-footer a:hover { color: var(--color-paper); }
+@media (min-width: 52rem) {
+  .admin-shell { grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr); align-items: start; }
+  .admin-sidebar { position: sticky; inset-block-start: var(--space-4); max-height: calc(100vh - 2rem); overflow: auto; }
+}
+@media (max-width: 36rem) {
+  .admin-header, .admin-page-header { flex-direction: column; }
+  .admin-header .status-badge { align-self: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-nav-link { transition: none; }
+}
