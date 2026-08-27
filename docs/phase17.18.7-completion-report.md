@@ -126,11 +126,13 @@
 
 `d34c59cf681df318c3779a97a7717655ecff51e7` — `feat: add production activation readiness`
 
-تم دفعه إلى `origin/main` دون reset أو rebase أو force-push. closeout الحالي يثبت أن الفرع `main`، وأن `HEAD == origin/main == d34c59cf681df318c3779a97a7717655ecff51e7`، وأن working tree نظيف.
+تم دفعه إلى `origin/main` دون reset أو rebase أو force-push. closeout الحالي يثبت أن الفرع `main`، وأن `HEAD == origin/main == e359ce89656e388d87a9bdf0f36eb70042f6f7f1`، وأن working tree نظيف. commit `e359ce8` توثيقي فقط بعد commit التنفيذ `d34c59c`.
 
-Deployment Vercel المرتبط بالcommit أصبح `READY`:
+Deployment Vercel الوظيفي المرتبط بcommit التنفيذ أصبح `READY`:
 
 `dpl_AbK6f6nXWWtCrVp6v5BFtipzgGCT`
+
+تمت محاولة إعادة التحقق من deployment بعد commit التوثيق النهائي، لكن Vercel connector لم يُرجع metadata قابلة للاعتماد في المحاولة الأخيرة؛ لذلك لا يُدّعى أن `e359ce8` له deployment READY مستقل. Production smoke الموثق يخص deployment الوظيفي الجاهز `dpl_AbK6f6nXWWtCrVp6v5BFtipzgGCT`، والcommit اللاحق لم يغيّر runtime behavior.
 
 Deployment لا يعني activation: كل feature gates بقيت OFF، ولم تُطبق migrations، ولم تُغير Vercel configuration أو secrets.
 
