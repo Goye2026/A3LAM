@@ -107,27 +107,29 @@ Population: **NOT STARTED**
 
 ## Production Read-only Verification
 
-تمت المراقبة السابقة عبر Vercel read-only فقط، ولم تُجرَ configuration أو environment mutation أو manual deployment mutation. بعد deployment النهائي لهذه المرحلة يجب أن تظل checks GET/HEAD-only. تسجل القيم النهائية هنا بعد normal Git push ومراقبة deployment:
+تمت المراقبة عبر Vercel read-only فقط، ولم تُجرَ configuration أو environment mutation أو manual deployment mutation. بعد وصول deployment التوثيق إلى `READY` نُفذت checks GET-only على alias الرسمي، دون login أو POST أو upload أو provider invocation. القيم الفعلية هي:
 
 | Route / check | Result |
 |---|---|
-| `/` | TO BE RECORDED AFTER FINAL DEPLOYMENT |
-| `/api/health` | TO BE RECORDED AFTER FINAL DEPLOYMENT |
-| `/categories` | TO BE RECORDED AFTER FINAL DEPLOYMENT |
-| `/search` | TO BE RECORDED AFTER FINAL DEPLOYMENT |
-| `/robots.txt` | TO BE RECORDED AFTER FINAL DEPLOYMENT |
-| `/sitemap.xml` | TO BE RECORDED AFTER FINAL DEPLOYMENT |
-| `/admin` | TO BE RECORDED AFTER FINAL DEPLOYMENT |
-| `/admin/ai` | TO BE RECORDED AFTER FINAL DEPLOYMENT |
-| `/api/admin/ai/readiness` | TO BE RECORDED AFTER FINAL DEPLOYMENT |
-| `/api/admin/ai/documents` | TO BE RECORDED AFTER FINAL DEPLOYMENT |
-| privacy scan | TO BE RECORDED AFTER FINAL DEPLOYMENT |
+| `/` | 200 — PASS |
+| `/api/health` | 200 — PASS |
+| `/categories` | 200 — PASS |
+| `/search` | 200 — PASS |
+| `/robots.txt` | 200 — PASS |
+| `/sitemap.xml` | 200 — PASS |
+| `/admin` | 307 — PASS anonymous redirect |
+| `/admin/ai` | 307 — PASS anonymous redirect |
+| `/api/admin/ai/readiness` | 401 — PASS anonymous unauthorized |
+| `/api/admin/ai/documents` | 401 — PASS anonymous unauthorized |
+| `/__phase17_18_14_known_missing__` | 404 — PASS known missing route |
+| privacy scan | PASS — no inspected secret/private tokens in returned bodies |
 
 ## Counters
 
 | Counter | Actual value / evidence status |
 |---|---|
 | AI inference calls | 0 calls performed by this phase; Production total NOT OBSERVABLE |
+| final production smoke method | GET-only; no authenticated or mutating request |
 | provider calls | 0 calls performed by this phase; Production total NOT OBSERVABLE |
 | uploads | 0 Production uploads performed; Production total NOT OBSERVABLE |
 | documents / processing / generation / claims / reviews | Production totals NOT OBSERVABLE; no Production records created by this phase |
@@ -148,9 +150,9 @@ Synthetic test counters are not Production counters and are intentionally not su
 | branch | `main` |
 | baseline before Phase 17.18.14 | `a414741eb4b0c901a7451f125abf087b239e04e9` |
 | Phase 17.18.14 implementation commit | `ac4ea753891e42f58b995df303894a020cb5b5ed` |
-| Phase 17.18.14 documentation commit | TO BE RECORDED AFTER NORMAL COMMIT |
+| Phase 17.18.14 documentation commit | `0b23233658e17ac410e8b9cbf27b0c6c2a31af1d` |
 | implementation deployment | `dpl_6FJ7BobAJJQ5ZJunNtFg5mdaELQM` — READY — production — `a3-qp8w0ygpk-goye2026s-projects.vercel.app` |
-| final documentation deployment | TO BE RECORDED AFTER READ-ONLY VERCEL MONITORING |
+| final documentation deployment | `dpl_NkVnfsHMKbTworPrGBnFbcQtNfxb` — READY — production — `a3-1anp2de62-goye2026s-projects.vercel.app` |
 | production alias | `https://a3-lam.vercel.app` |
 | rollback | normal Git/Vercel rollback only; no destructive DB rollback performed |
 
