@@ -108,3 +108,24 @@
 ## 11. حدود المرحلة
 
 **Phase 17.19.1 فقط** تم تنفيذها. Phase 17.19.2 وPhase 17.20 وPhase 18 غير مُبدأة. كما أن Population وProduction AI activation وmigration application غير مُبدأة وغير منفذة.
+
+## 12. Deployment وProduction read-only smoke
+
+بعد دفع commit إلى `main`، أنشأ Vercel deployment من Git بالبيانات التالية:
+
+| الحقل | الدليل الفعلي |
+| --- | --- |
+| Commit | `eafdec57ec845097bd4ab6560d21c2619b4f207a` |
+| Deployment | `dpl_GvqfQJaZtCnCqGFPMyggxXkL1ETd` |
+| Target | `production` |
+| State | `READY` |
+| Alias | `https://a3-lam.vercel.app` |
+| Framework | Next.js |
+
+تم تنفيذ smoke check بعد READY باستخدام GET فقط، مع عدم اتباع redirects، ومن دون تسجيل دخول أو إرسال نماذج أو رفع ملفات. جميع النتائج المتوقعة تحققت: `/`, `/api/health`, `/categories`, `/search`, `/robots.txt`, و`/sitemap.xml` أعادت 200؛ `/admin` و`/admin/ai` أعادتا 307 للزائر المجهول؛ `/api/admin/ai/readiness` و`/api/admin/ai/documents` أعادتا 401؛ ومسار مفقود معروف أعاد 404. أُجري response-body privacy scan ولم يظهر فيه DATABASE_URL أو مفاتيح أو credentials أو private-key markers.
+
+لم يتم تنفيذ POST أو PUT أو PATCH أو DELETE أو upload أو provider/OCR call في Production.
+
+## 13. الحالة النهائية قبل التوقف
+
+الـworking tree أُعيد التحقق منه بعد التغييرات، و`main` متوافق مع `origin/main` بعد دفع commitات المرحلة. تبقى هذه الوثيقة سجلًا لتطبيق Phase 17.19.1 فقط؛ لا يُعد ذلك بدءًا لأي مرحلة لاحقة.
