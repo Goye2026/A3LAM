@@ -481,3 +481,62 @@ export type AiWorkspaceSnapshot = {
     reviewRequired: number;
   };
 };
+
+export const AI_READINESS_STATUSES = ["READY", "READY_WITH_LIMITATIONS", "REQUIRES_CONFIGURATION", "BLOCKED", "NOT_TESTED", "DISABLED"] as const;
+export type AiReadinessStatus = (typeof AI_READINESS_STATUSES)[number];
+
+export const AI_READINESS_KEYS = [
+  "aiProvider", "privateStorage", "malwareScanner", "queue", "worker", "ocr", "persistence", "extraction", "migrations", "retention", "rateLimits", "costControls", "observability", "audit", "rbac", "privacy", "generation", "humanReview", "publication",
+] as const;
+export type AiReadinessKey = (typeof AI_READINESS_KEYS)[number];
+export type AiReadinessDomain = "INFRASTRUCTURE" | "APPLICATION" | "SECURITY" | "OPERATIONS";
+
+export type AiReadinessItem = {
+  key: AiReadinessKey;
+  domain: AiReadinessDomain;
+  status: AiReadinessStatus;
+  reason: string;
+  evidence: string[];
+  nextStep: string;
+  blocker: boolean;
+};
+
+export type AiFeatureGates = {
+  AI_UPLOAD_ENABLED: boolean;
+  AI_PROCESSING_ENABLED: boolean;
+  AI_GENERATION_ENABLED: boolean;
+  AI_OCR_ENABLED: boolean;
+  AI_PUBLICATION_ENABLED: false;
+};
+
+export type AiReadinessReport = {
+  generatedAt: string;
+  overall: "ACTIVATION_READY" | "ACTIVATION_READY_WITH_LIMITATIONS" | "NOT_READY" | "BLOCKED";
+  gates: AiFeatureGates;
+  items: AiReadinessItem[];
+  migration: {
+    status: "healthy" | "pending" | "inconsistent" | "unavailable";
+    appliedCount: number | null;
+    pendingCount: number | null;
+    expectedCount: number | null;
+    nextMigration: string | null;
+  };
+};
+
+export type AiProviderRequestContext = {
+  correlationId: string;
+  timeoutMs: number;
+  maxInputBytes: number;
+  maxOutputTokens: number;
+  maxRetries: number;
+};
+
+export type AiProviderReadiness = {
+  configured: boolean;
+  reachable: "YES" | "NO" | "NOT_TESTED";
+  modelConfigured: boolean;
+  credentialsPresent: boolean;
+  allowedForProduction: boolean;
+  status: AiProviderStatus;
+  evidence: string[];
+};

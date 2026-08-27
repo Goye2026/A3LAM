@@ -2,7 +2,7 @@ import { sql } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import { getAvailableDocumentExtractors } from "./ingestion";
 import { getAiGenerationProviderStatus, getAiProviderState } from "./provider";
-import { getAiProductionActivationState } from "./activation";
+import { getAiFeatureGates, getAiProductionActivationState } from "./activation";
 import { getAiQueueProviderState } from "./queue";
 import { getDocumentStorageState } from "./storage";
 import {
@@ -55,6 +55,7 @@ export function getAiWorkspaceCapabilities() {
     } as const,
     generationModes: ["PROFESSIONAL_CV", "PROFESSIONAL_PROFILE", "A3LAM_PERSON_DRAFT", "BIOGRAPHY", "SEO_DRAFT"] as const,
     outputLanguages: ["ARABIC", "ENGLISH", "BILINGUAL", "SOURCE_LANGUAGE"] as const,
+    featureGates: getAiFeatureGates(),
     limits: {
       maxInputBytes: AI_DOCUMENT_MAX_BYTES,
       maxExtractedTextBytes: AI_EXTRACTED_TEXT_MAX_BYTES,

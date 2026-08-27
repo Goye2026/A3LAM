@@ -3,10 +3,12 @@ import { A3lamDocumentUploader } from "@/components/a3lam/ai/A3lamDocumentUpload
 import { A3lamFactReviewTable } from "@/components/a3lam/ai/A3lamFactReviewTable";
 import { A3lamGenerationClaimReviewTable } from "@/components/a3lam/ai/A3lamGenerationClaimReviewTable";
 import { A3lamEditorialWorkspace } from "@/components/a3lam/ai/A3lamEditorialWorkspace";
+import { A3lamAiReadinessMatrix } from "@/components/a3lam/ai/A3lamAiReadinessMatrix";
 import { getAiProviderState } from "@/lib/ai/provider";
 import { getAdminAiDocumentPrivateDetail, listAdminAiDocuments, listAdminAiFacts } from "@/lib/ai/persistence";
 import { getAdminAiGenerationDocumentDetail } from "@/lib/ai/generation/persistence";
 import { getAiWorkspaceCapabilities, getAiWorkspaceSnapshot } from "@/lib/ai/workspace";
+import { getAiProductionReadinessReport } from "@/lib/ai/readiness";
 import type { HumanReviewFact } from "@/lib/ai/types";
 import { getAdminPageAccess } from "@/lib/admin/pageAuth";
 import { defaultLocale } from "@/lib/i18n/config";
@@ -32,7 +34,7 @@ export default async function AdminAiPage({ searchParams }: PageProps) {
   if (access.dependencyUnavailable) return <div className="admin-route"><p className="admin-alert" role="alert">{copy.adminDatabaseError}</p></div>;
   if (!access.principal || !access.allowed) return <div className="admin-route"><p className="admin-alert" role="alert">{copy.adminUnauthorized}</p></div>;
 
-  const snapshot = await getAiWorkspaceSnapshot();
+  const [snapshot, readiness] = await Promise.all([getAiWorkspaceSnapshot(), getAiProductionReadinessReport()]);
   const capabilities = getAiWorkspaceCapabilities();
   const provider = getAiProviderState();
   let documents: Awaited<ReturnType<typeof listAdminAiDocuments>> = { items: [], total: 0, page: 1, pageSize: 20 };
@@ -68,6 +70,7 @@ export default async function AdminAiPage({ searchParams }: PageProps) {
       </div>
 
       <A3lamEditorialWorkspace copy={copy} />
+      <A3lamAiReadinessMatrix report={readiness} copy={copy} />
 
       <section className="admin-stat-grid" aria-label={copy.adminAi}>
         <div className="admin-stat-card"><span>{copy.adminAiActivation}</span><strong>{snapshot.activation === "DISABLED" ? copy.adminAiActivationDisabled : copy.adminAiActivationEnabled}</strong></div>

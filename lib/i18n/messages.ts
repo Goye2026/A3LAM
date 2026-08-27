@@ -784,6 +784,49 @@ export type FoundationMessages = {
   adminAiModePersonDraft: string;
   adminAiModeBiography: string;
   adminAiModeSeo: string;
+  adminAiReadiness: string;
+  adminAiReadinessDescription: string;
+  adminAiReadinessStatus: string;
+  adminAiReadinessReason: string;
+  adminAiReadinessEvidence: string;
+  adminAiReadinessNextStep: string;
+  adminAiReadinessBlocker: string;
+  adminAiReadinessNoBlocker: string;
+  adminAiReadinessInfrastructure: string;
+  adminAiReadinessApplication: string;
+  adminAiReadinessSecurity: string;
+  adminAiReadinessOperations: string;
+  adminAiReadinessMigration: string;
+  adminAiReadinessGate: string;
+  adminAiGateUpload: string;
+  adminAiGateProcessing: string;
+  adminAiGateGeneration: string;
+  adminAiGateOcr: string;
+  adminAiGatePublication: string;
+  adminAiGateOff: string;
+  adminAiDecisionActivationReady: string;
+  adminAiDecisionActivationReadyWithLimitations: string;
+  adminAiDecisionNotReady: string;
+  adminAiDecisionBlocked: string;
+  adminAiReadinessAiProvider: string;
+  adminAiReadinessPrivateStorage: string;
+  adminAiReadinessMalwareScanner: string;
+  adminAiReadinessQueue: string;
+  adminAiReadinessWorker: string;
+  adminAiReadinessOcr: string;
+  adminAiReadinessPersistence: string;
+  adminAiReadinessExtraction: string;
+  adminAiReadinessMigrations: string;
+  adminAiReadinessRetention: string;
+  adminAiReadinessRateLimits: string;
+  adminAiReadinessCostControls: string;
+  adminAiReadinessObservability: string;
+  adminAiReadinessAudit: string;
+  adminAiReadinessRbac: string;
+  adminAiReadinessPrivacy: string;
+  adminAiReadinessGeneration: string;
+  adminAiReadinessHumanReview: string;
+  adminAiReadinessPublication: string;
   adminAiRunGeneration: string;
   adminAiSourceBacked: string;
   adminAiNeedsVerification: string;
@@ -1600,6 +1643,49 @@ const ar: FoundationMessages = {
   adminAiModePersonDraft: "مسودة شخصية A3LAM المستقبلية",
   adminAiModeBiography: "سيرة موجزة",
   adminAiModeSeo: "مسودة SEO",
+  adminAiReadiness: "جاهزية التفعيل الإنتاجي",
+  adminAiReadinessDescription: "مصفوفة صادقة لحالة الاعتماديات والبوابات قبل أي تفعيل إنتاجي.",
+  adminAiReadinessStatus: "الحالة",
+  adminAiReadinessReason: "السبب",
+  adminAiReadinessEvidence: "الدليل",
+  adminAiReadinessNextStep: "الخطوة التالية",
+  adminAiReadinessBlocker: "مانع تفعيل",
+  adminAiReadinessNoBlocker: "لا يوجد مانع مثبت",
+  adminAiReadinessInfrastructure: "البنية التحتية",
+  adminAiReadinessApplication: "التطبيق",
+  adminAiReadinessSecurity: "الأمن",
+  adminAiReadinessOperations: "التشغيل",
+  adminAiReadinessMigration: "سجل migrations",
+  adminAiReadinessGate: "بوابات التفعيل",
+  adminAiGateUpload: "رفع المستندات",
+  adminAiGateProcessing: "المعالجة",
+  adminAiGateGeneration: "التوليد",
+  adminAiGateOcr: "OCR",
+  adminAiGatePublication: "النشر",
+  adminAiGateOff: "OFF / معطل",
+  adminAiDecisionActivationReady: "ACTIVATION READY",
+  adminAiDecisionActivationReadyWithLimitations: "ACTIVATION READY WITH LIMITATIONS",
+  adminAiDecisionNotReady: "NOT READY",
+  adminAiDecisionBlocked: "BLOCKED",
+  adminAiReadinessAiProvider: "مزود AI",
+  adminAiReadinessPrivateStorage: "التخزين الخاص",
+  adminAiReadinessMalwareScanner: "فحص البرمجيات الضارة",
+  adminAiReadinessQueue: "طابور المعالجة",
+  adminAiReadinessWorker: "العامل الخلفي",
+  adminAiReadinessOcr: "OCR",
+  adminAiReadinessPersistence: "Persistence",
+  adminAiReadinessMigrations: "Migrations",
+  adminAiReadinessRetention: "الاحتفاظ والحذف",
+  adminAiReadinessRateLimits: "حدود المعدل",
+  adminAiReadinessCostControls: "ضوابط التكلفة",
+  adminAiReadinessObservability: "الرصد التشغيلي",
+  adminAiReadinessAudit: "سجل التدقيق",
+  adminAiReadinessRbac: "RBAC",
+  adminAiReadinessPrivacy: "الخصوصية والعزل العام",
+  adminAiReadinessExtraction: "الاستخلاص",
+  adminAiReadinessGeneration: "التوليد",
+  adminAiReadinessHumanReview: "المراجعة البشرية",
+  adminAiReadinessPublication: "سلامة النشر",
   adminAiRunGeneration: "إنشاء مسودة محلية",
   adminAiSourceBacked: "مدعوم بالمصدر",
   adminAiNeedsVerification: "يحتاج تحققًا",
@@ -2416,6 +2502,49 @@ const en: FoundationMessages = {
   adminAiModePersonDraft: "Future A3LAM Person draft",
   adminAiModeBiography: "Short biography",
   adminAiModeSeo: "SEO draft",
+  adminAiReadiness: "Production activation readiness",
+  adminAiReadinessDescription: "A truthful dependency and gate matrix before any production activation.",
+  adminAiReadinessStatus: "Status",
+  adminAiReadinessReason: "Reason",
+  adminAiReadinessEvidence: "Evidence",
+  adminAiReadinessNextStep: "Required next step",
+  adminAiReadinessBlocker: "Activation blocker",
+  adminAiReadinessNoBlocker: "No confirmed blocker",
+  adminAiReadinessInfrastructure: "Infrastructure",
+  adminAiReadinessApplication: "Application",
+  adminAiReadinessSecurity: "Security",
+  adminAiReadinessOperations: "Operations",
+  adminAiReadinessMigration: "Migration registry",
+  adminAiReadinessGate: "Feature gates",
+  adminAiGateUpload: "Document upload",
+  adminAiGateProcessing: "Processing",
+  adminAiGateGeneration: "Generation",
+  adminAiGateOcr: "OCR",
+  adminAiGatePublication: "Publication",
+  adminAiGateOff: "OFF / disabled",
+  adminAiDecisionActivationReady: "ACTIVATION READY",
+  adminAiDecisionActivationReadyWithLimitations: "ACTIVATION READY WITH LIMITATIONS",
+  adminAiDecisionNotReady: "NOT READY",
+  adminAiDecisionBlocked: "BLOCKED",
+  adminAiReadinessAiProvider: "AI provider",
+  adminAiReadinessPrivateStorage: "Private storage",
+  adminAiReadinessMalwareScanner: "Malware scanner",
+  adminAiReadinessQueue: "Processing queue",
+  adminAiReadinessWorker: "Worker",
+  adminAiReadinessOcr: "OCR",
+  adminAiReadinessPersistence: "Persistence",
+  adminAiReadinessMigrations: "Migrations",
+  adminAiReadinessRetention: "Retention and deletion",
+  adminAiReadinessRateLimits: "Rate limits",
+  adminAiReadinessCostControls: "Cost controls",
+  adminAiReadinessObservability: "Observability",
+  adminAiReadinessAudit: "Audit",
+  adminAiReadinessRbac: "RBAC",
+  adminAiReadinessPrivacy: "Privacy and public isolation",
+  adminAiReadinessExtraction: "Extraction",
+  adminAiReadinessGeneration: "Generation",
+  adminAiReadinessHumanReview: "Human review",
+  adminAiReadinessPublication: "Publication safety",
   adminAiRunGeneration: "Create local draft",
   adminAiSourceBacked: "Source-backed",
   adminAiNeedsVerification: "Needs verification",

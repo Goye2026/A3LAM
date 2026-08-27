@@ -10,6 +10,7 @@ import type {
   AiProviderResponse,
   AiProviderState,
   AiProviderStatus,
+  AiProviderReadiness,
 } from "./types";
 
 export const AI_PROVIDER_ENV_KEYS = ["A3LAM_AI_PROVIDER_URL", "A3LAM_AI_PROVIDER_TOKEN"] as const;
@@ -49,6 +50,25 @@ function providerState(): AiProviderState {
 
 export function getAiProviderState() {
   return providerState();
+}
+
+export function getAiProviderReadiness(): AiProviderReadiness {
+  const state = providerState();
+  const configured = state === "CONFIGURED";
+  return {
+    configured,
+    reachable: "NOT_TESTED",
+    modelConfigured: configured,
+    credentialsPresent: configured,
+    allowedForProduction: false,
+    status: getAiGenerationProviderStatus(),
+    evidence: [
+      `provider state: ${state}`,
+      "Provider reachability was not probed in this phase.",
+      "Credentials are never returned or logged.",
+      "Production use is explicitly disallowed by the activation gates.",
+    ],
+  };
 }
 
 export function getAiProviderStatusLabel(state: AiProviderState) {

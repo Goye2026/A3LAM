@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { AI_PRODUCTION_ENABLED } from "@/lib/ai/activation";
+import { AI_PROCESSING_ENABLED, AI_PRODUCTION_ENABLED, AI_UPLOAD_ENABLED } from "@/lib/ai/activation";
 import { getAiQueueProviderState } from "@/lib/ai/queue";
 import { listAdminAiDocuments } from "@/lib/ai/persistence";
 import { submitAiDocument } from "@/lib/ai/pipeline";
@@ -25,7 +25,8 @@ export async function POST(request: Request) {
   const gate = await requirePermissionPrincipal(request, "ai.documents.create");
   if (gate.response) return gate.response;
   if (!isSameOriginMutation(request)) return NextResponse.json({ error: "INVALID_INPUT", message: "The submitted value is invalid." }, { status: 400 });
-  if (!AI_PRODUCTION_ENABLED) return NextResponse.json({ error: "AI_PROCESSING_DISABLED", message: "AI Production Processing غير مفعّل." }, { status: 503 });
+  if (!AI_PRODUCTION_ENABLED || !AI_UPLOAD_ENABLED) return NextResponse.json({ error: "AI_UPLOAD_DISABLED", message: "AI Production upload غير مفعّل." }, { status: 503 });
+  if (!AI_PROCESSING_ENABLED) return NextResponse.json({ error: "AI_PROCESSING_DISABLED", message: "AI Production Processing غير مفعّل." }, { status: 503 });
   if (getDocumentStorageState() !== "AVAILABLE" || getAiQueueProviderState() !== "AVAILABLE") return NextResponse.json({ error: "DEPENDENCY_UNAVAILABLE", message: "Private document storage and processing queue require configuration." }, { status: 503 });
 
   try {

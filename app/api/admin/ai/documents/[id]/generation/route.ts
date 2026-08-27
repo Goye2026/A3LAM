@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { AI_PRODUCTION_ENABLED } from "@/lib/ai/activation";
+import { AI_GENERATION_ENABLED, AI_PROCESSING_ENABLED, AI_PRODUCTION_ENABLED } from "@/lib/ai/activation";
 import { getAiGenerationProviderStatus } from "@/lib/ai/provider";
 import { createAiGenerationJob } from "@/lib/ai/generation/persistence";
 import { getAiPersistenceState } from "@/lib/ai/workspace";
@@ -11,7 +11,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const gate = await requirePermissionPrincipal(request, "ai.generation.create");
   if (gate.response) return gate.response;
   if (!isSameOriginMutation(request)) return NextResponse.json({ error: "INVALID_INPUT", message: "The submitted value is invalid." }, { status: 400 });
-  if (!AI_PRODUCTION_ENABLED) return NextResponse.json({ error: "AI_PROCESSING_DISABLED", message: "AI Production Processing غير مفعّل." }, { status: 503 });
+  if (!AI_PRODUCTION_ENABLED || !AI_PROCESSING_ENABLED) return NextResponse.json({ error: "AI_PROCESSING_DISABLED", message: "AI Production Processing غير مفعّل." }, { status: 503 });
+  if (!AI_GENERATION_ENABLED) return NextResponse.json({ error: "AI_GENERATION_DISABLED", message: "AI Production generation غير مفعّل." }, { status: 503 });
   if (getAiGenerationProviderStatus() !== "READY" || await getAiPersistenceState() !== "AVAILABLE") return NextResponse.json({ error: "DEPENDENCY_UNAVAILABLE", message: "AI generation requires an approved provider and initialized private persistence." }, { status: 503 });
   const contentLength = Number(request.headers.get("content-length") ?? "0");
   if (contentLength > 32_768) return NextResponse.json({ error: "PAYLOAD_TOO_LARGE", message: "The submitted value is too large." }, { status: 413 });
