@@ -4,7 +4,8 @@ import { getDb } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 import { assertCmsEditorialTransition, type CmsEditorialStatus } from "./editorialStatus";
 import { CmsInputError, parseCmsEditorialMutation, parseCmsTagInput } from "./editorialValidation";
-import type { CmsEditorialRecord, CmsEditorialRevisionSnapshot, CmsEntityKind, CmsListOptions, CmsListPage, CmsTagInput, CmsTagRecord } from "./editorialTypes";
+import type { CmsBulkOperationResult, CmsBulkStatusInput, CmsEditorialRecord, CmsEditorialRevisionSnapshot, CmsEntityKind, CmsListOptions, CmsListPage, CmsRevisionDetail, CmsRevisionListItem, CmsTagInput, CmsTagRecord, CmsWorkspaceSummary } from "./editorialTypes";
+import type { CmsRichTextDocument } from "./richText";
 
 export class CmsConflictError extends Error {
   constructor(message: string) {
@@ -148,6 +149,23 @@ async function tagsExist(db: CmsDbExecutor, tagIds: string[]) {
   if (rows.length !== tagIds.length) throw new CmsInputError("One or more tags do not exist");
 }
 
+function mediaIdsFromDocument(document: CmsRichTextDocument) {
+  return [...new Set(document.blocks.filter((block): block is Extract<typeof block, { type: "media" }> => block.type === "media").map((block) => block.mediaId))];
+}
+
+async function publicMediaReferencesExist(db: CmsDbExecutor, document: CmsRichTextDocument) {
+  const mediaIds = mediaIdsFromDocument(document);
+  if (mediaIds.length === 0) return;
+  const rows = await db.select({ id: schema.mediaAssets.id }).from(schema.mediaAssets).where(and(inArray(schema.mediaAssets.id, mediaIds), eq(schema.mediaAssets.status, "ready"), eq(schema.mediaAssets.visibility, "public")));
+  if (rows.length !== mediaIds.length) throw new CmsInputError("One or more media references are unavailable");
+}
+
+async function featuredMediaExists(db: CmsDbExecutor, mediaId: string | null) {
+  if (!mediaId) return;
+  const rows = await db.select({ id: schema.mediaAssets.id }).from(schema.mediaAssets).where(and(eq(schema.mediaAssets.id, mediaId), eq(schema.mediaAssets.status, "ready"), eq(schema.mediaAssets.visibility, "public"))).limit(1);
+  if (!rows[0]) throw new CmsInputError("Featured media is unavailable");
+}
+
 async function getCmsRecord(db: ReturnType<typeof getDb>, kind: CmsEntityKind, id: string): Promise<CmsEditorialRecord | null> {
   if (kind === "page") {
     const rows = await db.select().from(schema.cmsPages).where(eq(schema.cmsPages.id, id)).limit(1);
@@ -214,6 +232,8 @@ export const editorialRepository = {
     const db = getDb();
     await categoriesExist(db, input.categoryIds ?? []);
     await tagsExist(db, input.tagIds ?? []);
+    await publicMediaReferencesExist(db, input.content);
+    await featuredMediaExists(db, input.featuredMediaId);
     const id = randomUUID();
     const now = new Date();
     const status: CmsEditorialStatus = "draft";
@@ -245,6 +265,8 @@ export const editorialRepository = {
     assertExpectedVersion(current, input.expectedVersion);
     await categoriesExist(db, input.categoryIds ?? []);
     await tagsExist(db, input.tagIds ?? []);
+    await publicMediaReferencesExist(db, input.content);
+    await featuredMediaExists(db, input.featuredMediaId);
     const nextVersion = current.version + 1;
     const now = new Date();
     await db.transaction(async (tx) => {
@@ -294,6 +316,96 @@ export const editorialRepository = {
       }
     });
     return getCmsRecord(db, kind, id);
+  },
+
+  async listRevisions(kind: CmsEntityKind, contentId: string): Promise<CmsRevisionListItem[]> {
+    const db = getDb();
+    const revisionColumn = kind === "page" ? schema.cmsContentRevisions.pageId : schema.cmsContentRevisions.postId;
+    const current = await getCmsRecord(db, kind, contentId);
+    if (!current) return [];
+    const rows = await db.select({ revision: schema.cmsContentRevisions, actorName: schema.adminIdentities.displayName }).from(schema.cmsContentRevisions).leftJoin(schema.adminIdentities, eq(schema.cmsContentRevisions.authorId, schema.adminIdentities.id)).where(eq(revisionColumn, contentId)).orderBy(desc(schema.cmsContentRevisions.version)).limit(50);
+    return rows.map(({ revision: row, actorName }) => ({ id: row.id, kind, contentId, version: row.version, status: row.status, authorId: row.authorId, authorName: actorName, createdAt: row.createdAt.toISOString(), isCurrent: row.version === current.version }));
+  },
+
+  async getRevision(kind: CmsEntityKind, contentId: string, revisionId: string): Promise<CmsRevisionDetail | null> {
+    const db = getDb();
+    const revisionColumn = kind === "page" ? schema.cmsContentRevisions.pageId : schema.cmsContentRevisions.postId;
+    const rows = await db.select({ revision: schema.cmsContentRevisions, actorName: schema.adminIdentities.displayName }).from(schema.cmsContentRevisions).leftJoin(schema.adminIdentities, eq(schema.cmsContentRevisions.authorId, schema.adminIdentities.id)).where(and(eq(schema.cmsContentRevisions.id, revisionId), eq(revisionColumn, contentId))).limit(1);
+    const row = rows[0];
+    if (!row) return null;
+    const current = await getCmsRecord(db, kind, contentId);
+    return { id: row.revision.id, kind, contentId, version: row.revision.version, status: row.revision.status, authorId: row.revision.authorId, authorName: row.actorName, createdAt: row.revision.createdAt.toISOString(), isCurrent: row.revision.version === current?.version, snapshot: row.revision.snapshot };
+  },
+
+  async restoreRevision(kind: CmsEntityKind, contentId: string, revisionId: string, expectedVersion: number, actorId: string | null) {
+    const db = getDb();
+    const current = await getCmsRecord(db, kind, contentId);
+    if (!current) return null;
+    assertExpectedVersion(current, expectedVersion);
+    const revisionRecord = await this.getRevision(kind, contentId, revisionId);
+    if (!revisionRecord) return null;
+    const snapshot = revisionRecord.snapshot;
+    await publicMediaReferencesExist(db, snapshot.content);
+    await featuredMediaExists(db, snapshot.featuredMediaId);
+    const nextVersion = current.version + 1;
+    const now = new Date();
+    await db.transaction(async (tx) => {
+      if (kind === "page") {
+        const updated = await tx.update(schema.cmsPages).set({ title: snapshot.title, slug: snapshot.slug, content: snapshot.content, excerpt: snapshot.excerpt, featuredMediaId: snapshot.featuredMediaId, template: snapshot.template, seoTitle: snapshot.seoTitle, seoDescription: snapshot.seoDescription, canonicalUrl: snapshot.canonicalUrl, status: "draft", publishedAt: null, version: nextVersion, updatedAt: now }).where(and(eq(schema.cmsPages.id, contentId), eq(schema.cmsPages.version, expectedVersion))).returning();
+        if (!updated[0]) throw new CmsConflictError("The editorial record has changed; reload before restoring");
+        const record = pageRecord(updated[0]);
+        await revision(tx, record, actorId);
+        await audit(tx, actorId, record, "restore_revision", "revision", revisionId, String(nextVersion));
+      } else {
+        const updated = await tx.update(schema.cmsPosts).set({ title: snapshot.title, slug: snapshot.slug, content: snapshot.content, excerpt: snapshot.excerpt, featuredMediaId: snapshot.featuredMediaId, template: snapshot.template, seoTitle: snapshot.seoTitle, seoDescription: snapshot.seoDescription, canonicalUrl: snapshot.canonicalUrl, status: "draft", publishedAt: null, version: nextVersion, updatedAt: now }).where(and(eq(schema.cmsPosts.id, contentId), eq(schema.cmsPosts.version, expectedVersion))).returning();
+        if (!updated[0]) throw new CmsConflictError("The editorial record has changed; reload before restoring");
+        await tx.delete(schema.cmsPostCategories).where(eq(schema.cmsPostCategories.postId, contentId));
+        await tx.delete(schema.cmsPostTags).where(eq(schema.cmsPostTags.postId, contentId));
+        for (const categoryId of snapshot.categoryIds) await tx.insert(schema.cmsPostCategories).values({ postId: contentId, categoryId });
+        for (const tagId of snapshot.tagIds) await tx.insert(schema.cmsPostTags).values({ postId: contentId, tagId });
+        const record = postRecord(updated[0], snapshot.categoryIds, snapshot.tagIds);
+        await revision(tx, record, actorId);
+        await audit(tx, actorId, record, "restore_revision", "revision", revisionId, String(nextVersion));
+      }
+    });
+    return getCmsRecord(db, kind, contentId);
+  },
+
+  async bulkTransition(kind: CmsEntityKind, input: CmsBulkStatusInput, actorId: string | null): Promise<CmsBulkOperationResult> {
+    if (input.status === "published" || input.status === "scheduled") throw new CmsInputError("Bulk publication or scheduling is not available");
+    const db = getDb();
+    const currentRecords = await Promise.all(input.ids.map((id) => getCmsRecord(db, kind, id)));
+    if (currentRecords.some((record) => !record)) throw new CmsInputError("One or more editorial records do not exist");
+    const records = currentRecords as CmsEditorialRecord[];
+    records.forEach((record) => { if (record.version !== input.expectedVersions[record.id]) throw new CmsConflictError("One or more editorial records changed; reload before continuing"); assertCmsEditorialTransition(record.status, input.status); });
+    const now = new Date();
+    await db.transaction(async (tx) => {
+      for (const current of records) {
+        const publishedAt = input.status === "draft" || input.status === "trashed" ? null : current.publishedAt ? new Date(current.publishedAt) : null;
+        const table = kind === "page" ? schema.cmsPages : schema.cmsPosts;
+        const updated = await tx.update(table).set({ status: input.status, publishedAt, version: current.version + 1, updatedAt: now }).where(and(eq(table.id, current.id), eq(table.version, current.version))).returning();
+        if (!updated[0]) throw new CmsConflictError("One or more editorial records changed; reload before continuing");
+        const record = kind === "page" ? pageRecord(updated[0] as typeof schema.cmsPages.$inferSelect) : postRecord(updated[0] as typeof schema.cmsPosts.$inferSelect, current.categoryIds, current.tagIds);
+        await revision(tx, record, actorId);
+        await audit(tx, actorId, record, "bulk_status_transition", "status", current.status, input.status);
+      }
+    });
+    const updated = await Promise.all(input.ids.map((id) => getCmsRecord(db, kind, id)));
+    return { updated: updated.filter((record): record is CmsEditorialRecord => Boolean(record)), count: updated.filter(Boolean).length };
+  },
+
+  async getWorkspaceSummary(): Promise<CmsWorkspaceSummary> {
+    const db = getDb();
+    const [pageRows, postRows] = await Promise.all([
+      db.select({ status: schema.cmsPages.status, count: sql<string>`count(*)` }).from(schema.cmsPages).groupBy(schema.cmsPages.status),
+      db.select({ status: schema.cmsPosts.status, count: sql<string>`count(*)` }).from(schema.cmsPosts).groupBy(schema.cmsPosts.status),
+    ]);
+    const summarize = (rows: Array<{ status: CmsEditorialStatus; count: string }>) => {
+      const result = { total: 0, draft: 0, review: 0, published: 0, trashed: 0 };
+      for (const row of rows) { const count = Number(row.count); result.total += count; if (row.status in result && row.status !== "scheduled") result[row.status as "draft" | "review" | "published" | "trashed"] += count; }
+      return result;
+    };
+    return { page: summarize(pageRows), post: summarize(postRows) };
   },
 
   async listTags(): Promise<CmsTagRecord[]> {

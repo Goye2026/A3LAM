@@ -47,7 +47,7 @@ describe("Phase 17.19.3 editorial content engine", () => {
     expect(parseCmsEditorialMutation(validPage, "page").slug).toBe("safe-page");
     expect(parseCmsEditorialMutation(validPost, "post").template).toBe("single-post");
     expect(() => parseCmsEditorialMutation({ ...validPage, tagIds: ["tag-1"] }, "page")).toThrow("Pages do not accept taxonomy");
-    expect(() => parseCmsEditorialMutation({ ...validPost, featuredMediaId: "media-1" }, "post")).toThrow("Media Library configuration");
+    expect(parseCmsEditorialMutation({ ...validPost, featuredMediaId: "media-1" }, "post").featuredMediaId).toBe("media-1");
     expect(() => parseCmsEditorialMutation({ ...validPost, template: "../../unsafe" }, "post")).toThrow("template is not supported");
     expect(parseCmsTagInput({ name: "وسم", slug: "وسم" }).slug).toBe("وسم");
   });

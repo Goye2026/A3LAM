@@ -26,10 +26,10 @@ describe("Phase 17.19.1 CMS architecture", () => {
     expect(new Set(themes.map((theme) => theme.id)).size).toBe(themes.length);
   });
 
-  it("resolves supported templates and falls back deterministically for unavailable post/page templates", () => {
+  it("resolves supported templates and falls back deterministically for unavailable templates", () => {
     expect(resolveTemplate("single-person", activeTheme)).toBe("single-person");
-    expect(resolveTemplate("single-post", activeTheme)).toBe("not-found");
-    expect(resolveTemplate("single-page", activeTheme)).toBe("not-found");
+    expect(resolveTemplate("single-post", activeTheme)).toBe("single-post");
+    expect(resolveTemplate("single-page", activeTheme)).toBe("single-page");
     expect(resolveLayout("header", activeTheme)).toBe("header");
     expect(resolveLayout("content", activeTheme)).toBe("content");
   });

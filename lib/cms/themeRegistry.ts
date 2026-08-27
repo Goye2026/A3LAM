@@ -6,7 +6,7 @@ const A3LAM_THEME: CmsThemeDefinition = Object.freeze({
   version: "1.0.0",
   author: "A3LAM",
   status: "active",
-  templates: ["index", "single-person", "archive", "search", "not-found"] as const,
+  templates: ["index", "single-person", "single-page", "single-post", "archive", "category", "tag", "search", "not-found"] as const,
   layoutParts: ["header", "footer", "sidebar", "content"] as const,
   capabilities: ["rtl", "ltr-ready", "seo", "responsive", "server-rendered"] as const,
   settingsResource: "appearance",
@@ -28,7 +28,6 @@ export function listThemes(): readonly CmsThemeDefinition[] {
 
 export const resolveTemplate: CmsTemplateResolver = (requested, theme) => {
   if (theme.templates.includes(requested)) return requested;
-  if (requested === "single-post" || requested === "single-page") return "not-found";
   return theme.templates.includes("index") ? "index" : "not-found";
 };
 

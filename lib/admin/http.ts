@@ -51,7 +51,7 @@ export function adminErrorResponse(error: unknown) {
   if (error instanceof Error && (error.name === "AdminInputError" || error.name === "AdminValidationError" || error instanceof CmsInputError || error instanceof CmsRichTextInputError || error.name === "AiDocumentValidationError" || error.name === "AiFactValidationError" || error.name === "AiGenerationValidationError" || error instanceof MediaInputError)) {
     return NextResponse.json({ error: safeErrors.INVALID_INPUT.code, message: safeErrors.INVALID_INPUT.publicMessage }, { status: safeErrors.INVALID_INPUT.status });
   }
-  if (error instanceof Error && ["AdminConflictError", "CmsConflictError", "AiDocumentConflictError", "MigrationRegistryInconsistentError", "MigrationAlreadyAppliedError", "MigrationPrerequisiteError", "MigrationStateChangedError"].includes(error.name)) {
+  if (error instanceof Error && ["AdminConflictError", "CmsConflictError", "CmsEditorialConflictError", "AiDocumentConflictError", "MigrationRegistryInconsistentError", "MigrationAlreadyAppliedError", "MigrationPrerequisiteError", "MigrationStateChangedError"].includes(error.name)) {
     return NextResponse.json({ error: safeErrors.CONFLICT.code, message: safeErrors.CONFLICT.publicMessage }, { status: safeErrors.CONFLICT.status });
   }
   if (error instanceof MediaConflictError) {

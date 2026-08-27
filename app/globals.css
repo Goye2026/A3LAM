@@ -3869,3 +3869,42 @@ textarea.admin-input { resize: vertical; }
   .cms-list-toolbar .admin-filter-form { display: grid; grid-template-columns: 1fr; }
   .admin-table-wrap { overflow-x: auto; }
 }
+
+/* Phase 17.19.4 editorial productivity surfaces. */
+.cms-workspace-summary { margin-block-end: var(--space-4); }
+.cms-workspace-summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.cms-workspace-summary-grid article { display: grid; gap: .35rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-3); background: var(--color-surface-muted); }
+.cms-workspace-summary-grid h3, .cms-workspace-summary-grid p { margin: 0; }
+.cms-workspace-summary-grid strong { color: var(--color-brand); font-family: var(--font-latin); font-size: 1.8rem; line-height: 1; }
+.cms-workspace-summary-grid span { color: var(--color-ink-muted); font-size: .8rem; line-height: 1.7; }
+.cms-bulk-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); padding: .75rem 0; border-block-end: 1px solid var(--color-border); margin-block-end: .75rem; }
+.cms-bulk-toolbar span { color: var(--color-ink-muted); font-size: .85rem; }
+.cms-editor-state { margin-block-start: var(--space-3); color: var(--color-ink-muted); font-size: .85rem; }
+.cms-recovery-notice { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.cms-revision-center { margin-block-start: var(--space-4); border-block-start: 1px solid var(--color-border); padding-block-start: var(--space-4); }
+.cms-revision-list { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.cms-revision-list li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: .7rem; }
+.cms-revision-list li.is-current { border-color: var(--color-brand); background: var(--color-brand-pale); }
+.cms-revision-list li > div:first-child { display: grid; gap: .2rem; min-width: 0; }
+.cms-revision-list small { color: var(--color-ink-muted); overflow-wrap: anywhere; }
+.cms-revision-preview { margin-block-start: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-3); background: var(--color-surface-muted); }
+.cms-media-picker { width: min(52rem, calc(100vw - 2rem)); max-height: min(42rem, calc(100vh - 2rem)); border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-ink); padding: var(--space-4); }
+.cms-media-picker::backdrop { background: rgb(16 25 34 / .55); }
+.cms-media-picker-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-block-end: var(--space-3); }
+.cms-media-picker-header h2 { margin: 0; }
+.cms-media-picker-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: var(--space-2); max-height: 22rem; overflow: auto; margin-block: var(--space-3); }
+.cms-media-picker-item { display: grid; gap: .35rem; text-align: start; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface-muted); color: var(--color-ink); padding: .5rem; cursor: pointer; }
+.cms-media-picker-item:hover, .cms-media-picker-item:focus-visible, .cms-media-picker-item.is-selected { border-color: var(--color-brand); outline: none; }
+.cms-media-picker-item img { width: 100%; height: 6rem; object-fit: cover; border-radius: var(--radius-sm); background: var(--color-paper); }
+.cms-media-picker-item small { color: var(--color-ink-muted); overflow-wrap: anywhere; }
+.cms-media-picker-detail { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); border-block-start: 1px solid var(--color-border); padding-block-start: var(--space-3); }
+.cms-media-picker-detail span { color: var(--color-ink-muted); font-size: .85rem; }
+@media (max-width: 700px) {
+  .cms-workspace-summary-grid { grid-template-columns: 1fr; }
+  .cms-bulk-toolbar { align-items: stretch; }
+  .cms-bulk-toolbar .button { flex: 1 1 auto; }
+  .cms-revision-list li { align-items: stretch; flex-direction: column; }
+  .cms-revision-list li .admin-form-actions { justify-content: stretch; }
+  .cms-revision-list li .admin-form-actions .button { flex: 1; }
+  .cms-media-picker { padding: var(--space-3); }
+}

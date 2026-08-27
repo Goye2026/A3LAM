@@ -1,7 +1,8 @@
 import { getSafePublicUrl } from "@/lib/media/public";
 import { parseCmsRichTextDocument, type CmsRichTextDocument } from "./richText";
 import { assertCmsSlug } from "./slug";
-import type { CmsEditorialMutation, CmsTagInput } from "./editorialTypes";
+import { isCmsEditorialStatus, type CmsEditorialStatus } from "./editorialStatus";
+import type { CmsBulkStatusInput, CmsEditorialMutation, CmsTagInput } from "./editorialTypes";
 
 const CMS_TEMPLATE_BY_KIND = { page: "single-page", post: "single-post" } as const;
 
@@ -50,13 +51,12 @@ export function parseCmsEditorialMutation(value: unknown, kind: "page" | "post")
   const template = text(item.template, "template", 100, true);
   if (template !== CMS_TEMPLATE_BY_KIND[kind]) throw new CmsInputError(`${kind} template is not supported`);
   const featuredMediaId = text(item.featuredMediaId, "featuredMediaId", 160);
-  if (featuredMediaId) throw new CmsInputError("Featured media requires Media Library configuration");
   return {
     title: text(item.title, "title", 300, true),
     slug: assertCmsSlug(item.slug),
     content,
     excerpt: text(item.excerpt, "excerpt", 2_000),
-    featuredMediaId: null,
+    featuredMediaId: featuredMediaId || null,
     template,
     seoTitle: text(item.seoTitle, "seoTitle", 300),
     seoDescription: text(item.seoDescription, "seoDescription", 2_000),
@@ -80,6 +80,34 @@ export function parseExpectedVersion(value: unknown) {
   const version = Number(value);
   if (!Number.isInteger(version) || version < 1) throw new CmsInputError("expectedVersion is invalid");
   return version;
+}
+
+export function assertCmsIdentifier(value: unknown, field = "id") {
+  if (typeof value !== "string" || !/^[A-Za-z0-9_-]{1,160}$/.test(value)) throw new CmsInputError(`${field} is invalid`);
+  return value;
+}
+
+export function parseCmsBulkStatusInput(value: unknown): CmsBulkStatusInput {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new CmsInputError("The bulk payload is invalid");
+  const item = value as Record<string, unknown>;
+  const rawIds = item.ids;
+  if (!Array.isArray(rawIds) || rawIds.length < 1 || rawIds.length > 50) throw new CmsInputError("ids has an invalid size");
+  const idsValue = [...new Set(rawIds.map((id, index) => assertCmsIdentifier(id, `ids.${index}`)))];
+  if (idsValue.length !== rawIds.length) throw new CmsInputError("ids must be unique");
+  const status = item.status;
+  if (!isCmsEditorialStatus(status)) throw new CmsInputError("status is invalid");
+  if (!item.expectedVersions || typeof item.expectedVersions !== "object" || Array.isArray(item.expectedVersions)) throw new CmsInputError("expectedVersions is invalid");
+  const rawVersions = item.expectedVersions as Record<string, unknown>;
+  const expectedVersions: Record<string, number> = {};
+  for (const id of idsValue) expectedVersions[id] = parseExpectedVersion(rawVersions[id]);
+  if (Object.keys(rawVersions).some((id) => !idsValue.includes(id))) throw new CmsInputError("expectedVersions contains an unknown id");
+  return { ids: idsValue, status: status as CmsEditorialStatus, expectedVersions };
+}
+
+export function parseCmsRevisionRestoreInput(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new CmsInputError("The revision restore payload is invalid");
+  const item = value as Record<string, unknown>;
+  return { revisionId: assertCmsIdentifier(item.revisionId, "revisionId"), expectedVersion: parseExpectedVersion(item.expectedVersion) };
 }
 
 export function assertCmsRichText(value: unknown): asserts value is CmsRichTextDocument {

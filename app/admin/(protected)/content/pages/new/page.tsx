@@ -10,5 +10,5 @@ export default async function NewCmsPage() {
   if (!access.allowed) return <div className="admin-route"><p className="admin-alert" role="alert">{access.dependencyUnavailable ? copy.adminRequiresSchema : copy.adminUnauthorized}</p></div>;
   const [canUpdate, canReview, canSchedule, canPublish, canTrash] = access.principal ? await Promise.all(["content.update", "content.review", "content.schedule", "content.publish", "content.trash"].map((permission) => hasEffectiveAdminPermission(access.principal!, permission as Parameters<typeof hasEffectiveAdminPermission>[1]))) : [false, false, false, false, false];
   const capabilities = { canCreate: true, canUpdate, canReview, canSchedule, canPublish, canTrash };
-  return <div className="admin-route"><header className="admin-route-heading"><div><p className="eyebrow">{copy.adminContent}</p><h1>{copy.adminCmsCreatePage}</h1></div></header><CmsEditorialEditor kind="page" initialRecord={null} copy={copy} capabilities={capabilities} /></div>;
+  return <div className="admin-route"><header className="admin-route-heading"><div><p className="eyebrow">{copy.adminContent}</p><h1>{copy.adminCmsCreatePage}</h1></div></header><CmsEditorialEditor kind="page" initialRecord={null} copy={copy} capabilities={capabilities} recoveryScope={access.principal?.id ?? "unknown"} /></div>;
 }

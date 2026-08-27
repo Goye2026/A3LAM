@@ -28,7 +28,7 @@ function renderBlock(block: CmsRichTextBlock, index: number) {
   if (block.type === "divider") return <hr key={key} />;
   if (block.type === "ordered_list") return <ol key={key}>{block.items.map((item, itemIndex) => <li key={itemIndex}>{renderInline(item)}</li>)}</ol>;
   if (block.type === "unordered_list") return <ul key={key}>{block.items.map((item, itemIndex) => <li key={itemIndex}>{renderInline(item)}</li>)}</ul>;
-  if (block.type === "media") return <figure key={key} className="cms-media-placeholder"><figcaption>{block.altText || block.mediaId}</figcaption></figure>;
+  if (block.type === "media") return <figure key={key} className="cms-media-placeholder">{block.altText ? <figcaption>{block.altText}</figcaption> : null}</figure>;
   return <table key={key}><tbody>{block.rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={cellIndex}>{renderInline(cell)}</td>)}</tr>)}</tbody></table>;
 }
 

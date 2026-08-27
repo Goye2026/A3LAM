@@ -75,3 +75,30 @@ export type CmsListPage = {
 };
 
 export type CmsTagRecord = { id: string; name: string; slug: string; createdAt: string; updatedAt: string };
+
+export type CmsRevisionListItem = {
+  id: string;
+  kind: CmsEntityKind;
+  contentId: string;
+  version: number;
+  status: CmsEditorialStatus;
+  authorId: string | null;
+  authorName: string | null;
+  createdAt: string;
+  isCurrent: boolean;
+};
+
+export type CmsRevisionDetail = CmsRevisionListItem & { snapshot: CmsEditorialRevisionSnapshot };
+
+export type CmsBulkStatusInput = {
+  ids: string[];
+  status: CmsEditorialStatus;
+  expectedVersions: Record<string, number>;
+};
+
+export type CmsBulkOperationResult = { updated: CmsEditorialRecord[]; count: number };
+
+export type CmsWorkspaceSummary = {
+  page: { total: number; draft: number; review: number; published: number; trashed: number };
+  post: { total: number; draft: number; review: number; published: number; trashed: number };
+};

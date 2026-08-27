@@ -3,6 +3,7 @@ import { defaultLocale } from "@/lib/i18n/config";
 import { editorialRepository } from "@/lib/cms/editorialRepository";
 import { CmsEditorialList } from "@/components/a3lam/CmsEditorialList";
 import { getAdminPageAccess } from "@/lib/admin/pageAuth";
+import { hasEffectiveAdminPermission } from "@/lib/admin/rbac";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -29,5 +30,12 @@ export default async function AdminPagesPage({ searchParams }: { searchParams: S
   const status = value(params, "status");
   const page = Number(value(params, "page") || "1");
   const result = await loadPageList(page, query, status);
-  return <div className="admin-route"><header className="admin-route-heading"><div><p className="eyebrow">{copy.adminContent}</p><h1>{copy.adminCmsPages}</h1><p className="route-description">{copy.adminCmsEditor}</p></div></header><CmsEditorialList kind="page" data={result.data} copy={copy} unavailable={result.unavailable} query={query} status={status} /></div>;
+  let capabilities = { canUpdate: false, canReview: false, canTrash: false };
+  if (access.principal) {
+    try {
+      const [canUpdate, canReview, canTrash] = await Promise.all([hasEffectiveAdminPermission(access.principal, "content.update"), hasEffectiveAdminPermission(access.principal, "content.review"), hasEffectiveAdminPermission(access.principal, "content.trash")]);
+      capabilities = { canUpdate, canReview, canTrash };
+    } catch { /* fail closed: read remains available, mutations stay hidden */ }
+  }
+  return <div className="admin-route"><header className="admin-route-heading"><div><p className="eyebrow">{copy.adminContent}</p><h1>{copy.adminCmsPages}</h1><p className="route-description">{copy.adminCmsEditor}</p></div></header><CmsEditorialList kind="page" data={result.data} copy={copy} unavailable={result.unavailable} query={query} status={status} capabilities={capabilities} /></div>;
 }

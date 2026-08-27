@@ -25,7 +25,7 @@ export type CmsContentTypeDefinition = {
 };
 
 export type CmsThemeId = "a3lam-editorial";
-export type CmsTemplateId = "index" | "single-person" | "single-post" | "single-page" | "archive" | "search" | "not-found";
+export type CmsTemplateId = "index" | "single-person" | "single-post" | "single-page" | "archive" | "category" | "tag" | "search" | "not-found";
 export type CmsLayoutPartId = "header" | "footer" | "sidebar" | "content";
 
 export type CmsThemeDefinition = {

@@ -451,6 +451,41 @@ export type FoundationMessages = {
   adminCmsMediaNotConfigured: string;
   adminCmsRestore: string;
   adminCmsSchedule: string;
+  adminCmsRevisions: string;
+  adminCmsRevisionHistory: string;
+  adminCmsCurrentRevision: string;
+  adminCmsRestoreRevision: string;
+  adminCmsRevisionPreview: string;
+  adminCmsNoRevisions: string;
+  adminCmsRevisionRestored: string;
+  adminCmsRecoveryAvailable: string;
+  adminCmsRestoreRecovery: string;
+  adminCmsDiscardRecovery: string;
+  adminCmsSavedLocally: string;
+  adminCmsUnsaved: string;
+  adminCmsSchedulingUnavailable: string;
+  adminCmsBulkActions: string;
+  adminCmsSelectAll: string;
+  adminCmsSelectedCount: string;
+  adminCmsMoveToTrash: string;
+  adminCmsRestoreSelected: string;
+  adminCmsSendToReview: string;
+  adminCmsMediaPicker: string;
+  adminCmsMediaSelect: string;
+  adminCmsMediaCancel: string;
+  adminCmsMediaUseSelected: string;
+  adminCmsMediaPrivate: string;
+  adminCmsNoEligibleMedia: string;
+  adminCmsWorkspaceSummary: string;
+  adminCmsDraftCount: string;
+  adminCmsReviewCount: string;
+  adminCmsPublishedCount: string;
+  adminCmsTrashedCount: string;
+  adminCmsMediaRemove: string;
+  adminCmsRestoreConfirmation: string;
+  adminCmsRevisionActor: string;
+  adminCmsRevisionVersion: string;
+  adminCmsRevisionDate: string;
   adminHomepage: string;
   adminAppearance: string;
   adminMedia: string;
@@ -1387,6 +1422,41 @@ const ar: FoundationMessages = {
   adminCmsMediaNotConfigured: "اختيار الوسائط يتطلب تهيئة Media Library؛ لم تُنفذ عملية رفع.",
   adminCmsRestore: "استعادة كمسودة",
   adminCmsSchedule: "جدولة تحريرية",
+  adminCmsRevisions: "المراجعات",
+  adminCmsRevisionHistory: "سجل المراجعات",
+  adminCmsCurrentRevision: "الإصدار الحالي",
+  adminCmsRestoreRevision: "استعادة هذه المراجعة",
+  adminCmsRevisionPreview: "معاينة المراجعة",
+  adminCmsNoRevisions: "لا توجد مراجعات محفوظة بعد.",
+  adminCmsRevisionRestored: "تمت استعادة المراجعة كنسخة جديدة.",
+  adminCmsRecoveryAvailable: "توجد نسخة محلية غير محفوظة على الخادم.",
+  adminCmsRestoreRecovery: "استعادة النسخة المحلية",
+  adminCmsDiscardRecovery: "حذف النسخة المحلية",
+  adminCmsSavedLocally: "محفوظ محليًا",
+  adminCmsUnsaved: "تغييرات غير محفوظة",
+  adminCmsSchedulingUnavailable: "الجدولة التلقائية غير متاحة؛ الحالة التحريرية فقط.",
+  adminCmsBulkActions: "إجراءات جماعية",
+  adminCmsSelectAll: "تحديد الكل",
+  adminCmsSelectedCount: "العناصر المحددة",
+  adminCmsMoveToTrash: "نقل إلى سلة المحذوفات",
+  adminCmsRestoreSelected: "استعادة المحدد كمسودة",
+  adminCmsSendToReview: "إرسال المحدد للمراجعة",
+  adminCmsMediaPicker: "مكتبة الوسائط",
+  adminCmsMediaSelect: "اختيار وسائط",
+  adminCmsMediaCancel: "إلغاء",
+  adminCmsMediaUseSelected: "استخدام المحدد",
+  adminCmsMediaPrivate: "وسائط خاصة",
+  adminCmsNoEligibleMedia: "لا توجد وسائط عامة جاهزة للاختيار.",
+  adminCmsWorkspaceSummary: "ملخص مساحة التحرير",
+  adminCmsDraftCount: "مسودات",
+  adminCmsReviewCount: "قيد المراجعة",
+  adminCmsPublishedCount: "منشور",
+  adminCmsTrashedCount: "في السلة",
+  adminCmsMediaRemove: "إزالة الصورة الرئيسية",
+  adminCmsRestoreConfirmation: "ستُستعاد هذه المراجعة كمسودة جديدة دون حذف الإصدارات اللاحقة. هل تريد المتابعة؟",
+  adminCmsRevisionActor: "محرر غير معروف",
+  adminCmsRevisionVersion: "الإصدار",
+  adminCmsRevisionDate: "تاريخ المراجعة",
   adminCmsWidgets: "الأدوات (غير متاحة)",
   adminCmsUnavailable: "غير متاح حاليًا",
   adminHomepage: "الصفحة الرئيسية",
@@ -2326,6 +2396,41 @@ const en: FoundationMessages = {
   adminCmsMediaNotConfigured: "Media selection requires Media Library configuration; no upload was performed.",
   adminCmsRestore: "Restore as draft",
   adminCmsSchedule: "Editorial schedule",
+  adminCmsRevisions: "Revisions",
+  adminCmsRevisionHistory: "Revision history",
+  adminCmsCurrentRevision: "Current version",
+  adminCmsRestoreRevision: "Restore this revision",
+  adminCmsRevisionPreview: "Preview revision",
+  adminCmsNoRevisions: "No saved revisions yet.",
+  adminCmsRevisionRestored: "Revision restored as a new version.",
+  adminCmsRecoveryAvailable: "A local unsaved copy is available.",
+  adminCmsRestoreRecovery: "Restore local copy",
+  adminCmsDiscardRecovery: "Discard local copy",
+  adminCmsSavedLocally: "Saved locally",
+  adminCmsUnsaved: "Unsaved changes",
+  adminCmsSchedulingUnavailable: "Automatic scheduling is unavailable; this is an editorial state only.",
+  adminCmsBulkActions: "Bulk actions",
+  adminCmsSelectAll: "Select all",
+  adminCmsSelectedCount: "Selected items",
+  adminCmsMoveToTrash: "Move to trash",
+  adminCmsRestoreSelected: "Restore selected as drafts",
+  adminCmsSendToReview: "Send selected to review",
+  adminCmsMediaPicker: "Media library",
+  adminCmsMediaSelect: "Choose media",
+  adminCmsMediaCancel: "Cancel",
+  adminCmsMediaUseSelected: "Use selected",
+  adminCmsMediaPrivate: "Private media",
+  adminCmsNoEligibleMedia: "No ready public media is available.",
+  adminCmsWorkspaceSummary: "Editorial workspace summary",
+  adminCmsDraftCount: "Drafts",
+  adminCmsReviewCount: "In review",
+  adminCmsPublishedCount: "Published",
+  adminCmsTrashedCount: "In trash",
+  adminCmsMediaRemove: "Remove featured media",
+  adminCmsRestoreConfirmation: "This revision will be restored as a new draft without deleting later versions. Continue?",
+  adminCmsRevisionActor: "Unknown editor",
+  adminCmsRevisionVersion: "Version",
+  adminCmsRevisionDate: "Revision date",
   adminCmsWidgets: "Widgets (unavailable)",
   adminCmsUnavailable: "Currently unavailable",
   adminHomepage: "Homepage",

@@ -39,5 +39,5 @@ export default async function EditCmsPost({ params }: Props) {
   const [canUpdate, canReview, canSchedule, canPublish, canTrash] = access.principal ? await Promise.all(["content.update", "content.review", "content.schedule", "content.publish", "content.trash"].map((permission) => hasEffectiveAdminPermission(access.principal!, permission as Parameters<typeof hasEffectiveAdminPermission>[1]))) : [false, false, false, false, false];
   const capabilities = { canCreate: false, canUpdate, canReview, canSchedule, canPublish, canTrash };
   const taxonomy = await loadTaxonomy();
-  return <div className="admin-route"><header className="admin-route-heading"><div><p className="eyebrow">{copy.adminCmsPosts}</p><h1>{result.record.title}</h1></div></header><CmsEditorialEditor kind="post" initialRecord={result.record} copy={copy} capabilities={capabilities} taxonomy={taxonomy} /></div>;
+  return <div className="admin-route"><header className="admin-route-heading"><div><p className="eyebrow">{copy.adminCmsPosts}</p><h1>{result.record.title}</h1></div></header><CmsEditorialEditor kind="post" initialRecord={result.record} copy={copy} capabilities={capabilities} taxonomy={taxonomy} recoveryScope={access.principal?.id ?? "unknown"} /></div>;
 }

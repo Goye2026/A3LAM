@@ -6,6 +6,7 @@ import { editorialRepository } from "@/lib/cms/editorialRepository";
 import { getMessages } from "@/lib/i18n/messages";
 import { defaultLocale } from "@/lib/i18n/config";
 import { absoluteUrl } from "@/lib/seo/site";
+import { toCmsEditorialViewModel } from "@/lib/cms/templateContracts";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -29,5 +30,6 @@ export default async function PublicCmsPage({ params }: Props) {
   const record = await getPage(slug);
   if (!record) notFound();
   const copy = getMessages(defaultLocale);
-  return <SiteFrame copy={copy} active="home" template="single-page"><main className="public-page cms-public-content"><article><header className="public-page-header"><p className="eyebrow">{copy.adminCmsPages}</p><h1>{record.title}</h1>{record.excerpt && <p className="route-description">{record.excerpt}</p>}</header><CmsRichTextRenderer document={record.content} /></article></main></SiteFrame>;
+  const viewModel = toCmsEditorialViewModel(record);
+  return <SiteFrame copy={copy} active="home" template={viewModel.template}><main className="public-page cms-public-content"><article><header className="public-page-header"><p className="eyebrow">{copy.adminCmsPages}</p><h1>{viewModel.title}</h1>{viewModel.excerpt && <p className="route-description">{viewModel.excerpt}</p>}</header><CmsRichTextRenderer document={viewModel.content} /></article></main></SiteFrame>;
 }
