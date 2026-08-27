@@ -78,6 +78,12 @@ export function A3lamAiReadinessMatrix({ report, copy }: { report: AiReadinessRe
         <span className={`admin-launch-status admin-launch-status-${report.overall.toLowerCase()}`} role="status">{decisionLabel(report.overall, copy)}</span>
       </header>
 
+      <div className="admin-alert" role="status">
+        <strong>{copy.adminAiReadinessActivation}: {decisionLabel(report.activation.decision, copy)}</strong>
+        <p>{report.activation.canActivate ? copy.adminAiReadinessAllowedToActivate : copy.adminAiReadinessCannotActivate}</p>
+        {report.activation.blockers.length > 0 ? <p>{copy.adminAiReadinessBlocker}: {report.activation.blockers.join(" · ")}</p> : <p>{copy.adminAiReadinessNoBlocker}</p>}
+      </div>
+
       <div className="ai-readiness-gates" aria-labelledby="ai-gates-title">
         <h3 id="ai-gates-title">{copy.adminAiReadinessGate}</h3>
         <div className="ai-readiness-gate-grid">

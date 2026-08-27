@@ -787,6 +787,9 @@ export type FoundationMessages = {
   adminAiReadiness: string;
   adminAiReadinessDescription: string;
   adminAiReadinessStatus: string;
+  adminAiReadinessActivation: string;
+  adminAiReadinessCannotActivate: string;
+  adminAiReadinessAllowedToActivate: string;
   adminAiReadinessReason: string;
   adminAiReadinessEvidence: string;
   adminAiReadinessNextStep: string;
@@ -1684,6 +1687,9 @@ const ar: FoundationMessages = {
   adminAiReadiness: "جاهزية التفعيل الإنتاجي",
   adminAiReadinessDescription: "مصفوفة صادقة لحالة الاعتماديات والبوابات قبل أي تفعيل إنتاجي.",
   adminAiReadinessStatus: "الحالة",
+  adminAiReadinessActivation: "قرار التفعيل",
+  adminAiReadinessCannotActivate: "canActivate = false / التفعيل غير مسموح",
+  adminAiReadinessAllowedToActivate: "canActivate = true / التفعيل مسموح",
   adminAiReadinessReason: "السبب",
   adminAiReadinessEvidence: "الدليل",
   adminAiReadinessNextStep: "الخطوة التالية",
@@ -2582,6 +2588,9 @@ const en: FoundationMessages = {
   adminAiReadiness: "Production activation readiness",
   adminAiReadinessDescription: "A truthful dependency and gate matrix before any production activation.",
   adminAiReadinessStatus: "Status",
+  adminAiReadinessActivation: "Activation decision",
+  adminAiReadinessCannotActivate: "canActivate = false / activation not permitted",
+  adminAiReadinessAllowedToActivate: "canActivate = true / activation permitted",
   adminAiReadinessReason: "Reason",
   adminAiReadinessEvidence: "Evidence",
   adminAiReadinessNextStep: "Required next step",

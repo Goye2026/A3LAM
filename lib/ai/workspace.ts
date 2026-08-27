@@ -17,6 +17,10 @@ import {
 } from "./validation";
 import type { AiWorkspaceSnapshot, DocumentProcessingState } from "./types";
 
+/**
+ * Non-authoritative workspace view data for the Admin AI surface.
+ * Activation decisions must use the central readiness evaluator in readiness.ts.
+ */
 export async function getAiPersistenceState(): Promise<AiWorkspaceSnapshot["persistence"]> {
   try {
     await getDb().execute(sql`select 1 from ai_documents limit 1`);
@@ -27,6 +31,10 @@ export async function getAiPersistenceState(): Promise<AiWorkspaceSnapshot["pers
   }
 }
 
+/**
+ * This snapshot is presentation telemetry, not an activation decision.
+ * Keep the fail-closed activation truth in lib/ai/readiness.ts.
+ */
 export async function getAiWorkspaceSnapshot(): Promise<AiWorkspaceSnapshot> {
   const storage = getDocumentStorageState();
   const documentProcessing: DocumentProcessingState = storage === "AVAILABLE" && getAvailableDocumentExtractors().length > 0 ? "AVAILABLE" : "REQUIRES_CONFIGURATION";

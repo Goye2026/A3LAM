@@ -158,7 +158,7 @@ function summarizeLayer(items: AiReadinessItem[], layer: AiReadinessLayer): AiRe
 }
 
 export function evaluateAiActivationGate(items: AiReadinessItem[]): AiReadinessReport["activation"] {
-  const blockers = items.filter((entry) => entry.blocker).map((entry) => entry.key);
+  const blockers = items.filter((entry) => entry.blocker || entry.status === "REQUIRES_CONFIGURATION" || entry.status === "BLOCKED" || entry.status === "NOT_TESTED").map((entry) => entry.key);
   const layers = {
     CODE: summarizeLayer(items, "CODE"),
     INFRASTRUCTURE: summarizeLayer(items, "INFRASTRUCTURE"),
