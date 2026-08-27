@@ -84,9 +84,31 @@
 - **Target:** `production`
 - **Deployment URL:** `a3-3w3evflol-goye2026s-projects.vercel.app`
 
-سيُستكمل في closeout النهائي توثيق commit/deployment الخاصين بهذه المستندات ونتيجة GET/HEAD-only smoke الأخيرة. لا تُعد هذه الفقرة تفويضًا لأي Vercel configuration أو environment mutation.
+**Documentation commit:** `e4e5d13f7482c341b5ef7cbfdd1692ead72b754f` — `docs: close phase 17.18.13 readiness boundaries`.
 
-## 6. القيود والقرار التشغيلي
+**Documentation Vercel deployment:** `dpl_64NivTrEuxwpHibFemPmizBGuwTw`، state=`READY`، target=`production`، URL=`a3-xdem68olv-goye2026s-projects.vercel.app`. تمت مراقبة deployment بالقراءة فقط؛ لم تُجرَ أي Vercel configuration أو environment mutation.
+
+## 6. Production smoke وprivacy scan
+
+بعد وصول final documentation deployment إلى `READY`، نُفذ smoke على `https://a3-lam.vercel.app` بطلبات `GET` فقط. لم يحدث login أو POST أو upload أو AI mutation. النتيجة:
+
+| route | status | النتيجة |
+|---|---:|---|
+| `/` | 200 | PASS |
+| `/api/health` | 200 | PASS |
+| `/categories` | 200 | PASS |
+| `/search` | 200 | PASS |
+| `/robots.txt` | 200 | PASS |
+| `/sitemap.xml` | 200 | PASS |
+| `/__phase17_18_13_known_missing__` | 404 | PASS — known missing route |
+| `/admin` | 307 | PASS — anonymous redirect |
+| `/admin/ai` | 307 | PASS — anonymous redirect |
+| `/api/admin/ai/readiness` | 401 | PASS — anonymous unauthorized |
+| `/api/admin/ai/documents` | 401 | PASS — anonymous unauthorized |
+
+تمت privacy scan على response bodies التي أعادتها هذه الطلبات، ولم يظهر أي من `DATABASE_URL` أو `A3LAM_ADMIN_ACCESS_TOKEN` أو provider secret أو storage key أو raw extracted text أو session token أو password. هذه نتيجة smoke للـresponses فقط، وليست تحققًا من counters أو بيانات Production.
+
+## 7. القيود والقرار التشغيلي
 
 الجاهزية هنا **جاهزية بنية اختبارية معزولة مع قيود**، وليست تفويضًا بالتفعيل. لم يتم إنشاء PostgreSQL معزولة؛ أدوات PostgreSQL/container غير متاحة في البيئة الحالية، ولم يوجد `DATABASE_URL_TEST` أو `DATABASE_URL_SHADOW` أو `TEST_DATABASE_URL` مثبت بصورة مستقلة. لذلك لم تُقرأ قيمة أي secret، ولم تُكتب أو تُستخدم `DATABASE_URL`، ولم تُشغّل migrations 0007–0009، ولم تُختبر constraints أو transactions أو cascade على DB.
 
@@ -94,7 +116,7 @@
 
 **المتطلبات السابقة لأي مرحلة تفعيل لاحقة** هي: توفير بيئة DB معزولة وإثبات عدم اتصالها بـProduction، تشغيل migrations فقط عبر الإجراء المصرّح، اختبار transactions/FK/index/cascade، توفير adapters مستقلة للـstorage/scanner/queue/worker/OCR، مراجعة secrets والسياسات، ثم human approval منفصل. لا يجوز اعتبار هذا التقرير موافقة على تلك الإجراءات.
 
-## 7. حدود المرحلة
+## 8. حدود المرحلة
 
 Production AI وupload وprocessing وgeneration وOCR وpublication: **DISABLED**. Automatic Person/Profile creation: **DISABLED**. Population: **NOT STARTED**. لم تُنفذ Phase 17.18.14 أو Phase 17.19 أو Phase 18، وهي: **NOT STARTED**.
 
