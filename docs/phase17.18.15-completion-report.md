@@ -200,12 +200,12 @@ Storage contract private-by-default وownership-scoped وnon-public، مع من�
 |---|---|
 | baseline before Phase 17.18.15 | `c7f4dfd1febe2ca112f40d91d7c770553345cfae` |
 | implementation commit | `fad3cd14da72cc8c8628e4b9e47e2f9c4ac1b029` |
-| documentation commits | `6ed6817d12c9c24a43f8764b3e77dae2213010ea` → `6d459dcc81b92683ebffb4e1e23f101c5c7d7cc7` |
-| current closeout | this final documentation revision is the last planned report correction before stop |
+| documentation commits | `6ed6817d12c9c24a43f8764b3e77dae2213010ea` → `6d459dcc81b92683ebffb4e1e23f101c5c7d7cc7` → `bd2ebaeb4b65069783f22da3bf06856cc38d9328` |
+| current closeout | final report provenance and smoke evidence recorded before stop |
 | branch | `main` only |
 | Git policy | normal commits/pushes only؛ no reset/rebase/force-push/history rewrite |
 | implementation deployment | `dpl_9i66JQnHAYVgqrrEeHc4Ybg4AmTd` — READY — production — `a3-ctj432sw3-goye2026s-projects.vercel.app` |
-| documentation deployment | `dpl_9iSagNDsjJwjbK92Fu2fivDTTdEJ` — READY — production — `a3-ha1ztggww-goye2026s-projects.vercel.app` |
+| documentation deployment | `dpl_E5HqhCVshaEgSjNakr5BMH4JJ8NM` — READY — production — `a3-g1ruqk6qo-goye2026s-projects.vercel.app` |
 | rollback | normal Git/Vercel rollback only؛ no destructive DB rollback performed |
 
 ## 18. Limitations and Next Step
