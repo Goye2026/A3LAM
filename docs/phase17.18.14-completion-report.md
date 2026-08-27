@@ -150,9 +150,9 @@ Synthetic test counters are not Production counters and are intentionally not su
 | branch | `main` |
 | baseline before Phase 17.18.14 | `a414741eb4b0c901a7451f125abf087b239e04e9` |
 | Phase 17.18.14 implementation commit | `ac4ea753891e42f58b995df303894a020cb5b5ed` |
-| Phase 17.18.14 documentation commit | `0b23233658e17ac410e8b9cbf27b0c6c2a31af1d` |
+| Phase 17.18.14 documentation commit | `4eeba795b715a346cb79e50deeaca08f382d3faf` |
 | implementation deployment | `dpl_6FJ7BobAJJQ5ZJunNtFg5mdaELQM` — READY — production — `a3-qp8w0ygpk-goye2026s-projects.vercel.app` |
-| final documentation deployment | `dpl_NkVnfsHMKbTworPrGBnFbcQtNfxb` — READY — production — `a3-1anp2de62-goye2026s-projects.vercel.app` |
+| final documentation deployment | `dpl_GARKQUCDbyegC9obzaj3tdVAfXeQ` — READY — production — `a3-afyg1t22b-goye2026s-projects.vercel.app` |
 | production alias | `https://a3-lam.vercel.app` |
 | rollback | normal Git/Vercel rollback only; no destructive DB rollback performed |
 
