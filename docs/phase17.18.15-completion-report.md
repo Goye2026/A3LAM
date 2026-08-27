@@ -154,7 +154,7 @@ Storage contract private-by-default وownership-scoped وnon-public، مع من�
 
 ## 15. Production Smoke — GET/HEAD Only
 
-تم الالتزام بـGET-only بعد وصول deployment المرتبط بآخر commit إلى `READY`. لم يُستخدم login أو POST أو PUT أو PATCH أو DELETE أو upload أو generation أو review mutation.
+تم الالتزام بـGET-only بعد وصول documentation deployment المرتبط بآخر commit إلى `READY`. لم يُستخدم login أو POST أو PUT أو PATCH أو DELETE أو upload أو generation أو review mutation.
 
 | Route / check | Result |
 |---|---|
@@ -200,11 +200,11 @@ Storage contract private-by-default وownership-scoped وnon-public، مع من�
 |---|---|
 | baseline before Phase 17.18.15 | `c7f4dfd1febe2ca112f40d91d7c770553345cfae` |
 | implementation commit | `fad3cd14da72cc8c8628e4b9e47e2f9c4ac1b029` |
-| documentation commit | to be recorded after normal commit |
+| documentation commit | final provenance commit to be recorded after normal commit |
 | branch | `main` only |
 | Git policy | normal commits/pushes only؛ no reset/rebase/force-push/history rewrite |
 | implementation deployment | `dpl_9i66JQnHAYVgqrrEeHc4Ybg4AmTd` — READY — production — `a3-ctj432sw3-goye2026s-projects.vercel.app` |
-| final documentation deployment | to be recorded after documentation push and read-only monitoring |
+| documentation deployment | `dpl_9iSagNDsjJwjbK92Fu2fivDTTdEJ` — READY — production — `a3-ha1ztggww-goye2026s-projects.vercel.app` |
 | rollback | normal Git/Vercel rollback only؛ no destructive DB rollback performed |
 
 ## 18. Limitations and Next Step
