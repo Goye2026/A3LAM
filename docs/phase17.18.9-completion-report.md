@@ -322,7 +322,7 @@ Privacy scan للردود المحفوظة كان `CLEAN`: لم يظهر `DOCUME
 | deployment status | `READY` |
 | deployment source | GitHub `Goye2026/A3LAM`, branch `main` |
 
-التقرير الحالي نفسه سيُضاف في commit توثيقي منفصل بعد اكتمال smoke evidence.
+تم تسجيل هذا التقرير في commit توثيقي منفصل بعد اكتمال smoke evidence؛ والـfinal HEAD/`origin/main` هو `1926fd309eb6b9a967957906ae946e376e67e657` قبل هذا التصحيح التوثيقي الصغير.
 
 ---
 
@@ -409,7 +409,7 @@ Privacy scan للردود المحفوظة كان `CLEAN`: لم يظهر `DOCUME
 
 **Production smoke:** `PASS — public GET 200، admin 307، protected AI APIs 401، privacy scan CLEAN`.
 
-**Git:** implementation `37d3e6b3bf58d2940fc1f87c80b1614e9ce22473` على `main`، push عادي، بلا force-push؛ documentation commit سيُسجل بعد هذا التقرير.
+**Git:** implementation `37d3e6b3bf58d2940fc1f87c80b1614e9ce22473`، documentation `1926fd309eb6b9a967957906ae946e376e67e657`، وكلاهما على `main` بدفع عادي بلا force-push؛ final HEAD/`origin/main` بعد التوثيق هو `1926fd309eb6b9a967957906ae946e376e67e657` قبل هذا التصحيح التوثيقي.
 
 **Deployment:** `dpl_EgfKTMheJuXf8wtFAXqjRNRvW7mX`، `READY`، alias `https://a3-lam.vercel.app`.
 
