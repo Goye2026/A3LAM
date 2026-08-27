@@ -67,9 +67,11 @@ Persistence الجديدة من Phase 17.19.3 بقيت المصدر الفعلي
 
 ## 7. Production deployment and smoke
 
-تم دفع commit التنفيذ إلى `main` عبر المسار المعتاد، دون تعديل Vercel settings أو secrets أو DNS. تفاصيل deployment النهائي وGET/HEAD smoke ستُستكمل بعد READY في closeout commit، مع الالتزام بعدم إرسال POST/PUT/PATCH/DELETE أو upload أو migration إلى Production.
+تم دفع commit التنفيذ ثم closeout documentation إلى `main` عبر المسار المعتاد، دون تعديل Vercel settings أو secrets أو DNS. deployment الناتج عن closeout commit كان `dpl_Doxutg1itvpAU5grH7WsgPzzyziv`، وحالته `READY`، ومصدره Git production deployment للـSHA `932aa37546c4473d886aa0fbda492040abd6ec16`.
 
-المسارات المطلوبة للـsmoke هي `/` و`/api/health` و`/categories` و`/search` و`/robots.txt` و`/sitemap.xml`، إضافة إلى anonymous protected checks لـ`/admin` و`/admin/ai` ومسارات CMS، وknown missing route. يجب أن يقتصر privacy scan على response bodies العامة وألا يلتقط secrets أو DATABASE_URL أو storage keys أو AI internals أو audit metadata.
+نتيجة GET-only smoke على `https://a3-lam.vercel.app` كانت: `/` = 200، `/api/health` = 200، `/categories` = 200، `/search` = 200، `/robots.txt` = 200، `/sitemap.xml` = 200. المسارات الإدارية المحمية `/admin` و`/admin/ai` و`/admin/content/pages` و`/admin/content/posts` أعادت 307، وواجهتا API المحميتان `/api/admin/cms/pages` و`/api/admin/media/picker` أعادتا 401، والمسار غير الموجود أعاد 404. لم تُرسل أي POST/PUT/PATCH/DELETE أو upload أو migration إلى Production.
+
+privacy scan للـresponse bodies العامة على هذه المسارات كانت **CLEAN**؛ لم يظهر `DATABASE_URL` أو `A3LAM_ADMIN_ACCESS_TOKEN` أو `OPENAI_API_KEY` أو storage key أو session token أو private AI metadata أو private audit information. لم تُستخدم Production `DATABASE_URL`.
 
 ## 8. العدادات القابلة للرصد
 
@@ -94,11 +96,11 @@ Persistence الجديدة من Phase 17.19.3 بقيت المصدر الفعلي
 | العنصر | الحالة |
 |---|---|
 | Implementation commit | `a38622a` — `feat: harden editorial workspace for phase 17.19.4` |
-| Documentation/closeout commit | سيُسجّل في commit التوثيق النهائي بعد READY smoke |
+| Documentation/closeout commit | `932aa37546c4473d886aa0fbda492040abd6ec16` — `docs: close phase 17.19.4 status` |
 | Branch | `main` |
 | Push policy | normal push فقط؛ لا reset/rebase/force-push |
-| Working tree | يجب أن يبقى نظيفًا بعد closeout commit |
-| Parity | يجب تثبيت `HEAD == origin/main` بعد closeout push |
+| Working tree | سيُثبت نظيفًا بعد closeout update commit |
+| Parity | سيُثبت `HEAD == origin/main` بعد closeout update push |
 
 ## 10. القيود المتبقية
 
