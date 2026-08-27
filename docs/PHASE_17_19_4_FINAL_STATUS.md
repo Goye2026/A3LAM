@@ -97,10 +97,11 @@ privacy scan للـresponse bodies العامة على هذه المسارات �
 |---|---|
 | Implementation commit | `a38622a` — `feat: harden editorial workspace for phase 17.19.4` |
 | Documentation/closeout commit | `932aa37546c4473d886aa0fbda492040abd6ec16` — `docs: close phase 17.19.4 status` |
+| Deployment evidence commit | `db89f27` — `docs: record phase 17.19.4 deployment evidence` |
 | Branch | `main` |
 | Push policy | normal push فقط؛ لا reset/rebase/force-push |
-| Working tree | سيُثبت نظيفًا بعد closeout update commit |
-| Parity | سيُثبت `HEAD == origin/main` بعد closeout update push |
+| Working tree | نظيف بعد evidence commit |
+| Parity | `HEAD == origin/main` بعد evidence commit |
 
 ## 10. القيود المتبقية
 
