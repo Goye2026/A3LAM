@@ -861,6 +861,24 @@ export type FoundationMessages = {
   adminAiReviewRequiredBeforeProceed: string;
   adminAiNoLocalDraft: string;
   adminAiDemoGenerated: string;
+  adminAiWorkflowIntro: string;
+  adminAiSandboxLabel: string;
+  adminAiProgress: string;
+  adminAiStepOf: string;
+  adminAiNextAction: string;
+  adminAiModeSelected: string;
+  adminAiLocalFileSelected: string;
+  adminAiOriginalValue: string;
+  adminAiReviewedValue: string;
+  adminAiDecision: string;
+  adminAiSaveDraft: string;
+  adminAiContinueReview: string;
+  adminAiFinalBoundary: string;
+  adminAiSourceCoverage: string;
+  adminAiUnresolved: string;
+  adminAiRejected: string;
+  adminAiEdited: string;
+  adminAiReviewer: string;
 };
 
 const ar: FoundationMessages = {
@@ -1725,6 +1743,25 @@ const ar: FoundationMessages = {
   adminAiReviewRequiredBeforeProceed: "تحتاج هذه الخطوة إلى مراجعة بشرية قبل المتابعة.",
   adminAiNoLocalDraft: "لا توجد مسودة محلية بعد.",
   adminAiDemoGenerated: "تم إنشاء مسودة محلية؛ بقيت خاصة وبحالة DRAFT.",
+  adminAiWorkflowIntro: "اتبع مسارًا واضحًا من المصدر إلى مسودة قابلة للمراجعة — دون نشر تلقائي.",
+  adminAiSandboxLabel: "SANDBOX · بيانات اصطناعية فقط",
+  adminAiProgress: "تقدم المسار",
+  adminAiStepOf: "الخطوة {current} من {total}",
+  adminAiNextAction: "الخطوة التالية",
+  adminAiModeSelected: "النمط المحدد",
+  adminAiLocalFileSelected: "تم اختيار ملف محلي. هذا العرض لا يرفعه ولا يعالجه؛ استخدم العرض الاصطناعي المعزول للمتابعة.",
+  adminAiOriginalValue: "القيمة الأصلية",
+  adminAiReviewedValue: "القيمة بعد المراجعة",
+  adminAiDecision: "قرار المراجع",
+  adminAiSaveDraft: "حفظ كمسودة محلية",
+  adminAiContinueReview: "متابعة المراجعة",
+  adminAiFinalBoundary: "حفظ محلي فقط · لا إنشاء Person/Profile · لا نشر",
+  adminAiSourceCoverage: "تغطية المصادر",
+  adminAiUnresolved: "غير محسوم",
+  adminAiRejected: "مرفوض",
+  adminAiEdited: "معدل",
+  adminAiReviewer: "المراجع",
+
 };
 
 const en: FoundationMessages = {
@@ -2589,6 +2626,25 @@ const en: FoundationMessages = {
   adminAiReviewRequiredBeforeProceed: "This step requires human review before proceeding.",
   adminAiNoLocalDraft: "No local draft yet.",
   adminAiDemoGenerated: "A local draft was created; it remains private and DRAFT.",
+  adminAiWorkflowIntro: "Follow a clear path from source to a reviewable draft — with no automatic publication.",
+  adminAiSandboxLabel: "SANDBOX · Synthetic data only",
+  adminAiProgress: "Workflow progress",
+  adminAiStepOf: "Step {current} of {total}",
+  adminAiNextAction: "Next action",
+  adminAiModeSelected: "Selected mode",
+  adminAiLocalFileSelected: "A local file was selected. This demo does not upload or process it; use the isolated synthetic demo to continue.",
+  adminAiOriginalValue: "Original value",
+  adminAiReviewedValue: "Reviewed value",
+  adminAiDecision: "Reviewer decision",
+  adminAiSaveDraft: "Save as local draft",
+  adminAiContinueReview: "Continue review",
+  adminAiFinalBoundary: "Local save only · no Person/Profile creation · no publication",
+  adminAiSourceCoverage: "Source coverage",
+  adminAiUnresolved: "Unresolved",
+  adminAiRejected: "Rejected",
+  adminAiEdited: "Edited",
+  adminAiReviewer: "Reviewer",
+
 };
 
 export const messages: Record<Locale, FoundationMessages> = { ar, en };

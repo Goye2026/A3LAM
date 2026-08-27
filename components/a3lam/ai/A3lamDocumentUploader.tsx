@@ -15,6 +15,11 @@ type UploaderCopy = {
   adminAiRemoveSelection: string;
   adminAiRetry: string;
   adminAiUploadProgress: string;
+  adminAiProcessing: string;
+  adminAiProcessingState: string;
+  adminAiPass: string;
+  adminAiFailed: string;
+  adminAiNoDocumentSelected: string;
   adminAiLocalOnly: string;
   adminAiChooseLocalFile: string;
 };
@@ -36,6 +41,14 @@ type Props = {
 function boundedProgress(value: number | undefined) {
   if (value === undefined || !Number.isFinite(value)) return null;
   return Math.min(Math.max(Math.round(value), 0), 100);
+}
+
+function stateLabel(state: UploaderState, copy: UploaderCopy) {
+  if (state === "UPLOADING") return copy.adminAiUploadProgress;
+  if (state === "EXTRACTING") return copy.adminAiProcessing;
+  if (state === "READY_FOR_REVIEW") return copy.adminAiPass;
+  if (state === "FAILED") return copy.adminAiFailed;
+  return copy.adminAiNoDocumentSelected;
 }
 
 export function A3lamDocumentUploader({ copy, disabled, state = "IDLE", progress, failureMessage, onFileSelected, onRetry, onReset, localOnly = false }: Props) {
@@ -71,6 +84,7 @@ export function A3lamDocumentUploader({ copy, disabled, state = "IDLE", progress
         <span className={`admin-launch-status ${localOnly ? "admin-launch-status-not_tested" : "admin-launch-status-requires_configuration"}`}>{localOnly ? copy.adminAiLocalOnly : copy.adminAiConfigurationRequired}</span>
       </div>
       <p className="admin-field-hint">{copy.adminAiUploadHint}</p>
+      <div className={`ai-uploader-state ai-uploader-state-${state.toLowerCase()}`} role="status"><span>{copy.adminAiProcessingState}</span><strong>{stateLabel(state, copy)}</strong></div>
       <div className="ai-uploader-dropzone" aria-disabled={disabled && !localOnly} onDragOver={(event) => { if (!disabled || localOnly) event.preventDefault(); }} onDrop={(event) => { event.preventDefault(); if (!disabled || localOnly) inspect(event.dataTransfer.files?.[0]); }}>
         <input ref={inputRef} type="file" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" onChange={(event) => inspect(event.target.files?.[0])} disabled={disabled && !localOnly} aria-label={localOnly ? copy.adminAiChooseLocalFile : copy.adminAiCreateFromDocument} />
         <button type="button" className="button button-quiet" onClick={() => inputRef.current?.click()} disabled={disabled && !localOnly}>{localOnly ? copy.adminAiChooseLocalFile : copy.adminAiCreateFromDocument}</button>
