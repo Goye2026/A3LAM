@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CmsAdminNavGroup } from "@/lib/cms/types";
 
 function isCurrentPath(href: string, pathname: string): boolean {
@@ -23,19 +23,35 @@ type Props = {
 export function AdminSidebar({ groups, brand, controlCenter, navigationLabel, unavailableLabel, openLabel, closeLabel }: Props) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const navigationRef = useRef<HTMLElement>(null);
+
+  function closeDrawer() {
+    setMobileOpen(false);
+    requestAnimationFrame(() => toggleRef.current?.focus());
+  }
 
   useEffect(() => {
     if (!mobileOpen) return;
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMobileOpen(false);
+      if (event.key === "Escape") closeDrawer();
     };
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [mobileOpen]);
 
+  useEffect(() => {
+    if (mobileOpen) {
+      navigationRef.current?.querySelector<HTMLElement>("a, button")?.focus();
+      return;
+    }
+    if (document.activeElement?.classList.contains("admin-sidebar-backdrop")) toggleRef.current?.focus();
+  }, [mobileOpen]);
+
   return (
     <aside className={`admin-sidebar${mobileOpen ? " is-mobile-open" : ""}`}>
       <button
+        ref={toggleRef}
         className="admin-mobile-nav-toggle"
         type="button"
         aria-expanded={mobileOpen}
@@ -45,7 +61,7 @@ export function AdminSidebar({ groups, brand, controlCenter, navigationLabel, un
         <span>{mobileOpen ? closeLabel : openLabel}</span>
         <span aria-hidden="true">{mobileOpen ? "−" : "+"}</span>
       </button>
-      {mobileOpen ? <button className="admin-sidebar-backdrop" type="button" aria-label={closeLabel} onClick={() => setMobileOpen(false)} /> : null}
+      {mobileOpen ? <button className="admin-sidebar-backdrop" type="button" aria-label={closeLabel} onClick={closeDrawer} /> : null}
       <div className="admin-sidebar-content">
         <div className="admin-brand">
           <Link href="/admin" className="brand-lockup" onClick={() => setMobileOpen(false)}>
@@ -56,7 +72,7 @@ export function AdminSidebar({ groups, brand, controlCenter, navigationLabel, un
             </span>
           </Link>
         </div>
-        <nav id="admin-primary-navigation" className="admin-nav" aria-label={navigationLabel}>
+        <nav ref={navigationRef} id="admin-primary-navigation" className="admin-nav" aria-label={navigationLabel}>
           <span className="admin-nav-current-label">{controlCenter}</span>
           {groups.map((group) => (
             <details className="admin-nav-group" key={group.id} open>
