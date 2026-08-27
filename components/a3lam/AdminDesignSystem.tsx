@@ -1,17 +1,21 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-export function AdminHeader({ title, description }: { title: string; description?: string }) {
+export function AdminHeader({ brand, title, description, statusLabel }: { brand: string; title: string; description?: string; statusLabel: string }) {
   return (
     <header className="admin-header">
       <div>
-        <p className="admin-kicker">A3LAM CMS</p>
+        <p className="admin-kicker">{brand}</p>
         <p className="admin-shell-title">{title}</p>
         {description ? <p className="admin-header-description">{description}</p> : null}
       </div>
-      <span className="status-badge status-draft">CMS</span>
+      <AdminStatusBadge label={statusLabel} />
     </header>
   );
+}
+
+export function AdminTopBar({ label, value, action }: { label: string; value: string; action?: ReactNode }) {
+  return <div className="admin-topbar"><span className="admin-topbar-user"><span>{label}</span><strong>{value}</strong></span>{action ? <div className="admin-topbar-actions">{action}</div> : null}</div>;
 }
 
 export function AdminBreadcrumbs({ current, homeLabel, ariaLabel }: { current: string; homeLabel: string; ariaLabel: string }) {

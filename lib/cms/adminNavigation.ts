@@ -32,6 +32,7 @@ type AdminCopy = Pick<
   | "adminOperationsGroup"
   | "adminProductGroup"
   | "adminSystemGroup"
+  | "adminTools"
   | "adminCmsPages"
   | "adminCmsPosts"
   | "adminCmsTags"
@@ -107,7 +108,7 @@ export function getAdminNavigation(copy: AdminCopy): readonly CmsAdminNavGroup[]
     },
     {
       id: "tools",
-      label: copy.adminSystemGroup,
+      label: copy.adminTools,
       items: [
         item("audit", copy.adminAudit, "/admin/audit", "audit.read"),
         item("launch", copy.adminLaunchControl, "/admin/launch", "system.read"),

@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { getMessages } from "@/lib/i18n/messages";
 import { hasAdminPermission, permissionsForRole } from "@/lib/admin/rbac";
 import { getAdminNavigation, filterAdminNavigation } from "@/lib/cms/adminNavigation";
-import { contentTypeRegistry, getWidget, isRegisteredWidget } from "@/lib/cms/contentRegistry";
+import { contentTypeRegistry, getWidget, isRegisteredWidget, listContentTypes } from "@/lib/cms/contentRegistry";
 import { getMenu, isSafeMenuHref, validateMenuItems } from "@/lib/cms/menuRegistry";
 import { activeTheme, listThemes, resolveLayout, resolveTemplate } from "@/lib/cms/themeRegistry";
 import type { CmsMenuItem } from "@/lib/cms/types";
@@ -34,10 +34,14 @@ describe("Phase 17.19.1 CMS architecture", () => {
     expect(resolveLayout("content", activeTheme)).toBe("content");
   });
 
-  it("keeps content types honest: Person is schema-backed and Page/Post are unavailable", () => {
-    expect(contentTypeRegistry.person).toMatchObject({ storageTable: "people", availability: "available", domainSpecific: true });
-    expect(contentTypeRegistry.page).toMatchObject({ storageTable: null, availability: "not_available", supportsPublication: false });
-    expect(contentTypeRegistry.post).toMatchObject({ storageTable: null, availability: "not_available", supportsPublication: false });
+  it("keeps content types honest: domain entities are schema-backed and generic types are unavailable", () => {
+    expect(listContentTypes()).toHaveLength(6);
+    expect(contentTypeRegistry.person).toMatchObject({ storageTable: "people", availability: "available", domainSpecific: true, editor: "person", readPermission: "people.read" });
+    expect(contentTypeRegistry.profile).toMatchObject({ storageTable: "profiles", availability: "available", domainSpecific: true, editor: "profile", readPermission: "profiles.read" });
+    expect(contentTypeRegistry.category).toMatchObject({ storageTable: "categories", availability: "available", domainSpecific: true, editor: "category", readPermission: "categories.read" });
+    for (const id of ["page", "post", "tag"] as const) {
+      expect(contentTypeRegistry[id]).toMatchObject({ storageTable: null, routeBase: null, availability: "not_available", editor: "unavailable", supportsPublication: false, permissions: [] });
+    }
   });
 
   it("rejects unsafe menu URLs, duplicate ids, cycles, and excessive nesting", () => {
@@ -86,12 +90,28 @@ describe("Phase 17.19.1 CMS architecture", () => {
     expect(workspace).not.toContain("tests/support");
   });
 
-  it("retains the biography editor contract and existing public route files", async () => {
+  it("keeps CMS mutations behind the existing same-origin/RBAC and publication contracts", async () => {
+    const createRoute = await source("app/api/admin/people/route.ts");
+    expect(createRoute).toContain('requirePermissionPrincipal(request, "people.create")');
+    expect(createRoute).toContain("isSameOriginMutation(request)");
+    const biography = await source("components/a3lam/BiographyContent.tsx");
+    expect(biography).not.toContain("dangerouslySetInnerHTML");
+    expect(biography).not.toMatch(/<iframe|<script|javascript:/i);
+  });
+
+  it("retains the domain editors, Content Hub protection, and existing public route files", async () => {
     const editor = await source("components/a3lam/AdminPersonForm.tsx");
     expect(editor).toContain("AdminPersonForm");
     expect(editor).toContain("isDirty");
     expect(editor).toContain("source");
     expect(editor).toContain("timeline");
+    const contentHub = await source("app/admin/(protected)/content/page.tsx");
+    expect(contentHub).toContain("getAdminPrincipal");
+    expect(contentHub).toContain("hasEffectiveAdminPermission");
+    expect(contentHub).toContain("listContentTypes");
+    const media = await source("components/a3lam/MediaLibraryClient.tsx");
+    expect(media).toContain("aria-pressed");
+    expect(media).toContain("is-list");
     expect(existsSync(resolve(root, "app/person/[slug]/page.tsx"))).toBe(true);
     expect(existsSync(resolve(root, "app/categories/page.tsx"))).toBe(true);
     expect(existsSync(resolve(root, "app/search/page.tsx"))).toBe(true);

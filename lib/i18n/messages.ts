@@ -410,6 +410,7 @@ export type FoundationMessages = {
   adminOperationsGroup: string;
   adminProductGroup: string;
   adminSystemGroup: string;
+  adminTools: string;
   adminUsers: string;
   adminProfiles: string;
   adminAdministrators: string;
@@ -488,6 +489,8 @@ export type FoundationMessages = {
   adminSelectionMode: string;
   adminItemLimit: string;
   adminDisplayMode: string;
+  adminGridView: string;
+  adminListView: string;
   adminHelperText: string;
   adminSeoTitle: string;
   adminDefaultDescription: string;
@@ -1315,6 +1318,7 @@ const ar: FoundationMessages = {
   adminOperationsGroup: "التشغيل والمراجعة",
   adminProductGroup: "التحكم بالمنتج",
   adminSystemGroup: "النظام",
+  adminTools: "الأدوات",
   adminUsers: "المستخدمون",
   adminProfiles: "الملفات المهنية",
   adminAdministrators: "المديرون",
@@ -1393,6 +1397,8 @@ const ar: FoundationMessages = {
   adminSelectionMode: "نمط الاختيار",
   adminItemLimit: "عدد العناصر",
   adminDisplayMode: "نمط العرض",
+  adminGridView: "عرض شبكي",
+  adminListView: "عرض قائمة",
   adminHelperText: "النص المساعد",
   adminSeoTitle: "عنوان SEO",
   adminDefaultDescription: "الوصف الافتراضي",
@@ -2221,6 +2227,7 @@ const en: FoundationMessages = {
   adminOperationsGroup: "Operations and review",
   adminProductGroup: "Product controls",
   adminSystemGroup: "System",
+  adminTools: "Tools",
   adminUsers: "Users",
   adminProfiles: "Professional profiles",
   adminAdministrators: "Administrators",
@@ -2299,6 +2306,8 @@ const en: FoundationMessages = {
   adminSelectionMode: "Selection mode",
   adminItemLimit: "Item limit",
   adminDisplayMode: "Display mode",
+  adminGridView: "Grid view",
+  adminListView: "List view",
   adminHelperText: "Helper text",
   adminSeoTitle: "SEO title",
   adminDefaultDescription: "Default description",

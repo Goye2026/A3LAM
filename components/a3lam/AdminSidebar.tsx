@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import type { CmsAdminNavGroup } from "@/lib/cms/types";
 
 function isCurrentPath(href: string, pathname: string): boolean {
@@ -9,35 +10,59 @@ function isCurrentPath(href: string, pathname: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function AdminSidebar({ groups, brand, controlCenter, unavailableLabel }: { groups: readonly CmsAdminNavGroup[]; brand: string; controlCenter: string; unavailableLabel: string }) {
+type Props = {
+  groups: readonly CmsAdminNavGroup[];
+  brand: string;
+  controlCenter: string;
+  unavailableLabel: string;
+  openLabel: string;
+  closeLabel: string;
+};
+
+export function AdminSidebar({ groups, brand, controlCenter, unavailableLabel, openLabel, closeLabel }: Props) {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+
   return (
-    <aside className="admin-sidebar" aria-label={controlCenter}>
-      <div className="admin-brand">
-        <Link href="/admin" className="brand-lockup">
-          <span className="a3lam-brand-mark" aria-hidden="true">أ</span>
-          <span>
-            <strong>{brand}</strong>
-            <small>{controlCenter}</small>
-          </span>
-        </Link>
+    <aside className={`admin-sidebar${mobileOpen ? " is-mobile-open" : ""}`}>
+      <button
+        className="admin-mobile-nav-toggle"
+        type="button"
+        aria-expanded={mobileOpen}
+        aria-controls="admin-primary-navigation"
+        onClick={() => setMobileOpen((current) => !current)}
+      >
+        <span>{mobileOpen ? closeLabel : openLabel}</span>
+        <span aria-hidden="true">{mobileOpen ? "−" : "+"}</span>
+      </button>
+      <div className="admin-sidebar-content">
+        <div className="admin-brand">
+          <Link href="/admin" className="brand-lockup" onClick={() => setMobileOpen(false)}>
+            <span className="a3lam-brand-mark" aria-hidden="true">{brand.slice(0, 1)}</span>
+            <span>
+              <strong>{brand}</strong>
+              <small>{controlCenter}</small>
+            </span>
+          </Link>
+        </div>
+        <nav id="admin-primary-navigation" className="admin-nav" aria-label={controlCenter}>
+          {groups.map((group) => (
+            <details className="admin-nav-group" key={group.id} open>
+              <summary className="admin-nav-group-label">{group.label}</summary>
+              <div className="admin-nav-group-links">
+                {group.items.map((navItem) => {
+                  if (navItem.availability !== "available" || !navItem.href) {
+                    return <span className="admin-nav-link is-disabled" aria-disabled="true" key={navItem.id}>{navItem.label}<small>{unavailableLabel}</small></span>;
+                  }
+                  const current = isCurrentPath(navItem.href, pathname);
+                  return <Link href={navItem.href} className="admin-nav-link" aria-current={current ? "page" : undefined} key={navItem.id} onClick={() => setMobileOpen(false)}>{navItem.label}</Link>;
+                })}
+              </div>
+            </details>
+          ))}
+        </nav>
       </div>
-      <nav className="admin-nav" aria-label={controlCenter}>
-        {groups.map((group) => (
-          <details className="admin-nav-group" key={group.id} open>
-            <summary className="admin-nav-group-label">{group.label}</summary>
-            <div className="admin-nav-group-links">
-              {group.items.map((navItem) => {
-                if (navItem.availability !== "available" || !navItem.href) {
-                  return <span className="admin-nav-link is-disabled" aria-disabled="true" key={navItem.id}>{navItem.label}<small>{unavailableLabel}</small></span>;
-                }
-                const current = isCurrentPath(navItem.href, pathname);
-                return <Link href={navItem.href} className="admin-nav-link" aria-current={current ? "page" : undefined} key={navItem.id}>{navItem.label}</Link>;
-              })}
-            </div>
-          </details>
-        ))}
-      </nav>
     </aside>
   );
 }

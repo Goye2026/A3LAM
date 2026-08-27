@@ -1,16 +1,24 @@
 import type { ReactNode } from "react";
 import type { AdminPermission } from "@/lib/admin/rbac";
+import type { FoundationMessages } from "@/lib/i18n/messages";
 
-export type CmsContentTypeId = "person" | "page" | "post";
+export type CmsContentTypeId = "person" | "profile" | "category" | "page" | "post" | "tag";
 export type CmsContentAvailability = "available" | "not_available" | "planned";
+export type CmsContentAction = "read" | "create" | "update" | "review" | "publish" | "archive";
+export type CmsContentEditor = "person" | "profile" | "category" | "unavailable";
+export type CmsStorageTable = "people" | "profiles" | "categories" | null;
 
 export type CmsContentTypeDefinition = {
   id: CmsContentTypeId;
-  labelKey: string;
-  routeBase: string;
-  storageTable: "people" | null;
+  labelKey: keyof FoundationMessages;
+  routeBase: string | null;
+  storageTable: CmsStorageTable;
   availability: CmsContentAvailability;
   domainSpecific: boolean;
+  editor: CmsContentEditor;
+  readPermission: AdminPermission | null;
+  permissions: readonly AdminPermission[];
+  actions: readonly CmsContentAction[];
   supportsDraft: boolean;
   supportsReview: boolean;
   supportsPublication: boolean;

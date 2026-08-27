@@ -7,6 +7,7 @@ import {
   AdminFooter,
   AdminHeader,
   AdminNotifications,
+  AdminTopBar,
 } from "@/components/a3lam/AdminDesignSystem";
 import { AdminSidebar } from "@/components/a3lam/AdminSidebar";
 import { getAdminPrincipal, ADMIN_SESSION_COOKIE } from "@/lib/admin/auth";
@@ -37,13 +38,16 @@ export async function AdminShell({ children }: { children: ReactNode }) {
           brand={copy.siteName}
           controlCenter={copy.adminControlCenter}
           unavailableLabel={copy.adminCmsUnavailable}
+          openLabel={copy.menuLabel}
+          closeLabel={copy.closeMenu}
         />
         <section className="admin-content">
-          <AdminHeader title={copy.adminControlCenter} description={copy.adminControlCenterDescription} />
+          <AdminTopBar label={copy.adminIdentityName} value={principal?.displayName ?? "—"} action={<AdminLogoutButton label={copy.adminLogout} />} />
+          <AdminHeader brand={copy.siteName} title={copy.adminControlCenter} description={copy.adminControlCenterDescription} statusLabel={copy.adminControlCenter} />
           <AdminBreadcrumbs current={copy.adminControlCenter} homeLabel={copy.adminDashboard} ariaLabel={copy.adminControlCenter} />
           <AdminNotifications />
           <AdminContent>{children}</AdminContent>
-          <AdminFooter homeLabel={copy.navHome} logout={<AdminLogoutButton label={copy.adminLogout} />} />
+          <AdminFooter homeLabel={copy.navHome} logout={null} />
         </section>
       </div>
     </main>
