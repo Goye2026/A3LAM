@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SiteFooter } from "@/components/a3lam/SiteFooter";
-import { SiteHeader } from "@/components/a3lam/SiteHeader";
+import { SiteFrame } from "@/components/a3lam/SiteFrame";
 import { SearchDiscovery } from "@/components/a3lam/SearchDiscovery";
 import type { Category } from "@/lib/domain/a3lam";
 import { defaultLocale } from "@/lib/i18n/config";
@@ -41,10 +40,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   }
 
   return (
-    <main className="a3lam-page">
-      <div className="a3lam-shell">
-        <SiteHeader copy={publicCopy} active="search" />
-        <div className="route-page route-page-search">
+    <SiteFrame copy={publicCopy} active="search" template="search">
+      <main className="a3lam-page">
+        <div className="a3lam-shell">
+          <div className="route-page route-page-search">
           <div className="route-heading">
             <Link className="back-link" href="/">
               <span aria-hidden="true">↙</span>
@@ -63,9 +62,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             initialCity={firstParam(params.city)}
             initialCountry={firstParam(params.country)}
           />
+          </div>
         </div>
-        <SiteFooter copy={publicCopy} />
-      </div>
-    </main>
+      </main>
+    </SiteFrame>
   );
 }

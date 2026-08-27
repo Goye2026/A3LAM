@@ -64,3 +64,19 @@ export function AdminStatusBadge({ label, tone = "neutral" }: { label: string; t
 export function AdminEmptyState({ title, description }: { title: string; description?: string }) {
   return <div className="empty-state" role="status"><h3>{title}</h3>{description ? <p>{description}</p> : null}</div>;
 }
+
+export function AdminLoadingState({ label }: { label: string }) {
+  return <p className="admin-state admin-state-loading" role="status" aria-live="polite"><span className="admin-state-spinner" aria-hidden="true" />{label}</p>;
+}
+
+export function AdminErrorState({ title, description }: { title: string; description?: string }) {
+  return <div className="admin-state admin-state-error" role="alert"><strong>{title}</strong>{description ? <span>{description}</span> : null}</div>;
+}
+
+export function AdminUnavailableState({ title, description }: { title: string; description?: string }) {
+  return <div className="admin-state admin-state-unavailable" role="status"><strong>{title}</strong>{description ? <span>{description}</span> : null}</div>;
+}
+
+export function AdminMetricCard({ label, value, featured = false }: { label: string; value: number | string; featured?: boolean }) {
+  return <article className={`admin-stat-card${featured ? " admin-stat-featured" : ""}`}><span>{label}</span><strong>{value}</strong></article>;
+}

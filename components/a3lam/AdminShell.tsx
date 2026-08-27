@@ -32,16 +32,18 @@ export async function AdminShell({ children }: { children: ReactNode }) {
 
   return (
     <main className="a3lam-page admin-page">
+      <a className="admin-skip-link" href="#admin-main">{copy.adminSkipToContent}</a>
       <div className="a3lam-shell admin-shell">
         <AdminSidebar
           groups={navigation}
           brand={copy.siteName}
           controlCenter={copy.adminControlCenter}
+          navigationLabel={copy.adminNavigationLabel}
           unavailableLabel={copy.adminCmsUnavailable}
           openLabel={copy.menuLabel}
           closeLabel={copy.closeMenu}
         />
-        <section className="admin-content">
+        <section id="admin-main" className="admin-content" aria-label={copy.adminControlCenter}>
           <AdminTopBar label={copy.adminIdentityName} value={principal?.displayName ?? "—"} action={<AdminLogoutButton label={copy.adminLogout} />} />
           <AdminHeader brand={copy.siteName} title={copy.adminControlCenter} description={copy.adminControlCenterDescription} statusLabel={copy.adminControlCenter} />
           <AdminBreadcrumbs current={copy.adminControlCenter} homeLabel={copy.adminDashboard} ariaLabel={copy.adminControlCenter} />

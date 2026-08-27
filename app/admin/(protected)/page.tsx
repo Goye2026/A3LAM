@@ -6,6 +6,8 @@ import { adminRepository } from "@/lib/data/adminRepository";
 import { getAdminPrincipal, ADMIN_SESSION_COOKIE } from "@/lib/admin/auth";
 import { hasEffectiveAdminPermission } from "@/lib/admin/rbac";
 import { getSystemHealthSnapshot } from "@/lib/admin/systemHealth";
+import { AdminMetricCard } from "@/components/a3lam/AdminDesignSystem";
+import { toDashboardMetricView } from "@/lib/admin/dashboardView";
 
 function formatDate(value: string, locale: "ar" | "en") {
   return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(value));
@@ -61,16 +63,16 @@ export default async function AdminDashboardPage() {
     ["archived", copy.adminArchived],
   ] as const;
   const stats = [
-    { label: copy.adminPeopleCount, value: summary?.people ?? 0, featured: true },
-    { label: `${copy.adminPeople} · ${copy.adminPublished}`, value: dashboard?.counts.published ?? 0 },
-    { label: `${copy.adminPeople} · ${copy.adminReview}`, value: dashboard?.counts.review ?? 0 },
-    { label: copy.adminCategories, value: summary?.categories ?? 0 },
-    { label: copy.adminUsers, value: summary?.users ?? 0 },
-    { label: copy.adminUserActive, value: summary?.activeUsers ?? 0 },
+    { label: copy.adminPeopleCount, value: summary?.people ?? null, featured: true },
+    { label: `${copy.adminPeople} · ${copy.adminPublished}`, value: dashboard?.counts.published ?? null },
+    { label: `${copy.adminPeople} · ${copy.adminReview}`, value: dashboard?.counts.review ?? null },
+    { label: copy.adminCategories, value: summary?.categories ?? null },
+    { label: copy.adminUsers, value: summary?.users ?? null },
+    { label: copy.adminUserActive, value: summary?.activeUsers ?? null },
     { label: copy.adminUserDisabled, value: summary ? summary.users - summary.activeUsers : null },
-    { label: copy.adminProfiles, value: summary?.profiles.total ?? 0 },
-    { label: `${copy.adminProfiles} · ${copy.adminPublished}`, value: summary?.profiles.published ?? 0 },
-    { label: `${copy.adminProfiles} · ${copy.adminReview}`, value: summary?.profiles.pendingReview ?? 0 },
+    { label: copy.adminProfiles, value: summary?.profiles.total ?? null },
+    { label: `${copy.adminProfiles} · ${copy.adminPublished}`, value: summary?.profiles.published ?? null },
+    { label: `${copy.adminProfiles} · ${copy.adminReview}`, value: summary?.profiles.pendingReview ?? null },
     { label: copy.adminAdministrators, value: summary?.adminIdentities ?? null },
     { label: copy.adminEditors, value: summary?.editors ?? null },
     { label: copy.adminSessions, value: summary?.adminSessions ?? null },
@@ -88,7 +90,7 @@ export default async function AdminDashboardPage() {
       </header>
       {unavailable ? <p className="admin-alert" role="alert">{copy.adminDatabaseError}</p> : null}
       <section className="admin-stat-grid admin-control-stat-grid" aria-label={copy.adminControlCenter}>
-        {stats.map((stat) => <div className={`admin-stat-card${stat.featured ? " admin-stat-featured" : ""}`} key={stat.label}><span>{stat.label}</span><strong>{summary && stat.value !== null ? stat.value : "—"}</strong></div>)}
+        {stats.map((stat) => { const view = toDashboardMetricView(stat); return <AdminMetricCard key={view.label} label={view.label} value={view.displayValue} featured={view.featured} />; })}
       </section>
       <section className="admin-panel" aria-labelledby="admin-status-title">
         <div className="admin-section-heading"><h2 id="admin-status-title">{copy.adminPeople}</h2><Link href="/admin/people">{copy.adminPeople}</Link></div>

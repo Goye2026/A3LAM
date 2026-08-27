@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CategoryCard } from "@/components/a3lam/CategoryCard";
-import { SiteFooter } from "@/components/a3lam/SiteFooter";
-import { SiteHeader } from "@/components/a3lam/SiteHeader";
+import { SiteFrame } from "@/components/a3lam/SiteFrame";
 import { toDisplayCategories } from "@/lib/a3lam/catalog";
 import type { Category } from "@/lib/domain/a3lam";
 import { defaultLocale } from "@/lib/i18n/config";
@@ -31,10 +30,10 @@ export default async function CategoriesPage() {
   const displayCategories = toDisplayCategories(categories);
 
   return (
-    <main className="a3lam-page">
-      <div className="a3lam-shell">
-        <SiteHeader copy={copy} active="categories" />
-        <div className="route-page route-page-categories">
+    <SiteFrame copy={copy} active="categories" template="category">
+      <main className="a3lam-page">
+        <div className="a3lam-shell">
+          <div className="route-page route-page-categories">
           <div className="route-heading">
             <Link className="back-link" href="/">
               <span aria-hidden="true">↙</span>
@@ -55,9 +54,9 @@ export default async function CategoriesPage() {
               ))}
             </div>
           )}
+          </div>
         </div>
-        <SiteFooter copy={copy} />
-      </div>
-    </main>
+      </main>
+    </SiteFrame>
   );
 }

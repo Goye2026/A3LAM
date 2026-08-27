@@ -228,6 +228,8 @@ export type FoundationMessages = {
   adminAccessUnavailable: string;
   adminInvalidAccess: string;
   adminDashboard: string;
+  adminSkipToContent: string;
+  adminNavigationLabel: string;
   adminPeople: string;
   adminAddPerson: string;
   adminReviewContent: string;
@@ -1201,6 +1203,8 @@ const ar: FoundationMessages = {
   adminAccessUnavailable: "لم تُضبط حماية مساحة التحرير في هذه البيئة.",
   adminInvalidAccess: "رمز الوصول غير صحيح أو منتهي.",
   adminDashboard: "لوحة التحرير",
+  adminSkipToContent: "الانتقال إلى المحتوى الرئيسي",
+  adminNavigationLabel: "التنقل الإداري",
   adminPeople: "الشخصيات",
   adminAddPerson: "إضافة شخصية",
   adminReviewContent: "مراجعة المحتوى",
@@ -2175,6 +2179,8 @@ const en: FoundationMessages = {
   adminAccessUnavailable: "Editorial access is not configured in this environment.",
   adminInvalidAccess: "The access token is invalid or expired.",
   adminDashboard: "Editorial dashboard",
+  adminSkipToContent: "Skip to main content",
+  adminNavigationLabel: "Admin navigation",
   adminPeople: "People",
   adminAddPerson: "Add person",
   adminReviewContent: "Review content",
