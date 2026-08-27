@@ -488,6 +488,8 @@ export type FoundationMessages = {
   adminCmsRevisionActor: string;
   adminCmsRevisionVersion: string;
   adminCmsRevisionDate: string;
+  adminCmsRevisionMetadataOnly: string;
+  adminCmsRevisionCurrentVersion: string;
   adminHomepage: string;
   adminAppearance: string;
   adminMedia: string;
@@ -1461,6 +1463,8 @@ const ar: FoundationMessages = {
   adminCmsRevisionActor: "محرر غير معروف",
   adminCmsRevisionVersion: "الإصدار",
   adminCmsRevisionDate: "تاريخ المراجعة",
+  adminCmsRevisionMetadataOnly: "تعرض هذه المنطقة بيانات المراجعة والمعاينة فقط؛ لا تتوفر مقارنة فروق تفصيلية.",
+  adminCmsRevisionCurrentVersion: "الإصدار الحالي",
   adminCmsWidgets: "الأدوات (غير متاحة)",
   adminCmsUnavailable: "غير متاح حاليًا",
   adminHomepage: "الصفحة الرئيسية",
@@ -2437,6 +2441,8 @@ const en: FoundationMessages = {
   adminCmsRevisionActor: "Unknown editor",
   adminCmsRevisionVersion: "Version",
   adminCmsRevisionDate: "Revision date",
+  adminCmsRevisionMetadataOnly: "This area shows revision metadata and preview only; detailed diff comparison is unavailable.",
+  adminCmsRevisionCurrentVersion: "Current version",
   adminCmsWidgets: "Widgets (unavailable)",
   adminCmsUnavailable: "Currently unavailable",
   adminHomepage: "Homepage",
