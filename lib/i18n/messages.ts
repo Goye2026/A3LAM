@@ -879,6 +879,12 @@ export type FoundationMessages = {
   adminAiRejected: string;
   adminAiEdited: string;
   adminAiReviewer: string;
+  adminAiUnsavedChanges: string;
+  adminAiLocalStateAvailable: string;
+  adminAiResumeLocal: string;
+  adminAiDiscardLocal: string;
+  adminAiSavedLocally: string;
+  adminAiLocalSaveFailed: string;
 };
 
 const ar: FoundationMessages = {
@@ -1761,6 +1767,12 @@ const ar: FoundationMessages = {
   adminAiRejected: "مرفوض",
   adminAiEdited: "معدل",
   adminAiReviewer: "المراجع",
+  adminAiUnsavedChanges: "لديك تغييرات محلية غير محفوظة.",
+  adminAiLocalStateAvailable: "تمت استعادة حالة محلية من هذا المتصفح.",
+  adminAiResumeLocal: "متابعة الحالة المستعادة",
+  adminAiDiscardLocal: "حذف الحالة المحلية",
+  adminAiSavedLocally: "تم الحفظ محليًا في هذا المتصفح فقط.",
+  adminAiLocalSaveFailed: "تعذر الحفظ محليًا في هذا المتصفح.",
 
 };
 
@@ -2644,6 +2656,12 @@ const en: FoundationMessages = {
   adminAiRejected: "Rejected",
   adminAiEdited: "Edited",
   adminAiReviewer: "Reviewer",
+  adminAiUnsavedChanges: "You have unsaved local changes.",
+  adminAiLocalStateAvailable: "A local workspace state was restored from this browser.",
+  adminAiResumeLocal: "Continue restored state",
+  adminAiDiscardLocal: "Discard local state",
+  adminAiSavedLocally: "Saved locally in this browser only.",
+  adminAiLocalSaveFailed: "This browser could not save the local workspace state.",
 
 };
 

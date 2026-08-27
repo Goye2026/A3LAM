@@ -3688,6 +3688,10 @@ textarea.admin-input { resize: vertical; }
 }
 
 /* Phase 17.18.11 editorial AI workspace UX */
+.ai-step-state-blocked button { cursor: not-allowed; opacity: .58; }
+.ai-step-state-complete .ai-step-number { background: var(--color-success); color: var(--color-paper); }
+.ai-step-state-needs-review .ai-step-number { border-color: var(--color-warning); color: var(--color-warning); }
+.ai-step-state-active .ai-step-number { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 18%, transparent); }
 .ai-workspace-kicker { display: inline-flex; align-items: center; gap: .45rem; margin-block-start: 1rem !important; color: var(--color-brand) !important; font-size: .8rem; font-weight: 800; letter-spacing: .02em; }
 .ai-sandbox-mark { display: inline-grid; place-items: center; width: 1.45rem; height: 1.45rem; border: 1px solid color-mix(in srgb, var(--color-brand) 48%, var(--color-border)); border-radius: 50%; font-size: .68rem; }
 .ai-workflow-summary { display: grid; gap: .75rem; margin-block: var(--space-5); padding: 1rem 1.15rem; border: 1px solid color-mix(in srgb, var(--color-brand) 22%, var(--color-border)); border-radius: var(--radius-md); background: var(--color-surface); box-shadow: 0 8px 20px color-mix(in srgb, var(--color-ink) 4%, transparent); }
@@ -3737,4 +3741,11 @@ textarea.admin-input { resize: vertical; }
 .ai-uploader-state strong { color: var(--color-ink); font-size: .82rem; }
 .ai-uploader-state-failed { border-color: color-mix(in srgb, var(--color-danger) 42%, var(--color-border)); }
 .ai-uploader-state-ready_for_review { border-color: color-mix(in srgb, var(--color-success) 38%, var(--color-border)); }
+.ai-local-recovery { display: flex; align-items: center; justify-content: space-between; gap: .8rem; flex-wrap: wrap; margin-block: .8rem; padding: .75rem; border: 1px solid color-mix(in srgb, var(--color-accent) 42%, var(--color-border)); border-radius: var(--radius-sm); background: var(--color-accent-pale); }
+.ai-local-recovery > span { color: var(--color-ink-soft); font-size: .82rem; font-weight: 700; }
+.ai-local-recovery > div { display: flex; flex-wrap: wrap; gap: .5rem; }
+.ai-local-recovery .button { min-height: 2.35rem; padding-inline: .8rem; font-size: .76rem; }
+.ai-dirty-indicator { margin: .6rem 0; color: var(--color-warning); font-size: .8rem; font-weight: 700; }
+.ai-review-note-field { display: grid; gap: .35rem; margin-block: .85rem; color: var(--color-ink-soft); font-size: .78rem; font-weight: 700; }
+.ai-review-note-field textarea { min-height: 5rem; resize: vertical; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-ink); padding: .65rem .75rem; }
 @media (prefers-reduced-motion: reduce) { .ai-progress-track span, .ai-mode-option { transition: none; } }

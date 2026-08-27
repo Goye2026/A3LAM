@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { FoundationMessages } from "@/lib/i18n/messages";
 import type { AiGeneratedClaim, AiGenerationLanguage, AiGenerationMode, AiGenerationResult } from "@/lib/ai/types";
 import { A3lamDocumentUploader } from "./A3lamDocumentUploader";
@@ -9,8 +9,40 @@ import { demoConflict, demoExtraction, demoFacts, runEditorialDemo, type DemoFac
 const steps = ["adminAiStepDocument", "adminAiStepExtraction", "adminAiStepFacts", "adminAiStepGeneration", "adminAiStepDraft", "adminAiStepClaims", "adminAiStepReview"] as const;
 const modes: AiGenerationMode[] = ["PROFESSIONAL_CV", "PROFESSIONAL_PROFILE", "A3LAM_PERSON_DRAFT", "BIOGRAPHY", "SEO_DRAFT"];
 const languages: AiGenerationLanguage[] = ["ARABIC", "ENGLISH", "BILINGUAL", "SOURCE_LANGUAGE"];
+const LOCAL_WORKSPACE_KEY = "a3lam.ai.editorial-workspace.local.v1";
 
 type Copy = FoundationMessages;
+type LocalWorkspaceState = {
+  activeStep: number;
+  facts: DemoFact[];
+  mode: AiGenerationMode;
+  language: AiGenerationLanguage;
+  result: AiGenerationResult | null;
+  claims: AiGeneratedClaim[];
+  claimEdits: Record<string, string>;
+  reviewNotes: Record<string, string>;
+  savedDraft: boolean;
+  revision: number;
+};
+
+function readLocalWorkspaceState(): LocalWorkspaceState | null {
+  try {
+    const raw = window.localStorage.getItem(LOCAL_WORKSPACE_KEY);
+    if (!raw) return null;
+    const value: unknown = JSON.parse(raw);
+    if (typeof value !== "object" || value === null) return null;
+    const candidate = value as Partial<LocalWorkspaceState>;
+    const activeStep = candidate.activeStep;
+    if (typeof activeStep !== "number" || !Number.isInteger(activeStep)) return null;
+    if (activeStep < 0 || activeStep >= steps.length) return null;
+    if (!Array.isArray(candidate.facts) || !Array.isArray(candidate.claims) || typeof candidate.mode !== "string" || typeof candidate.language !== "string") return null;
+    if (candidate.mode && !modes.includes(candidate.mode as AiGenerationMode)) return null;
+    if (candidate.language && !languages.includes(candidate.language as AiGenerationLanguage)) return null;
+    return { ...candidate, activeStep, claimEdits: candidate.claimEdits ?? {}, reviewNotes: candidate.reviewNotes ?? {}, result: candidate.result ?? null, savedDraft: candidate.savedDraft === true, revision: Number.isInteger(candidate.revision) ? candidate.revision : 0 } as LocalWorkspaceState;
+  } catch {
+    return null;
+  }
+}
 
 type ClaimAction = "ACCEPT" | "EDIT" | "REJECT" | "REQUEST_SOURCE";
 
@@ -76,7 +108,40 @@ export function A3lamEditorialWorkspace({ copy }: { copy: Copy }) {
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedFactId, setSelectedFactId] = useState<string | null>(demoFacts[0]?.id ?? null);
+  const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
   const [savedDraft, setSavedDraft] = useState(false);
+  const [dirty, setDirty] = useState(false);
+  const [localRecovery, setLocalRecovery] = useState(false);
+  const [localRevision, setLocalRevision] = useState(0);
+
+  useEffect(() => {
+    const restored = readLocalWorkspaceState();
+    if (!restored) return;
+    const restoreTimer = window.setTimeout(() => {
+      setActiveStep(restored.activeStep);
+      setFacts(restored.facts);
+      setMode(restored.mode);
+      setLanguage(restored.language);
+      setResult(restored.result);
+      setClaims(restored.claims);
+      setClaimEdits(restored.claimEdits);
+      setReviewNotes(restored.reviewNotes ?? {});
+      setSavedDraft(restored.savedDraft);
+      setLocalRevision(restored.revision);
+      setLocalRecovery(true);
+    }, 0);
+    return () => window.clearTimeout(restoreTimer);
+  }, []);
+
+  useEffect(() => {
+    if (!dirty) return;
+    const warnBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = copy.adminAiUnsavedChanges;
+    };
+    window.addEventListener("beforeunload", warnBeforeUnload);
+    return () => window.removeEventListener("beforeunload", warnBeforeUnload);
+  }, [copy.adminAiUnsavedChanges, dirty]);
 
   const reviewedFacts = useMemo(() => facts.filter((fact) => fact.status === "ACCEPTED" || fact.status === "EDITED"), [facts]);
   const unresolvedFacts = useMemo(() => facts.filter((fact) => fact.status === "UNREVIEWED" || fact.status === "REQUEST_SOURCE"), [facts]);
@@ -97,8 +162,10 @@ export function A3lamEditorialWorkspace({ copy }: { copy: Copy }) {
     setResult(null);
     setClaims([]);
     setClaimEdits({});
+    setReviewNotes({});
     setSelectedFactId(demoFacts[0]?.id ?? null);
     setSavedDraft(false);
+    setDirty(false);
     setActiveStep(0);
     setNotice(null);
     setError(null);
@@ -106,6 +173,7 @@ export function A3lamEditorialWorkspace({ copy }: { copy: Copy }) {
 
   const reviewFact = (factId: string, status: DemoFact["status"], reviewedValue?: string) => {
     setSelectedFactId(factId);
+    setDirty(true);
     setFacts((current) => current.map((fact) => fact.id === factId ? { ...fact, status, reviewedValue: reviewedValue?.trim() || undefined } : fact));
     setNotice(copy.adminAiDemoGenerated);
     setError(null);
@@ -124,6 +192,7 @@ export function A3lamEditorialWorkspace({ copy }: { copy: Copy }) {
       setResult(generated);
       setClaims(generated.claims);
       setSavedDraft(false);
+      setDirty(true);
       setNotice(copy.adminAiDemoGenerated);
       setActiveStep(4);
     } catch {
@@ -140,6 +209,7 @@ export function A3lamEditorialWorkspace({ copy }: { copy: Copy }) {
       return;
     }
     const status: AiGeneratedClaim["status"] = action === "ACCEPT" || action === "EDIT" ? "VERIFIED" : action === "REJECT" ? "REJECTED" : "NEEDS_VERIFICATION";
+    setDirty(true);
     setClaims((current) => current.map((item) => item.id === claim.id ? { ...item, status, value: editedValue ?? item.value } : item));
     setNotice(copy.adminAiDemoGenerated);
     setError(null);
@@ -147,9 +217,26 @@ export function A3lamEditorialWorkspace({ copy }: { copy: Copy }) {
 
   const saveLocalDraft = () => {
     if (!result?.draft) return;
-    setSavedDraft(true);
-    setNotice(copy.adminAiDemoGenerated);
-    setError(null);
+    const nextRevision = localRevision + 1;
+    const payload: LocalWorkspaceState = { activeStep, facts, mode, language, result, claims, claimEdits, reviewNotes, savedDraft: true, revision: nextRevision };
+    try {
+      window.localStorage.setItem(LOCAL_WORKSPACE_KEY, JSON.stringify(payload));
+      setLocalRevision(nextRevision);
+      setSavedDraft(true);
+      setDirty(false);
+      setLocalRecovery(false);
+      setNotice(copy.adminAiSavedLocally);
+      setError(null);
+    } catch {
+      setError(copy.adminAiLocalSaveFailed);
+    }
+  };
+
+  const discardLocalWorkspace = () => {
+    try { window.localStorage.removeItem(LOCAL_WORKSPACE_KEY); } catch { /* local cleanup is best effort */ }
+    setLocalRecovery(false);
+    resetDemo();
+    setNotice(null);
   };
 
   const stepDone = (index: number) => {
@@ -159,6 +246,24 @@ export function A3lamEditorialWorkspace({ copy }: { copy: Copy }) {
     if (index === 4) return Boolean(result?.draft);
     if (index === 5) return claims.length > 0;
     return reviewedClaims.length === claims.length && claims.length > 0;
+  };
+
+  const stepUnlocked = (index: number) => {
+    if (index <= activeStep) return true;
+    if (index !== activeStep + 1) return false;
+    if (index === 1) return true;
+    if (index === 2) return activeStep >= 1;
+    if (index === 3) return activeStep >= 2 && reviewedFacts.length > 0;
+    if (index === 4) return Boolean(result?.draft);
+    if (index === 5) return Boolean(result);
+    return claims.length > 0;
+  };
+
+  const stepState = (index: number) => {
+    if (index === activeStep) return "active";
+    if (!stepUnlocked(index)) return "blocked";
+    if (stepDone(index)) return "complete";
+    return "needs-review";
   };
 
   return (
@@ -189,15 +294,19 @@ export function A3lamEditorialWorkspace({ copy }: { copy: Copy }) {
         <p>{copy.adminAiWorkflowIntro}</p>
       </div>
 
+      {localRecovery ? <div className="ai-local-recovery" role="status"><span>{copy.adminAiLocalStateAvailable}</span><div><button type="button" className="button button-quiet" onClick={() => { setLocalRecovery(false); setNotice(copy.adminAiSavedLocally); }}>{copy.adminAiResumeLocal}</button><button type="button" className="button button-quiet" onClick={discardLocalWorkspace}>{copy.adminAiDiscardLocal}</button></div></div> : null}
+      {dirty ? <p className="ai-dirty-indicator" role="status">{copy.adminAiUnsavedChanges}</p> : null}
+
       <nav className="ai-stepper" aria-label={copy.adminAiWorkspaceTitle}>
         <ol>
           {steps.map((key, index) => {
             const label = copy[key];
-            return <li key={key} className={activeStep === index ? "is-active" : stepDone(index) ? "is-done" : ""}>
-              <button type="button" aria-current={activeStep === index ? "step" : undefined} onClick={() => { setActiveStep(index); setError(null); }}>
+            const unlocked = stepUnlocked(index);
+            return <li key={key} className={`ai-step-state-${stepState(index)}`}>
+              <button type="button" aria-current={activeStep === index ? "step" : undefined} aria-disabled={!unlocked} onClick={() => { if (!unlocked) return; setActiveStep(index); setError(null); }}>
                 <span className="ai-step-number">{index + 1}</span>
                 <span>{label}</span>
-                <small>{stepDone(index) ? copy.adminAiPass : copy.adminAiNeedsVerification}</small>
+                <small>{stepDone(index) ? copy.adminAiPass : !unlocked ? copy.adminAiBlocked : copy.adminAiNeedsVerification}</small>
               </button>
             </li>;
           })}
@@ -234,15 +343,15 @@ export function A3lamEditorialWorkspace({ copy }: { copy: Copy }) {
           <details><summary>{copy.adminAiOpenSource}</summary><p><strong>{fact.location}</strong></p><blockquote>{fact.evidence}</blockquote><small>{fact.provenance.startOffset}–{fact.provenance.endOffset} · {fact.provenance.section}</small></details>
           <div className="ai-fact-actions"><button type="button" className="button button-quiet" onClick={() => reviewFact(fact.id, "ACCEPTED")}>{copy.adminAiAccept}</button><button type="button" className="button button-quiet" onClick={() => reviewFact(fact.id, "EDITED", `${fact.value} · ${copy.adminAiEditedSuffix}`) }>{copy.adminAiEdit}</button><button type="button" className="button button-quiet" onClick={() => reviewFact(fact.id, "REJECTED")}>{copy.adminAiReject}</button><button type="button" className="button button-quiet" onClick={() => reviewFact(fact.id, "REQUEST_SOURCE")}>{copy.adminAiRequestSource}</button></div>
         </article>)}        </div>
-        {selectedFact ? <aside className="ai-fact-detail" aria-live="polite" aria-labelledby="ai-selected-fact-title"><div className="admin-panel-heading"><div><p className="eyebrow">{copy.adminAiReviewField}</p><h4 id="ai-selected-fact-title">{selectedFact.fieldPath}</h4></div><span className="ai-status-pill">{factStatusLabel(selectedFact.status, copy)}</span></div><dl className="ai-fact-detail-grid"><div><dt>{copy.adminAiOriginalValue}</dt><dd>{selectedFact.originalValue}</dd></div><div><dt>{copy.adminAiReviewedValue}</dt><dd>{selectedFact.reviewedValue ?? "—"}</dd></div><div><dt>{copy.adminAiReviewer}</dt><dd>{selectedFact.status === "UNREVIEWED" ? "—" : copy.adminAiLocalOnly}</dd></div><div><dt>{copy.adminAiDecision}</dt><dd>{selectedFact.status}</dd></div></dl><p className="ai-fact-detail-source"><strong>{selectedFact.source}</strong> · {selectedFact.location}</p><blockquote>{selectedFact.evidence}</blockquote></aside> : null}
+        {selectedFact ? <aside className="ai-fact-detail" aria-live="polite" aria-labelledby="ai-selected-fact-title"><div className="admin-panel-heading"><div><p className="eyebrow">{copy.adminAiReviewField}</p><h4 id="ai-selected-fact-title">{selectedFact.fieldPath}</h4></div><span className="ai-status-pill">{factStatusLabel(selectedFact.status, copy)}</span></div><dl className="ai-fact-detail-grid"><div><dt>{copy.adminAiOriginalValue}</dt><dd>{selectedFact.originalValue}</dd></div><div><dt>{copy.adminAiReviewedValue}</dt><dd>{selectedFact.reviewedValue ?? "—"}</dd></div><div><dt>{copy.adminAiReviewer}</dt><dd>{selectedFact.status === "UNREVIEWED" ? "—" : copy.adminAiLocalOnly}</dd></div><div><dt>{copy.adminAiDecision}</dt><dd>{selectedFact.status}</dd></div></dl><label className="ai-review-note-field">{copy.adminAiReviewNote}<textarea value={reviewNotes[selectedFact.id] ?? ""} onChange={(event) => { setReviewNotes((current) => ({ ...current, [selectedFact.id]: event.target.value })); setDirty(true); }} maxLength={500} aria-label={`${copy.adminAiReviewNote}: ${selectedFact.fieldPath}`} /></label><p className="ai-fact-detail-source"><strong>{selectedFact.source}</strong> · {selectedFact.location}</p><blockquote>{selectedFact.evidence}</blockquote></aside> : null}
         <div className="ai-step-actions"><button type="button" className="button button-primary" onClick={() => setActiveStep(3)} disabled={reviewedFacts.length === 0}>{copy.adminAiStepGeneration}</button><button type="button" className="button button-quiet" onClick={() => setActiveStep(1)}>{copy.adminAiBack}</button></div>
       </section> : null}
 
       {activeStep === 3 ? <section className="ai-step-panel" aria-labelledby="ai-step-generation-title">
         <div className="admin-panel-heading"><div><p className="eyebrow">{copy.adminAiStepGeneration}</p><h3 id="ai-step-generation-title">{copy.adminAiGenerationChooseMode}</h3></div><span className="admin-launch-status admin-launch-status-requires_configuration">{copy.adminAiProductionDisabled}</span></div>
         <div className="ai-generation-config">
-          <fieldset className="ai-mode-picker"><legend>{copy.adminAiGenerationChooseMode}</legend><div className="ai-mode-grid">{modes.map((item) => <label className={`ai-mode-option ${mode === item ? "is-selected" : ""}`} key={item}><input type="radio" name="ai-generation-mode" value={item} checked={mode === item} onChange={() => setMode(item)} /><span className="ai-mode-icon" aria-hidden="true">{modeGlyph(item)}</span><span><strong>{modeLabel(item, copy)}</strong><small>{modeDescription(item, copy)}</small></span></label>)}</div><p className="ai-selection-note"><span className="ai-summary-label">{copy.adminAiModeSelected}</span><strong>{modeLabel(mode, copy)}</strong></p></fieldset>
-          <label className="ai-language-field">{copy.adminAiGenerationChooseLanguage}<select value={language} onChange={(event) => setLanguage(event.target.value as AiGenerationLanguage)}>{languages.map((item) => <option value={item} key={item}>{languageLabel(item, copy)}</option>)}</select><small>{copy.adminAiWorkflowIntro}</small></label>
+          <fieldset className="ai-mode-picker"><legend>{copy.adminAiGenerationChooseMode}</legend><div className="ai-mode-grid">{modes.map((item) => <label className={`ai-mode-option ${mode === item ? "is-selected" : ""}`} key={item}><input type="radio" name="ai-generation-mode" value={item} checked={mode === item} onChange={() => { setMode(item); setDirty(true); }} /><span className="ai-mode-icon" aria-hidden="true">{modeGlyph(item)}</span><span><strong>{modeLabel(item, copy)}</strong><small>{modeDescription(item, copy)}</small></span></label>)}</div><p className="ai-selection-note"><span className="ai-summary-label">{copy.adminAiModeSelected}</span><strong>{modeLabel(mode, copy)}</strong></p></fieldset>
+          <label className="ai-language-field">{copy.adminAiGenerationChooseLanguage}<select value={language} onChange={(event) => { setLanguage(event.target.value as AiGenerationLanguage); setDirty(true); }}>{languages.map((item) => <option value={item} key={item}>{languageLabel(item, copy)}</option>)}</select><small>{copy.adminAiWorkflowIntro}</small></label>
         </div>
         <div className="ai-gate-strip"><span>{copy.adminAiSourcesCheck}</span><strong className={reviewedFacts.length > 0 ? "is-pass" : "is-blocked"}>{reviewedFacts.length > 0 ? copy.adminAiPass : copy.adminAiBlocked}</strong><span>{copy.adminAiPrivacyCheck}</span><strong className="is-pass">{copy.adminAiPass}</strong><span>{copy.adminAiProvider}</span><strong className="is-warning">{copy.adminAiMockAvailable}</strong></div>
         <div className="ai-step-actions"><button type="button" className="button button-primary" onClick={runGeneration} disabled={busy || reviewedFacts.length === 0}>{busy ? copy.adminAiReviewSaving : copy.adminAiRunGeneration}</button><button type="button" className="button button-quiet" onClick={() => setActiveStep(2)}>{copy.adminAiBack}</button></div>
