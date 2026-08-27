@@ -56,6 +56,16 @@ export const ADMIN_PERMISSION_CODES = [
   "ai.documents.create",
   "ai.generation.create",
   "ai.review",
+  "content.read",
+  "content.create",
+  "content.update",
+  "content.review",
+  "content.publish",
+  "content.schedule",
+  "content.trash",
+  "taxonomy.read",
+  "taxonomy.create",
+  "taxonomy.update",
   "system.migrations.execute",
 ] as const;
 export type AdminPermissionCode = (typeof ADMIN_PERMISSION_CODES)[number];

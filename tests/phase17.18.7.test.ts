@@ -101,10 +101,11 @@ describe("Phase 17.18.7 production activation readiness", () => {
 
   it("keeps migrations ordered and preflight-only", async () => {
     const versions = getRepositoryMigrationVersions();
-    expect(versions.slice(-3)).toEqual([
+    expect(versions.slice(-4)).toEqual([
       "0007_phase17_16_media_architecture.sql",
       "0008_phase17_18_2_ai_ingestion_review.sql",
       "0009_phase17_18_4_ai_generation.sql",
+      "0010_phase17_19_3_content_engine.sql",
     ]);
     const readinessRoute = await readFile(resolve(root, "app/api/admin/ai/readiness/route.ts"), "utf8");
     expect(readinessRoute).toContain("requirePermissionPrincipal");

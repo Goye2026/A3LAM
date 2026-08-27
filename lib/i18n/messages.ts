@@ -421,6 +421,36 @@ export type FoundationMessages = {
   adminCmsTags: string;
   adminCmsWidgets: string;
   adminCmsUnavailable: string;
+  adminCmsRequiresMigration: string;
+  adminCmsStatusScheduled: string;
+  adminCmsStatusTrashed: string;
+  adminCmsEditor: string;
+  adminCmsTitle: string;
+  adminCmsExcerpt: string;
+  adminCmsContent: string;
+  adminCmsContentDirection: string;
+  adminCmsCreatePage: string;
+  adminCmsCreatePost: string;
+  adminCmsBackToContent: string;
+  adminCmsNoItems: string;
+  adminCmsTagName: string;
+  adminCmsTagSlug: string;
+  adminCmsCreateTag: string;
+  adminCmsUpdateTag: string;
+  adminCmsBold: string;
+  adminCmsItalic: string;
+  adminCmsLink: string;
+  adminCmsEnterUrl: string;
+  adminCmsUndo: string;
+  adminCmsRedo: string;
+  adminCmsAddHeading: string;
+  adminCmsAddQuote: string;
+  adminCmsAddList: string;
+  adminCmsAddDivider: string;
+  adminCmsFeaturedMedia: string;
+  adminCmsMediaNotConfigured: string;
+  adminCmsRestore: string;
+  adminCmsSchedule: string;
   adminHomepage: string;
   adminAppearance: string;
   adminMedia: string;
@@ -1324,9 +1354,39 @@ const ar: FoundationMessages = {
   adminAdministrators: "المديرون",
   adminEditors: "المحررون",
   adminContent: "كل المحتوى",
-  adminCmsPages: "الصفحات (غير متاحة)",
-  adminCmsPosts: "المقالات (غير متاحة)",
-  adminCmsTags: "الوسوم (غير متاحة)",
+  adminCmsPages: "الصفحات",
+  adminCmsPosts: "المقالات",
+  adminCmsTags: "الوسوم",
+  adminCmsRequiresMigration: "يتطلب تطبيق migration الخاصة بالمحتوى",
+  adminCmsStatusScheduled: "مجدول",
+  adminCmsStatusTrashed: "سلة المحذوفات",
+  adminCmsEditor: "محرر المحتوى",
+  adminCmsTitle: "عنوان المحتوى",
+  adminCmsExcerpt: "الملخص",
+  adminCmsContent: "المحتوى المنسق",
+  adminCmsContentDirection: "اتجاه المحتوى",
+  adminCmsCreatePage: "إنشاء صفحة",
+  adminCmsCreatePost: "إنشاء مقال",
+  adminCmsBackToContent: "العودة إلى كل المحتوى",
+  adminCmsNoItems: "لا توجد عناصر في هذا القسم.",
+  adminCmsTagName: "اسم الوسم",
+  adminCmsTagSlug: "الرابط المختصر للوسم",
+  adminCmsCreateTag: "إنشاء وسم",
+  adminCmsUpdateTag: "حفظ الوسم",
+  adminCmsBold: "عريض",
+  adminCmsItalic: "مائل",
+  adminCmsLink: "رابط",
+  adminCmsEnterUrl: "أدخل رابطًا عامًا http أو https",
+  adminCmsUndo: "تراجع",
+  adminCmsRedo: "إعادة",
+  adminCmsAddHeading: "إضافة عنوان",
+  adminCmsAddQuote: "إضافة اقتباس",
+  adminCmsAddList: "إضافة قائمة",
+  adminCmsAddDivider: "إضافة فاصل",
+  adminCmsFeaturedMedia: "الصورة الرئيسية",
+  adminCmsMediaNotConfigured: "اختيار الوسائط يتطلب تهيئة Media Library؛ لم تُنفذ عملية رفع.",
+  adminCmsRestore: "استعادة كمسودة",
+  adminCmsSchedule: "جدولة تحريرية",
   adminCmsWidgets: "الأدوات (غير متاحة)",
   adminCmsUnavailable: "غير متاح حاليًا",
   adminHomepage: "الصفحة الرئيسية",
@@ -2233,9 +2293,39 @@ const en: FoundationMessages = {
   adminAdministrators: "Administrators",
   adminEditors: "Editors",
   adminContent: "All content",
-  adminCmsPages: "Pages (unavailable)",
-  adminCmsPosts: "Posts (unavailable)",
-  adminCmsTags: "Tags (unavailable)",
+  adminCmsPages: "Pages",
+  adminCmsPosts: "Posts",
+  adminCmsTags: "Tags",
+  adminCmsRequiresMigration: "Requires the content migration",
+  adminCmsStatusScheduled: "Scheduled",
+  adminCmsStatusTrashed: "Trash",
+  adminCmsEditor: "Content editor",
+  adminCmsTitle: "Content title",
+  adminCmsExcerpt: "Excerpt",
+  adminCmsContent: "Rich content",
+  adminCmsContentDirection: "Content direction",
+  adminCmsCreatePage: "Create page",
+  adminCmsCreatePost: "Create post",
+  adminCmsBackToContent: "Back to all content",
+  adminCmsNoItems: "No items in this section.",
+  adminCmsTagName: "Tag name",
+  adminCmsTagSlug: "Tag slug",
+  adminCmsCreateTag: "Create tag",
+  adminCmsUpdateTag: "Save tag",
+  adminCmsBold: "Bold",
+  adminCmsItalic: "Italic",
+  adminCmsLink: "Link",
+  adminCmsEnterUrl: "Enter a public http or https URL",
+  adminCmsUndo: "Undo",
+  adminCmsRedo: "Redo",
+  adminCmsAddHeading: "Add heading",
+  adminCmsAddQuote: "Add quote",
+  adminCmsAddList: "Add list",
+  adminCmsAddDivider: "Add divider",
+  adminCmsFeaturedMedia: "Featured media",
+  adminCmsMediaNotConfigured: "Media selection requires Media Library configuration; no upload was performed.",
+  adminCmsRestore: "Restore as draft",
+  adminCmsSchedule: "Editorial schedule",
   adminCmsWidgets: "Widgets (unavailable)",
   adminCmsUnavailable: "Currently unavailable",
   adminHomepage: "Homepage",

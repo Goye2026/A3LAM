@@ -4,6 +4,8 @@ import { MediaSchemaUnavailableError, MediaConflictError } from "@/lib/media/rep
 import { MediaInputError } from "@/lib/media/validation";
 import { safeErrors } from "@/lib/errors/taxonomy";
 import { hasEffectiveAdminPermission, type AdminPermission } from "@/lib/admin/rbac";
+import { CmsInputError } from "@/lib/cms/editorialValidation";
+import { CmsRichTextInputError } from "@/lib/cms/richText";
 
 function unauthorizedResponse() {
   return NextResponse.json({ error: safeErrors.UNAUTHORIZED.code, message: safeErrors.UNAUTHORIZED.publicMessage }, { status: safeErrors.UNAUTHORIZED.status });
@@ -46,10 +48,10 @@ export async function requirePermissionPrincipal(request: Request, permission: A
 }
 
 export function adminErrorResponse(error: unknown) {
-  if (error instanceof Error && (error.name === "AdminInputError" || error.name === "AdminValidationError" || error.name === "AiDocumentValidationError" || error.name === "AiFactValidationError" || error.name === "AiGenerationValidationError" || error instanceof MediaInputError)) {
+  if (error instanceof Error && (error.name === "AdminInputError" || error.name === "AdminValidationError" || error instanceof CmsInputError || error instanceof CmsRichTextInputError || error.name === "AiDocumentValidationError" || error.name === "AiFactValidationError" || error.name === "AiGenerationValidationError" || error instanceof MediaInputError)) {
     return NextResponse.json({ error: safeErrors.INVALID_INPUT.code, message: safeErrors.INVALID_INPUT.publicMessage }, { status: safeErrors.INVALID_INPUT.status });
   }
-  if (error instanceof Error && ["AdminConflictError", "AiDocumentConflictError", "MigrationRegistryInconsistentError", "MigrationAlreadyAppliedError", "MigrationPrerequisiteError", "MigrationStateChangedError"].includes(error.name)) {
+  if (error instanceof Error && ["AdminConflictError", "CmsConflictError", "AiDocumentConflictError", "MigrationRegistryInconsistentError", "MigrationAlreadyAppliedError", "MigrationPrerequisiteError", "MigrationStateChangedError"].includes(error.name)) {
     return NextResponse.json({ error: safeErrors.CONFLICT.code, message: safeErrors.CONFLICT.publicMessage }, { status: safeErrors.CONFLICT.status });
   }
   if (error instanceof MediaConflictError) {

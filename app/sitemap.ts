@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { personService } from "@/lib/services/personService";
 import { listPublicProfiles } from "@/lib/user/profileRepository";
 import { absoluteUrl } from "@/lib/seo/site";
+import { editorialRepository } from "@/lib/cms/editorialRepository";
 
 export const dynamic = "force-dynamic";
 
@@ -17,8 +18,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       listPublicProfiles(),
     ]);
 
+    let cmsRoutes: MetadataRoute.Sitemap = [];
+    try {
+      const [pages, posts] = await Promise.all([
+        editorialRepository.listPublishedForSitemap("page"),
+        editorialRepository.listPublishedForSitemap("post"),
+      ]);
+      cmsRoutes = [
+        ...pages.map((page) => ({ url: absoluteUrl(`/page/${page.slug}`), lastModified: page.updatedAt })),
+        ...posts.map((post) => ({ url: absoluteUrl(`/article/${post.slug}`), lastModified: post.updatedAt })),
+      ];
+    } catch {
+      cmsRoutes = [];
+    }
+
     return [
       ...staticRoutes,
+      ...cmsRoutes,
       ...categories.map((category) => ({
         url: absoluteUrl(`/categories/${category.slug}`),
       })),

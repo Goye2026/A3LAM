@@ -14,7 +14,7 @@ const allPermissions = new Set<AdminPermission>(ADMIN_PERMISSIONS);
 const rolePermissions: Record<AdminRole, ReadonlySet<AdminPermission>> = {
   SUPER_ADMIN: allPermissions,
   ADMIN: new Set(ADMIN_PERMISSION_CODES.filter((permission) => !["admins.manage", "roles.update", "permissions.assign", "settings.manage", "system.migrations.execute"].includes(permission))),
-  EDITOR: new Set(["people.read", "people.create", "people.update", "people.publish", "profiles.read", "categories.read", "ai.documents.read", "ai.review"]),
+  EDITOR: new Set(["people.read", "people.create", "people.update", "people.publish", "profiles.read", "categories.read", "ai.documents.read", "ai.review", "content.read", "content.create", "content.update", "content.review", "taxonomy.read", "taxonomy.create", "taxonomy.update"]),
   MODERATOR: new Set(["people.read", "profiles.read", "profiles.moderate", "audit.read"]),
   USER: new Set(),
 };

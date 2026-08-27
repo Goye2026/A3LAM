@@ -3840,3 +3840,32 @@ textarea.admin-input { resize: vertical; }
   .admin-media-view-toggle { width: 100%; }
   .admin-media-view-toggle .button { flex: 1; }
 }
+
+/* Phase 17.19.3 CMS editorial surfaces reuse the existing Admin design tokens. */
+.cms-editor-form .admin-form-grid,
+.cms-tags-manager .admin-form-grid { align-items: start; }
+.cms-editor-form textarea { min-height: 7rem; resize: vertical; }
+.cms-editor-form .admin-form-full { grid-column: 1 / -1; }
+.cms-list-toolbar { margin-block-end: 1rem; }
+.cms-list-toolbar .admin-filter-form { align-items: end; }
+.admin-table th small,
+.admin-table td small { display: block; color: var(--color-ink-muted); font-weight: 400; margin-block-start: .2rem; }
+.admin-table td a + a { margin-inline-start: .75rem; }
+.cms-preview { max-width: 54rem; }
+.cms-preview .cms-rich-text,
+.cms-public-content .cms-rich-text { margin-block-start: 2rem; }
+.cms-rich-text { line-height: 1.9; }
+.cms-rich-text h2,
+.cms-rich-text h3,
+.cms-rich-text h4 { margin-block: 1.8rem .65rem; }
+.cms-rich-text blockquote { border-inline-start: .25rem solid var(--color-accent); margin-inline: 0; padding-inline: 1rem; color: var(--color-ink-muted); }
+.cms-rich-text table { width: 100%; border-collapse: collapse; margin-block: 1.25rem; }
+.cms-rich-text td { border: 1px solid var(--color-border); padding: .65rem; vertical-align: top; }
+.cms-media-placeholder { border: 1px dashed var(--color-border); padding: 1rem; color: var(--color-ink-muted); }
+.admin-simple-list { list-style: none; padding: 0; margin: 0; }
+.admin-simple-list li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-block-end: 1px solid var(--color-border); padding-block: .75rem; }
+@media (max-width: 700px) {
+  .cms-editor-form .admin-form-full { grid-column: auto; }
+  .cms-list-toolbar .admin-filter-form { display: grid; grid-template-columns: 1fr; }
+  .admin-table-wrap { overflow-x: auto; }
+}

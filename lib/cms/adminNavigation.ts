@@ -63,9 +63,9 @@ export function getAdminNavigation(copy: AdminCopy): readonly CmsAdminNavGroup[]
         item("person-new", copy.adminAddPerson, "/admin/people/new", "people.create"),
         item("categories", copy.adminCategories, "/admin/categories", "categories.read"),
         item("review", copy.adminReviewContent, "/admin/people?status=review", "people.read"),
-        item("pages", copy.adminCmsPages, null, null, "not_available"),
-        item("posts", copy.adminCmsPosts, null, null, "not_available"),
-        item("tags", copy.adminCmsTags, null, null, "not_available"),
+        item("pages", copy.adminCmsPages, "/admin/content/pages", "content.read", "requires_configuration"),
+        item("posts", copy.adminCmsPosts, "/admin/content/posts", "content.read", "requires_configuration"),
+        item("tags", copy.adminCmsTags, "/admin/content/tags", "taxonomy.read", "requires_configuration"),
       ],
     },
     {

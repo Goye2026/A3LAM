@@ -3,10 +3,10 @@ import type { AdminPermission } from "@/lib/admin/rbac";
 import type { FoundationMessages } from "@/lib/i18n/messages";
 
 export type CmsContentTypeId = "person" | "profile" | "category" | "page" | "post" | "tag";
-export type CmsContentAvailability = "available" | "not_available" | "planned";
+export type CmsContentAvailability = "available" | "requires_configuration" | "not_available" | "planned";
 export type CmsContentAction = "read" | "create" | "update" | "review" | "publish" | "archive";
 export type CmsContentEditor = "person" | "profile" | "category" | "unavailable";
-export type CmsStorageTable = "people" | "profiles" | "categories" | null;
+export type CmsStorageTable = "people" | "profiles" | "categories" | "cms_pages" | "cms_posts" | "cms_tags" | null;
 
 export type CmsContentTypeDefinition = {
   id: CmsContentTypeId;
@@ -77,7 +77,7 @@ export type CmsAdminNavItem = {
   label: string;
   href: string | null;
   permission: AdminPermission | null;
-  availability: "available" | "not_available" | "planned";
+  availability: CmsContentAvailability;
   children?: readonly CmsAdminNavItem[];
 };
 

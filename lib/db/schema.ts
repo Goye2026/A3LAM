@@ -1,5 +1,8 @@
 import { boolean, date, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import type { ContentStatus, ProfileStatus, ProfileVisibility, SourceType } from "@/lib/domain/a3lam";
+import type { CmsEditorialStatus } from "@/lib/cms/editorialStatus";
+import type { CmsRichTextDocument } from "@/lib/cms/richText";
+import type { CmsEditorialRevisionSnapshot } from "@/lib/cms/editorialTypes";
 import type { AdminAccountStatus, AdminPermissionCode, AdminRoleCode } from "@/lib/admin/types";
 import type { AiDocumentStatus, AiDocumentType, AiExtractionStatus, AiFailureCode, AiOwnerType, AiProcessingJobStatus, AiRetentionPolicyState, AiReviewDecision, ConfidenceClassification, FactClassification, AiGenerationMode, AiGenerationLanguage, AiGenerationStatus, AiQualityGateStatus, AiClaimStatus, AiReviewDecisionAction, AiGenerationErrorCode } from "@/lib/ai/types";
 
@@ -754,6 +757,120 @@ export const aiGenerationReviewDecisions = pgTable(
   }),
 );
 
+export const cmsPages = pgTable(
+  "cms_pages",
+  {
+    id: text("id").primaryKey(),
+    title: text("title").notNull(),
+    slug: text("slug").notNull(),
+    status: text("status").$type<CmsEditorialStatus>().notNull().default("draft"),
+    content: jsonb("content").$type<CmsRichTextDocument>().notNull(),
+    excerpt: text("excerpt").notNull().default(""),
+    authorId: text("author_id").references(() => adminIdentities.id, { onDelete: "set null" }),
+    featuredMediaId: text("featured_media_id").references(() => mediaAssets.id, { onDelete: "restrict" }),
+    template: text("template").notNull().default("single-page"),
+    seoTitle: text("seo_title").notNull().default(""),
+    seoDescription: text("seo_description").notNull().default(""),
+    canonicalUrl: text("canonical_url"),
+    version: integer("version").notNull().default(1),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+  },
+  (table) => ({
+    slugUnique: uniqueIndex("cms_pages_slug_unique").on(table.slug),
+    statusIndex: index("cms_pages_status_idx").on(table.status, table.updatedAt),
+    authorIndex: index("cms_pages_author_idx").on(table.authorId, table.updatedAt),
+  }),
+);
+
+export const cmsPosts = pgTable(
+  "cms_posts",
+  {
+    id: text("id").primaryKey(),
+    title: text("title").notNull(),
+    slug: text("slug").notNull(),
+    status: text("status").$type<CmsEditorialStatus>().notNull().default("draft"),
+    content: jsonb("content").$type<CmsRichTextDocument>().notNull(),
+    excerpt: text("excerpt").notNull().default(""),
+    authorId: text("author_id").references(() => adminIdentities.id, { onDelete: "set null" }),
+    featuredMediaId: text("featured_media_id").references(() => mediaAssets.id, { onDelete: "restrict" }),
+    template: text("template").notNull().default("single-post"),
+    seoTitle: text("seo_title").notNull().default(""),
+    seoDescription: text("seo_description").notNull().default(""),
+    canonicalUrl: text("canonical_url"),
+    version: integer("version").notNull().default(1),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+  },
+  (table) => ({
+    slugUnique: uniqueIndex("cms_posts_slug_unique").on(table.slug),
+    statusIndex: index("cms_posts_status_idx").on(table.status, table.updatedAt),
+    authorIndex: index("cms_posts_author_idx").on(table.authorId, table.updatedAt),
+  }),
+);
+
+export const cmsTags = pgTable(
+  "cms_tags",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    slugUnique: uniqueIndex("cms_tags_slug_unique").on(table.slug),
+    nameUnique: uniqueIndex("cms_tags_name_unique").on(table.name),
+  }),
+);
+
+export const cmsPostCategories = pgTable(
+  "cms_post_categories",
+  {
+    postId: text("post_id").notNull().references(() => cmsPosts.id, { onDelete: "cascade" }),
+    categoryId: text("category_id").notNull().references(() => categories.id, { onDelete: "restrict" }),
+  },
+  (table) => ({
+    primaryKey: primaryKey({ columns: [table.postId, table.categoryId] }),
+    categoryIndex: index("cms_post_categories_category_idx").on(table.categoryId),
+  }),
+);
+
+export const cmsPostTags = pgTable(
+  "cms_post_tags",
+  {
+    postId: text("post_id").notNull().references(() => cmsPosts.id, { onDelete: "cascade" }),
+    tagId: text("tag_id").notNull().references(() => cmsTags.id, { onDelete: "restrict" }),
+  },
+  (table) => ({
+    primaryKey: primaryKey({ columns: [table.postId, table.tagId] }),
+    tagIndex: index("cms_post_tags_tag_idx").on(table.tagId),
+  }),
+);
+
+export const cmsContentRevisions = pgTable(
+  "cms_content_revisions",
+  {
+    id: text("id").primaryKey(),
+    pageId: text("page_id").references(() => cmsPages.id, { onDelete: "cascade" }),
+    postId: text("post_id").references(() => cmsPosts.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    status: text("status").$type<CmsEditorialStatus>().notNull(),
+    snapshot: jsonb("snapshot").$type<CmsEditorialRevisionSnapshot>().notNull(),
+    authorId: text("author_id").references(() => adminIdentities.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    pageVersionUnique: uniqueIndex("cms_content_revisions_page_version_unique").on(table.pageId, table.version),
+    postVersionUnique: uniqueIndex("cms_content_revisions_post_version_unique").on(table.postId, table.version),
+    pageIndex: index("cms_content_revisions_page_idx").on(table.pageId, table.createdAt),
+    postIndex: index("cms_content_revisions_post_idx").on(table.postId, table.createdAt),
+    authorIndex: index("cms_content_revisions_author_idx").on(table.authorId, table.createdAt),
+  }),
+);
+
 export const dbSchema = {
   categories,
   people,
@@ -799,4 +916,10 @@ export const dbSchema = {
   aiGenerationAttempts,
   aiGenerationClaims,
   aiGenerationReviewDecisions,
+  cmsPages,
+  cmsPosts,
+  cmsTags,
+  cmsPostCategories,
+  cmsPostTags,
+  cmsContentRevisions,
 };

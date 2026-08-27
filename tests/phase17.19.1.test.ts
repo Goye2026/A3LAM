@@ -39,9 +39,10 @@ describe("Phase 17.19.1 CMS architecture", () => {
     expect(contentTypeRegistry.person).toMatchObject({ storageTable: "people", availability: "available", domainSpecific: true, editor: "person", readPermission: "people.read" });
     expect(contentTypeRegistry.profile).toMatchObject({ storageTable: "profiles", availability: "available", domainSpecific: true, editor: "profile", readPermission: "profiles.read" });
     expect(contentTypeRegistry.category).toMatchObject({ storageTable: "categories", availability: "available", domainSpecific: true, editor: "category", readPermission: "categories.read" });
-    for (const id of ["page", "post", "tag"] as const) {
-      expect(contentTypeRegistry[id]).toMatchObject({ storageTable: null, routeBase: null, availability: "not_available", editor: "unavailable", supportsPublication: false, permissions: [] });
+    for (const id of ["page", "post"] as const) {
+      expect(contentTypeRegistry[id]).toMatchObject({ availability: "requires_configuration", editor: "unavailable", supportsPublication: true, readPermission: "content.read" });
     }
+    expect(contentTypeRegistry.tag).toMatchObject({ availability: "requires_configuration", editor: "unavailable", supportsPublication: false, readPermission: "taxonomy.read" });
   });
 
   it("rejects unsafe menu URLs, duplicate ids, cycles, and excessive nesting", () => {
@@ -70,14 +71,14 @@ describe("Phase 17.19.1 CMS architecture", () => {
     const visible = filterAdminNavigation(navigation, (permission) => editorPermissions.has(permission));
     const content = visible.find((group) => group.id === "content");
     expect(content?.items.some((entry) => entry.id === "people")).toBe(true);
-    expect(content?.items.some((entry) => entry.id === "pages" && entry.href === null && entry.availability === "not_available")).toBe(true);
+    expect(content?.items.some((entry) => entry.id === "pages" && entry.href === "/admin/content/pages" && entry.availability === "requires_configuration")).toBe(true);
     expect(visible.some((group) => group.id === "users")).toBe(false);
     expect(hasAdminPermission("EDITOR", "people.create")).toBe(true);
     expect(hasAdminPermission("EDITOR", "settings.manage")).toBe(false);
   });
 
   it("does not add executable theme/config paths or bypass the AI boundary", async () => {
-    const cmsFiles = ["lib/cms/types.ts", "lib/cms/themeRegistry.ts", "lib/cms/themeRenderer.ts", "lib/cms/menuRegistry.ts", "lib/cms/contentRegistry.ts", "lib/cms/adminNavigation.ts"];
+    const cmsFiles = ["lib/cms/types.ts", "lib/cms/themeRegistry.ts", "lib/cms/themeRenderer.ts", "lib/cms/menuRegistry.ts", "lib/cms/contentRegistry.ts", "lib/cms/adminNavigation.ts", "lib/cms/editorialStatus.ts", "lib/cms/slug.ts", "lib/cms/richText.ts", "lib/cms/editorialValidation.ts", "lib/cms/editorialRepository.ts"];
     for (const relativePath of cmsFiles) {
       const text = await source(relativePath);
       expect(text, relativePath).not.toMatch(/\beval\s*\(|\bnew Function\s*\(|\bimport\s*\(/);
