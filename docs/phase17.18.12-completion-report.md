@@ -165,11 +165,11 @@ Production privacy scan للمسارات العامة والمحميّة كان 
 | البند | القيمة |
 |---|---|
 | implementation commit | `cfe7c3838bc5ef4c27e561d310fca89c3b9f6993` |
-| documentation commit | سيتم تسجيله بعد هذا التقرير |
-| final HEAD | سيتم تسجيله بعد هذا التقرير |
+| documentation commit | commit الذي يحتوي هذا التقرير؛ SHA الدقيق موثق في final handoff |
+| final HEAD | HEAD بعد آخر documentation push؛ SHA الدقيق موثق في final handoff |
 | branch | `main` |
-| working tree | clean بعد commit التوثيق |
-| origin parity | سيتم التحقق النهائي بعد push |
+| working tree | clean بعد documentation commit |
+| origin parity | `HEAD == origin/main` بعد push |
 
 استخدمت normal commits فقط. لم يُستخدم reset أو rebase أو force-push أو history rewrite.
 
