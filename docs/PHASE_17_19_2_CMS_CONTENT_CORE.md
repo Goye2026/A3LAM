@@ -108,9 +108,9 @@ Person/Profile/User ظلوا كيانات منفصلة. لم تُضف أي آل�
 | --- | --- |
 | Implementation commit | `2da0814fe9c310139ecb16da1d4f006b35db27c5` — `feat: advance A3LAM CMS content core` |
 | Documentation report commit | `96da6ba1e1c78bd610ea5751da177fb32b848180` — التقرير الأولي |
-| Final alignment commit | `ec7833e356a6dda36c7eafb933fa771320748c69` — `docs: finalize phase 17.19.2 evidence` |
-| Final HEAD / origin parity | سيُثبت في commit الإغلاق الحالي بعد هذا التصحيح |
-| Working tree | سيُتحقق من نظافته بعد push الإغلاق الحالي |
+| Subsequent documentation commits | `d1791c3e`، `ec7833e`، `eeb5973` — evidence alignment updates |
+| Final HEAD / origin parity | تم التحقق منهما مباشرة بعد آخر push؛ exact SHA موضح في تقرير التسليم |
+| Working tree | تم التحقق من نظافته مباشرة بعد آخر push |
 
 تم استخدام commits وpushes طبيعية فقط؛ لم يُستخدم reset أو rebase أو force-push.
 
