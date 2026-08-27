@@ -212,6 +212,55 @@ describe("Phase 17.18.13 isolated infrastructure and persistence readiness", () 
     expect(persistence.factReviews.map((review) => review.action)).toEqual(actions);
   });
 
+  it("preserves the complete claim review matrix, original/reviewed values, notes, reviewer metadata and revisions", () => {
+    const persistence = new IsolatedPersistenceEquivalent();
+    const document = persistence.createDocument(owner, "checksum-claim-review", privateKey("claim-review")).document;
+    persistence.markScan(document.id, "SAFE");
+    persistence.startExtraction(document.id);
+    const source = persistence.completeExtraction(document.id, "source-claim-review", "Synthetic text", "extractor");
+    const actions = ["ACCEPT", "EDIT", "REJECT", "REQUEST_SOURCE"] as const;
+    actions.forEach((action, index) => {
+      const job = persistence.createGenerationJob(document.id, `claim-review-${index}`).job;
+      const attempt = persistence.beginGeneration(job.id);
+      persistence.completeGeneration(job.id, attempt.id, [{ id: `claim-${index}`, value: `original-${index}`, critical: true, sourceFactIds: [], evidenceIds: [`evidence-${index}`], provenance: [{ sourceType: "document", documentId: document.id, excerpt: `claim-${index}` }], status: "UNREVIEWED" }]);
+      const decision = persistence.reviewClaim(`claim-${index}`, action, "reviewer-claim", 0, action === "EDIT" ? `edited-${index}` : undefined, "Synthetic claim review note");
+      expect(decision.originalValue).toBe(`original-${index}`);
+      expect(decision.reviewedValue).toBe(action === "EDIT" ? `edited-${index}` : `original-${index}`);
+      expect(decision.reviewerNote).toBe("Synthetic claim review note");
+      expect(decision.revision).toBe(1);
+      const claim = persistence.claims.get(`claim-${index}`)!;
+      expect(claim.reviewerId).toBe("reviewer-claim");
+      expect(claim.reviewedAt).toBe(new Date(0).toISOString());
+      expect(claim.revision).toBe(1);
+    });
+    expect(persistence.claimReviews.map((review) => review.action)).toEqual(actions);
+    expect(() => persistence.reviewClaim("claim-0", "ACCEPT", "reviewer-claim", 0)).toThrow("STALE_REVISION");
+    expect(() => persistence.reviewClaim("claim-0", "EDIT", "reviewer-claim", 1)).toThrow("REVIEWED_VALUE_REQUIRED");
+    expect(() => persistence.reviewClaim("missing-claim", "ACCEPT", "reviewer-claim")).toThrow("INVALID_FOREIGN_KEY");
+    expect(source.id).toBe("source-claim-review");
+  });
+
+  it("rejects delete/process and review/regeneration races plus orphaned references", () => {
+    const persistence = new IsolatedPersistenceEquivalent();
+    const document = persistence.createDocument(owner, "checksum-races", privateKey("races")).document;
+    const processing = persistence.enqueueProcessing(document.id, "processing-race").job;
+    expect(persistence.deleteDocument(document.id, owner)).toBe(true);
+    expect(() => persistence.completeProcessing(processing.id)).toThrow("INVALID_FOREIGN_KEY");
+
+    const liveDocument = persistence.createDocument(owner, "checksum-races-live", privateKey("races-live")).document;
+    persistence.markScan(liveDocument.id, "SAFE");
+    persistence.startExtraction(liveDocument.id);
+    const source = persistence.completeExtraction(liveDocument.id, "source-races-live", "Synthetic text", "extractor");
+    expect(() => persistence.createFact({ documentId: liveDocument.id, sourceId: "missing-source", fieldPath: "identity.name", value: "A", evidenceId: "evidence-orphan", provenance: [{ sourceType: "document", documentId: liveDocument.id, excerpt: "A" }] })).toThrow("INVALID_FOREIGN_KEY");
+    const generation = persistence.createGenerationJob(liveDocument.id, "generation-race").job;
+    const attempt = persistence.beginGeneration(generation.id);
+    persistence.completeGeneration(generation.id, attempt.id, [{ id: "claim-race", value: "A", critical: true, sourceFactIds: [], evidenceIds: ["evidence-race"], provenance: [{ sourceType: "document", documentId: liveDocument.id, excerpt: "A" }], status: "UNREVIEWED" }]);
+    expect(persistence.reviewClaim("claim-race", "ACCEPT", "reviewer-race", 0).revision).toBe(1);
+    expect(() => persistence.beginGeneration(generation.id)).toThrow("GENERATION_NOT_RETRYABLE");
+    expect(() => persistence.completeGeneration(generation.id, "missing-attempt", [])).toThrow("INVALID_FOREIGN_KEY");
+    expect(source.id).toBe("source-races-live");
+  });
+
   it("keeps the existing RBAC/gates and blocks automatic publication/person/profile creation", () => {
     expect(getAiProductionActivationState()).toBe("DISABLED");
     expect(AI_FEATURE_GATES).toEqual({ AI_UPLOAD_ENABLED: false, AI_PROCESSING_ENABLED: false, AI_GENERATION_ENABLED: false, AI_OCR_ENABLED: false, AI_PUBLICATION_ENABLED: false });

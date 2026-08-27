@@ -69,6 +69,9 @@ export type IsolatedClaim = WorkflowClaim & {
   documentId: string;
   jobId: string;
   value: unknown;
+  originalValue?: unknown;
+  reviewedValue?: unknown;
+  reviewerNote?: string;
   revision: number;
 };
 
@@ -224,6 +227,7 @@ export class IsolatedPersistenceEquivalent {
   beginGeneration(jobId: string) {
     const job = this.generationJobs.get(jobId);
     if (!job) throw new Error("INVALID_FOREIGN_KEY");
+    if (!["QUEUED", "FAILED"].includes(job.status)) throw new Error("GENERATION_NOT_RETRYABLE");
     if (job.attempts >= AI_COST_CONTROL_POLICY.maxRetries) throw new Error("MAX_ATTEMPTS_EXHAUSTED");
     job.status = "RUNNING";
     job.attempts += 1;
@@ -241,20 +245,26 @@ export class IsolatedPersistenceEquivalent {
     job.qualityGate = qualityGate;
     const document = this.requireDocument(job.documentId);
     document.status = "DRAFT_READY";
-    for (const claimInput of claims) this.claims.set(claimInput.id, { ...claimInput, jobId, documentId: job.documentId, revision: 0 });
+    for (const claimInput of claims) this.claims.set(claimInput.id, { ...claimInput, jobId, documentId: job.documentId, originalValue: claimInput.value, reviewedValue: claimInput.value, reviewerNote: undefined, revision: 0 });
     this.record({ stage: "GENERATION_COMPLETED", entityId: jobId, documentId: job.documentId, jobId, attemptId, status: "DRAFT" });
     return buildDraftIntegrity({ generationJobId: jobId, generationAttemptId: attemptId, sourceDocumentId: job.documentId, sourceLanguage: "ar", outputLanguage: "ARABIC", generationMode: "A3LAM_PERSON_DRAFT", createdAt: nowIso(), provenance: claims.flatMap((claim) => claim.provenance), claims: [...this.claims.values()].filter((claim) => claim.jobId === jobId), unresolvedConflicts: [], reviewState: "CLAIM_REVIEW_REQUIRED" });
   }
 
-  reviewClaim(claimId: string, action: "ACCEPT" | "EDIT" | "REJECT" | "REQUEST_SOURCE", reviewerId: string, expectedRevision?: number) {
+  reviewClaim(claimId: string, action: "ACCEPT" | "EDIT" | "REJECT" | "REQUEST_SOURCE", reviewerId: string, expectedRevision?: number, reviewedValue?: unknown, reviewerNote?: string) {
     const claim = this.claims.get(claimId);
     if (!claim) throw new Error("INVALID_FOREIGN_KEY");
     if (expectedRevision !== undefined && expectedRevision !== claim.revision) throw new Error("STALE_REVISION");
+    if (action === "EDIT" && (reviewedValue === undefined || reviewedValue === null)) throw new Error("REVIEWED_VALUE_REQUIRED");
+    const originalValue = claim.value;
     claim.status = action === "ACCEPT" ? "ACCEPTED" : action === "EDIT" ? "EDITED" : action === "REJECT" ? "REJECTED" : "NEEDS_SOURCE";
+    claim.value = action === "EDIT" ? reviewedValue : claim.value;
+    claim.originalValue = originalValue;
+    claim.reviewedValue = claim.value;
+    claim.reviewerNote = reviewerNote;
     claim.reviewerId = reviewerId;
     claim.reviewedAt = nowIso();
     claim.revision += 1;
-    const decision = { id: id("claim-review", `${claimId}:${claim.revision}`), claimId, action, reviewerId, revision: claim.revision };
+    const decision = { id: id("claim-review", `${claimId}:${claim.revision}`), claimId, action, originalValue, reviewedValue: claim.value, reviewerId, reviewerNote: reviewerNote ?? null, revision: claim.revision };
     this.claimReviews.push(decision);
     this.claimReviewRevision.set(claimId, claim.revision);
     this.record({ stage: "CLAIM_REVIEWED", entityId: claimId, documentId: claim.documentId, jobId: claim.jobId, attemptId: null, status: action });
