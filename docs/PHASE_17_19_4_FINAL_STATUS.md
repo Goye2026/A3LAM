@@ -67,7 +67,7 @@ Persistence الجديدة من Phase 17.19.3 بقيت المصدر الفعلي
 
 ## 7. Production deployment and smoke
 
-تم دفع commit التنفيذ ثم closeout documentation إلى `main` عبر المسار المعتاد، دون تعديل Vercel settings أو secrets أو DNS. deployment الناتج عن closeout commit كان `dpl_Doxutg1itvpAU5grH7WsgPzzyziv`، وحالته `READY`، ومصدره Git production deployment للـSHA `932aa37546c4473d886aa0fbda492040abd6ec16`.
+تم دفع commit التنفيذ ثم closeout documentation إلى `main` عبر المسار المعتاد، دون تعديل Vercel settings أو secrets أو DNS. deployment الناتج عن closeout commit الأول كان `dpl_Doxutg1itvpAU5grH7WsgPzzyziv` بحالة `READY`، ثم deployment التوثيق النهائي كان `dpl_A7qxFwDLBsCz8Xcu8MurxN6kd5Sq` بحالة `READY`، ومصدره Git production deployment للـSHA `d1a4208e6247c3a49c3f9ff37694f0f4eddd0989`.
 
 نتيجة GET-only smoke على `https://a3-lam.vercel.app` كانت: `/` = 200، `/api/health` = 200، `/categories` = 200، `/search` = 200، `/robots.txt` = 200، `/sitemap.xml` = 200. المسارات الإدارية المحمية `/admin` و`/admin/ai` و`/admin/content/pages` و`/admin/content/posts` أعادت 307، وواجهتا API المحميتان `/api/admin/cms/pages` و`/api/admin/media/picker` أعادتا 401، والمسار غير الموجود أعاد 404. لم تُرسل أي POST/PUT/PATCH/DELETE أو upload أو migration إلى Production.
 
@@ -98,6 +98,7 @@ privacy scan للـresponse bodies العامة على هذه المسارات �
 | Implementation commit | `a38622a` — `feat: harden editorial workspace for phase 17.19.4` |
 | Documentation/closeout commit | `932aa37546c4473d886aa0fbda492040abd6ec16` — `docs: close phase 17.19.4 status` |
 | Deployment evidence commit | `db89f27` — `docs: record phase 17.19.4 deployment evidence` |
+| Final evidence commit / HEAD | `d1a4208e6247c3a49c3f9ff37694f0f4eddd0989` — `docs: finalize phase 17.19.4 evidence` |
 | Branch | `main` |
 | Push policy | normal push فقط؛ لا reset/rebase/force-push |
 | Working tree | نظيف بعد evidence commit |
