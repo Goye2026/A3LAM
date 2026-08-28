@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { SiteFooter } from "./SiteFooter";
-import { SiteHeader } from "./SiteHeader";
+import { SiteFrame } from "./SiteFrame";
 import type { PublicMessages } from "@/lib/i18n/messages";
 
 export type InfoPageProps = {
@@ -10,12 +9,10 @@ export type InfoPageProps = {
   active?: "about" | "home" | "contact" | "privacy";
 };
 
-export function InfoPage({ copy, title, description, active = "about" }: InfoPageProps) {
+export async function InfoPage({ copy, title, description, active = "about" }: InfoPageProps) {
   return (
-    <main className="a3lam-page">
-      <div className="a3lam-shell">
-        <SiteHeader copy={copy} active={active} />
-        <div className="route-page info-page">
+    <SiteFrame copy={copy} active={active} template="single-page">
+      <main className="route-page info-page">
           <Link className="back-link" href="/categories">
             <span aria-hidden="true">↙</span>
             {copy.backToDirectory}
@@ -41,9 +38,7 @@ export function InfoPage({ copy, title, description, active = "about" }: InfoPag
               </div>
             </aside>
           </section>
-        </div>
-        <SiteFooter copy={copy} />
-      </div>
-    </main>
+      </main>
+    </SiteFrame>
   );
 }
