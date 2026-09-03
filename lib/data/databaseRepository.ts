@@ -64,30 +64,32 @@ async function getPublicPortraitUrl(db: Database, personId: string) {
 }
 
 async function hydratePerson(db: Database, row: PersonRow): Promise<PersonRecord> {
-  const categoryRows = await db
-    .select({ category: schema.categories })
-    .from(schema.personCategories)
-    .innerJoin(schema.categories, eq(schema.personCategories.categoryId, schema.categories.id))
-    .where(eq(schema.personCategories.personId, row.id));
-  const occupationRows = await db
-    .select({ occupation: schema.personOccupations.occupation })
-    .from(schema.personOccupations)
-    .where(eq(schema.personOccupations.personId, row.id));
-  const personSourceRows = await db
-    .select({ source: schema.sources })
-    .from(schema.personSources)
-    .innerJoin(schema.sources, eq(schema.personSources.sourceId, schema.sources.id))
-    .where(eq(schema.personSources.personId, row.id));
-  const timelineRows = await db
-    .select({ event: schema.timelineEvents })
-    .from(schema.timelineEvents)
-    .where(eq(schema.timelineEvents.personId, row.id))
-    .orderBy(asc(schema.timelineEvents.eventDate));
-  const educationRows = await db
-    .select({ item: schema.education })
-    .from(schema.education)
-    .where(eq(schema.education.personId, row.id))
-    .orderBy(asc(schema.education.id));
+  const [categoryRows, occupationRows, personSourceRows, timelineRows, educationRows] = await Promise.all([
+    db
+      .select({ category: schema.categories })
+      .from(schema.personCategories)
+      .innerJoin(schema.categories, eq(schema.personCategories.categoryId, schema.categories.id))
+      .where(eq(schema.personCategories.personId, row.id)),
+    db
+      .select({ occupation: schema.personOccupations.occupation })
+      .from(schema.personOccupations)
+      .where(eq(schema.personOccupations.personId, row.id)),
+    db
+      .select({ source: schema.sources })
+      .from(schema.personSources)
+      .innerJoin(schema.sources, eq(schema.personSources.sourceId, schema.sources.id))
+      .where(eq(schema.personSources.personId, row.id)),
+    db
+      .select({ event: schema.timelineEvents })
+      .from(schema.timelineEvents)
+      .where(eq(schema.timelineEvents.personId, row.id))
+      .orderBy(asc(schema.timelineEvents.eventDate)),
+    db
+      .select({ item: schema.education })
+      .from(schema.education)
+      .where(eq(schema.education.personId, row.id))
+      .orderBy(asc(schema.education.id)),
+  ]);
 
   const timeline: TimelineEvent[] = [];
   for (const { event } of timelineRows) {
@@ -203,6 +205,8 @@ async function searchPublishedPeople(db: Database, query: PersonSearchQuery) {
       ilike(schema.people.searchName, pattern),
       ilike(schema.people.searchNameArabic, pattern),
       ilike(schema.people.slug, pattern),
+      ilike(schema.people.shortBio, pattern),
+      ilike(schema.people.biography, pattern),
     )!);
   }
   if (query.categoryId) {
