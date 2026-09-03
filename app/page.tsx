@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
-const HOMEPAGE_DATA_TIMEOUT_MS = 5000;
+const HOMEPAGE_DATA_TIMEOUT_MS = 15000;
 
 type HomepageCopy = PublicMessages & {
   heroEyebrow: string;
