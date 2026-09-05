@@ -91,38 +91,53 @@ async function hydratePerson(db: Database, row: PersonRow): Promise<PersonRecord
       .orderBy(asc(schema.education.id)),
   ]);
 
-  const timeline: TimelineEvent[] = [];
-  for (const { event } of timelineRows) {
-    const sourceRows = await db
-      .select({ sourceId: schema.timelineEventSources.sourceId })
-      .from(schema.timelineEventSources)
-      .where(eq(schema.timelineEventSources.eventId, event.id));
-    timeline.push({
-      id: event.id,
-      personId: event.personId,
-      date: asIsoDate(event.eventDate) ?? "",
-      title: event.title,
-      description: event.description,
-      sourceIds: sourceRows.map((source) => source.sourceId),
-    });
+  const timelineEventIds = timelineRows.map(({ event }) => event.id);
+  const educationIds = educationRows.map(({ item }) => item.id);
+  const [timelineSourceRows, educationSourceRows] = await Promise.all([
+    timelineEventIds.length > 0
+      ? db
+          .select({ eventId: schema.timelineEventSources.eventId, sourceId: schema.timelineEventSources.sourceId })
+          .from(schema.timelineEventSources)
+          .where(inArray(schema.timelineEventSources.eventId, timelineEventIds))
+      : Promise.resolve([]),
+    educationIds.length > 0
+      ? db
+          .select({ educationId: schema.educationSources.educationId, sourceId: schema.educationSources.sourceId })
+          .from(schema.educationSources)
+          .where(inArray(schema.educationSources.educationId, educationIds))
+      : Promise.resolve([]),
+  ]);
+  const timelineSourceIds = new Map<string, string[]>();
+  for (const row of timelineSourceRows) {
+    const sourceIds = timelineSourceIds.get(row.eventId) ?? [];
+    sourceIds.push(row.sourceId);
+    timelineSourceIds.set(row.eventId, sourceIds);
+  }
+  const educationSourceIds = new Map<string, string[]>();
+  for (const row of educationSourceRows) {
+    const sourceIds = educationSourceIds.get(row.educationId) ?? [];
+    sourceIds.push(row.sourceId);
+    educationSourceIds.set(row.educationId, sourceIds);
   }
 
-  const education: Education[] = [];
-  for (const { item } of educationRows) {
-    const sourceRows = await db
-      .select({ sourceId: schema.educationSources.sourceId })
-      .from(schema.educationSources)
-      .where(eq(schema.educationSources.educationId, item.id));
-    education.push({
-      id: item.id,
-      personId: item.personId,
-      institution: item.institution,
-      field: item.field,
-      dateRange: item.dateRange,
-      description: item.description,
-      sourceIds: sourceRows.map((source) => source.sourceId),
-    });
-  }
+  const timeline: TimelineEvent[] = timelineRows.map(({ event }) => ({
+    id: event.id,
+    personId: event.personId,
+    date: asIsoDate(event.eventDate) ?? "",
+    title: event.title,
+    description: event.description,
+    sourceIds: timelineSourceIds.get(event.id) ?? [],
+  }));
+
+  const education: Education[] = educationRows.map(({ item }) => ({
+    id: item.id,
+    personId: item.personId,
+    institution: item.institution,
+    field: item.field,
+    dateRange: item.dateRange,
+    description: item.description,
+    sourceIds: educationSourceIds.get(item.id) ?? [],
+  }));
 
   const publicPortraitUrl = await getPublicPortraitUrl(db, row.id);
   const person: Person = {
