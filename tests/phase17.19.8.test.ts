@@ -40,8 +40,8 @@ describe("Phase 17.19.8 CMS UX and frontend foundation contracts", () => {
   });
 
   it("filters CMS content types according to their truthful availability", () => {
-    expect(getContentType("page").availability).toBe("requires_configuration");
-    expect(getContentType("post").availability).toBe("requires_configuration");
+    expect(getContentType("page").availability).toBe("available");
+    expect(getContentType("post").availability).toBe("available");
     expect(getContentType("category").availability).toBe("available");
     expect(listContentTypes().some((item) => item.id === "tag")).toBe(true);
   });

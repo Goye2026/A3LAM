@@ -55,9 +55,9 @@ describe("Phase 17.19.3 editorial content engine", () => {
   it("keeps registry domain separation and makes new persistence status explicit", () => {
     expect(contentTypeRegistry.person.domainSpecific).toBe(true);
     expect(contentTypeRegistry.profile.domainSpecific).toBe(true);
-    expect(contentTypeRegistry.page).toMatchObject({ storageTable: "cms_pages", availability: "requires_configuration", supportsPublication: true });
-    expect(contentTypeRegistry.post).toMatchObject({ storageTable: "cms_posts", availability: "requires_configuration", supportsPublication: true });
-    expect(contentTypeRegistry.tag).toMatchObject({ storageTable: "cms_tags", availability: "requires_configuration", supportsPublication: false });
+    expect(contentTypeRegistry.page).toMatchObject({ storageTable: "cms_pages", availability: "available", supportsPublication: true });
+    expect(contentTypeRegistry.post).toMatchObject({ storageTable: "cms_posts", availability: "available", supportsPublication: true });
+    expect(contentTypeRegistry.tag).toMatchObject({ storageTable: "cms_tags", availability: "available", supportsPublication: false });
     expect(hasAdminPermission("EDITOR", "content.create")).toBe(true);
     expect(hasAdminPermission("EDITOR", "content.publish")).toBe(false);
   });

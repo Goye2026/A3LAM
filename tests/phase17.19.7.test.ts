@@ -42,9 +42,9 @@ describe("Phase 17.19.7 CMS experience hardening contracts", () => {
     expect(list).toContain("admin-filter-form");
   });
 
-  it("does not expose unavailable content as available in the registry", async () => {
+  it("exposes configured CMS content as available in the registry", async () => {
     const registry = await source("lib/cms/contentRegistry.ts");
-    expect(registry).toContain('availability: "requires_configuration"');
+    expect(registry).toContain('availability: "available"');
     expect(registry).toContain('editor: "unavailable"');
     expect(registry).toContain('"recent-posts": { id: "recent-posts", label: "أحدث المقالات", availability: "not_available"');
   });

@@ -215,6 +215,19 @@ export const editorialRepository = {
     return db.select({ slug: schema.cmsPosts.slug, updatedAt: schema.cmsPosts.updatedAt }).from(schema.cmsPosts).where(and(eq(schema.cmsPosts.status, "published"), isNotNull(schema.cmsPosts.publishedAt))).orderBy(desc(schema.cmsPosts.updatedAt)).limit(10_000);
   },
 
+  async searchPublished(query: string, limit = 50) {
+    const normalized = query.trim().slice(0, 120);
+    if (!normalized) return [];
+    const pattern = `%${normalized}%`;
+    const db = getDb();
+    const published = and(eq(schema.cmsPosts.status, "published"), isNotNull(schema.cmsPosts.publishedAt));
+    const [pages, posts] = await Promise.all([
+      db.select().from(schema.cmsPages).where(and(eq(schema.cmsPages.status, "published"), isNotNull(schema.cmsPages.publishedAt), sql`(${ilike(schema.cmsPages.title, pattern)} OR ${ilike(schema.cmsPages.slug, pattern)} OR ${ilike(schema.cmsPages.excerpt, pattern)} OR ${ilike(sql`${schema.cmsPages.content}::text`, pattern)})`)).orderBy(desc(schema.cmsPages.updatedAt)).limit(limit),
+      db.select().from(schema.cmsPosts).where(and(published, sql`(${ilike(schema.cmsPosts.title, pattern)} OR ${ilike(schema.cmsPosts.slug, pattern)} OR ${ilike(schema.cmsPosts.excerpt, pattern)} OR ${ilike(sql`${schema.cmsPosts.content}::text`, pattern)})`)).orderBy(desc(schema.cmsPosts.updatedAt)).limit(limit),
+    ]);
+    return [...pages.map((row) => pageRecord(row)), ...posts.map((row) => postRecord(row))].slice(0, Math.min(Math.max(limit, 1), 100));
+  },
+
   async getPublishedBySlug(kind: CmsEntityKind, slug: string) {
     const db = getDb();
     if (kind === "page") {
@@ -416,6 +429,8 @@ export const editorialRepository = {
   async createTag(rawInput: unknown, actorId: string | null) {
     const input: CmsTagInput = parseCmsTagInput(rawInput);
     const db = getDb();
+    const existing = await db.select({ id: schema.cmsTags.id }).from(schema.cmsTags).where(eq(schema.cmsTags.slug, input.slug)).limit(1);
+    if (existing[0]) throw new CmsInputError("A tag with this slug already exists");
     const id = randomUUID();
     const now = new Date();
     await db.transaction(async (tx) => {

@@ -22,8 +22,8 @@ describe("Phase 17.19.4 editorial workspace contracts", () => {
   it("keeps the existing navigation registry authoritative and filters by permission", () => {
     const navigation = getAdminNavigation(copy);
     const content = navigation.find((group) => group.id === "content");
-    expect(content?.items.some((item) => item.id === "pages" && item.availability === "requires_configuration")).toBe(true);
-    expect(content?.items.some((item) => item.id === "posts" && item.availability === "requires_configuration")).toBe(true);
+    expect(content?.items.some((item) => item.id === "pages" && item.availability === "available")).toBe(true);
+    expect(content?.items.some((item) => item.id === "posts" && item.availability === "available")).toBe(true);
     expect(filterAdminNavigation(navigation, () => false).some((group) => group.id === "content")).toBe(false);
     expect(navigation.flatMap((group) => group.items).find((item) => item.id === "widgets")?.href).toBeNull();
   });

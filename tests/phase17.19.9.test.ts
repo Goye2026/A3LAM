@@ -117,10 +117,10 @@ describe("Phase 17.19.9 functional reality regression contracts", () => {
     expect(searchApi).toContain("status: 503");
   });
 
-  it("keeps unavailable CMS capabilities truthful instead of creating fake CRUD", () => {
+  it("keeps CMS capabilities truthful after schema activation", () => {
     const registry = source("lib/cms/contentRegistry.ts");
     const pages = source("app/admin/(protected)/content/pages/page.tsx");
-    expect(registry).toContain("requires_configuration");
+    expect(registry).toContain('availability: "available"');
     expect(pages).toContain("adminRequiresSchema");
     expect(pages).not.toMatch(/mockPages|fakePages|demoPages/);
   });

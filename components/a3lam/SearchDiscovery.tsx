@@ -1,6 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Category } from "@/lib/domain/a3lam";
 import type { PublicMessages } from "@/lib/i18n/messages";
@@ -28,7 +29,7 @@ type PublicSearchResult = {
   country: string | null;
   skills: string[];
   categories: string[];
-  source: "editorial" | "professional";
+  source: "editorial" | "professional" | "page" | "article";
 };
 
 type SearchState = "idle" | "loading" | "success" | "error" | "empty";
@@ -129,7 +130,7 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
           <div className="search-results">
             <div className="search-results-header"><p className="search-results-label">{copy.searchResults} · {results.length}</p><button className="search-reset" type="button" onClick={handleClear}>{copy.clearSearch}</button></div>
             <div className="search-result-list">
-              {results.map((result) => result.source === "professional" ? <ProfessionalSearchResult key={result.slug} result={result} copy={copy} /> : <PersonCard key={result.slug} person={{ id: result.slug, slug: result.slug, name: result.nameArabic, role: result.occupations[0] ?? "", meta: result.shortBio, initials: result.nameArabic.slice(0, 2), image: result.image, tone: "teal", tags: [], status: "published" }} copy={copy} />)}
+              {results.map((result) => result.source === "professional" ? <ProfessionalSearchResult key={result.slug} result={result} copy={copy} /> : result.source === "page" || result.source === "article" ? <EditorialSearchResult key={`${result.source}:${result.slug}`} result={result} copy={copy} /> : <PersonCard key={result.slug} person={{ id: result.slug, slug: result.slug, name: result.nameArabic, role: result.occupations[0] ?? "", meta: result.shortBio, initials: result.nameArabic.slice(0, 2), image: result.image, tone: "teal", tags: [], status: "published" }} copy={copy} />)}
             </div>
           </div>
         ) : (
@@ -143,4 +144,9 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
 function ProfessionalSearchResult({ result, copy }: { result: PublicSearchResult; copy: PublicMessages }) {
   const location = [result.city, result.country].filter(Boolean).join("، ");
   return <article className="search-profile-result"><div className="search-profile-result-heading"><span className="status-badge status-published">{copy.searchProfessional}</span><a className="search-profile-result-name" href={`/person/${result.slug}`}>{result.nameArabic}</a>{result.name !== result.nameArabic ? <span className="profile-latin-name">{result.name}</span> : null}</div><p className="person-card-role">{result.occupations[0] || "شخصية مهنية"}</p>{location ? <p className="person-card-meta">{copy.searchLocationLabel}: {location}</p> : null}<p>{result.shortBio}</p>{result.skills.length > 0 ? <div className="card-skill-list" aria-label={copy.searchSkillsLabel}>{result.skills.map((skill) => <span key={skill}>{skill}</span>)}</div> : null}</article>;
+}
+
+function EditorialSearchResult({ result, copy }: { result: PublicSearchResult; copy: PublicMessages }) {
+  const href = `/${result.source === "page" ? "page" : "article"}/${encodeURIComponent(result.slug)}`;
+  return <article className="search-profile-result"><div className="search-profile-result-heading"><span className="status-badge status-published">{copy.searchEditorial}</span><Link className="search-profile-result-name" href={href}>{result.nameArabic}</Link></div>{result.shortBio ? <p>{result.shortBio}</p> : null}</article>;
 }
