@@ -4041,12 +4041,12 @@ textarea.admin-input { resize: vertical; }
 [data-button-style="quiet"] .button-primary { background: transparent; color: var(--ink, #182b2d); border-color: currentColor; }
 [data-hero-style="compact"] .a3lam-hero { min-height: 0; padding-block: 3rem; }
 [data-footer-style="minimal"] .a3lam-footer { padding-block: 2rem; }
-[data-primary="ink"] { --brand-primary: #182b2d; }
-[data-primary="teal"] { --brand-primary: #1c6b6d; }
-[data-accent="sand"] { --brand-accent: #c7a97b; }
-[data-accent="copper"] { --brand-accent: #b87355; }
-[data-surface="mist"] { --brand-surface: #eef3f2; }
-[data-surface="paper"] { --brand-surface: #fbfaf6; }
+[data-primary="ink"] { --brand-primary: #182b2d; --color-brand: #182b2d; --color-brand-deep: #102022; }
+[data-primary="teal"] { --brand-primary: #1c6b6d; --color-brand: #075b60; --color-brand-deep: #053f44; }
+[data-accent="sand"] { --brand-accent: #c7a97b; --color-accent: #c7a97b; }
+[data-accent="copper"] { --brand-accent: #b87355; --color-accent: #b77945; }
+[data-surface="mist"] { --brand-surface: #eef3f2; --color-paper: #eef3f2; --color-surface: #f7faf9; }
+[data-surface="paper"] { --brand-surface: #fbfaf6; --color-paper: #f4f4ef; --color-surface: #fcfcf9; }
 .a3lam-brand-image {
   display: block;
   width: 2.5rem;
