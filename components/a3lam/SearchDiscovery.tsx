@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormEvent } from "react";
+import type { CSSProperties, FormEvent } from "react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Category } from "@/lib/domain/a3lam";
@@ -16,6 +16,7 @@ import { PersonCard } from "./PersonCard";
   initialCity?: string;
   initialCountry?: string;
   helperText?: string;
+  style?: CSSProperties;
 };
 
 type PublicSearchResult = {
@@ -35,7 +36,7 @@ type PublicSearchResult = {
 type SearchState = "idle" | "loading" | "success" | "error" | "empty";
 type SubmittedFilters = { query: string; categorySlug: string; city: string; country: string };
 
-export function SearchDiscovery({ copy, categories, initialQuery = "", initialCategorySlug = "", initialCity = "", initialCountry = "", helperText }: SearchDiscoveryProps) {
+export function SearchDiscovery({ copy, categories, initialQuery = "", initialCategorySlug = "", initialCity = "", initialCountry = "", helperText, style }: SearchDiscoveryProps) {
   const [query, setQuery] = useState(initialQuery);
   const [categorySlug, setCategorySlug] = useState(initialCategorySlug);
   const [city, setCity] = useState(initialCity);
@@ -94,7 +95,7 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
   }
 
   return (
-    <section className="discovery-panel" id="search" aria-labelledby="search-title">
+    <section className="discovery-panel" id="search" style={style} aria-labelledby="search-title">
       <div className="discovery-heading">
         <span className="eyebrow">{copy.searchLabel}</span>
         <h2 id="search-title">{copy.searchHint}</h2>

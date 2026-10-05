@@ -30,7 +30,7 @@ export default async function RootLayout({
   const settings = await withTimeout(siteExperienceRepository.getPublishedResource("settings"), 2500).catch(() => siteExperienceDefaults.settings);
   return (
     <html lang={settings.defaultLanguage} dir={settings.defaultDirection}>
-      <body data-theme={appearance.theme} data-density={appearance.tokens.density} data-radius={appearance.radius} data-container={appearance.tokens.container} data-card-style={appearance.cardStyle}>{children}</body>
+      <body data-theme={appearance.theme} data-typography={appearance.typography} data-spacing={appearance.spacing} data-density={appearance.tokens.density} data-radius={appearance.radius} data-navigation-style={appearance.navigationStyle} data-card-style={appearance.cardStyle} data-button-style={appearance.buttonStyle} data-hero-style={appearance.heroStyle} data-footer-style={appearance.footerStyle} data-primary={appearance.tokens.primary} data-accent={appearance.tokens.accent} data-surface={appearance.tokens.surface} data-container={appearance.tokens.container}>{children}</body>
     </html>
   );
 }

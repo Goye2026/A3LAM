@@ -52,6 +52,14 @@ function isVisible(homepage: HomepageConfig, key: HomepageSettings["sections"][n
   return homepage.sections.find((section) => section.key === key)?.visible ?? true;
 }
 
+function sectionOrder(homepage: HomepageConfig, key: HomepageSettings["sections"][number]["key"]) {
+  return homepage.sections.find((section) => section.key === key)?.order ?? 0;
+}
+
+function sectionStyle(homepage: HomepageConfig, key: HomepageSettings["sections"][number]["key"]) {
+  return { order: sectionOrder(homepage, key) };
+}
+
 function buildHomepageCopy(homepage: HomepageConfig, copy: PublicMessages, publicCopy: PublicMessages): HomepageCopy {
   return {
     ...publicCopy,
@@ -123,15 +131,16 @@ async function HomepageCatalogSections({ homepage, copy, publicCopy, homepageCop
   }
 
   const displayCategories = toDisplayCategories(categories).slice(0, homepage.categories.itemLimit);
-  const displayPeopleAll = toDisplayPeople(people, categories);
+  const featuredPeople = homepage.featured.selectedCategoryIds.length > 0 ? people.filter((person) => person.categoryIds.some((categoryId) => homepage.featured.selectedCategoryIds.includes(categoryId))) : people;
+  const displayPeopleAll = toDisplayPeople(featuredPeople, categories);
   const displayPeople = homepage.featured.selectionMode === "selected" && homepage.featured.selectedPersonIds.length > 0 ? displayPeopleAll.filter((person) => homepage.featured.selectedPersonIds.includes(person.id)) : displayPeopleAll.slice(0, 6);
 
   return (
-    <div className="homepage-catalog-stream">
-      <CatalogStats copy={copy} peopleCount={people.length} categoriesCount={categories.length} unavailable={dataUnavailable} />
-      {isVisible(homepage, "search") ? <SearchDiscovery copy={homepageCopy} categories={categories} helperText={homepageCopy.searchHelperText} /> : null}
+    <div className="homepage-catalog-stream" style={{ display: "contents" }}>
+      <div className="homepage-stats-section" style={{ order: -1 }}><CatalogStats copy={copy} peopleCount={people.length} categoriesCount={categories.length} unavailable={dataUnavailable} /></div>
+      {isVisible(homepage, "search") ? <SearchDiscovery copy={homepageCopy} categories={categories} helperText={homepageCopy.searchHelperText} style={sectionStyle(homepage, "search")} /> : null}
       {isVisible(homepage, "featured") ? (
-        <section className="section-block featured-section" id="featured" aria-labelledby="featured-title">
+        <section className="section-block featured-section" id="featured" aria-labelledby="featured-title" style={sectionStyle(homepage, "featured")}>
           <div className="section-header-row">
             <div>
               <p className="eyebrow">{homepageCopy.featuredEyebrow}</p>
@@ -153,7 +162,7 @@ async function HomepageCatalogSections({ homepage, copy, publicCopy, homepageCop
       ) : null}
       {isVisible(homepage, "categories") ? (
         <>
-          <section className="section-block categories-section" id="categories" aria-labelledby="categories-title">
+          <section className="section-block categories-section" id="categories" aria-labelledby="categories-title" style={sectionStyle(homepage, "categories")}>
             <div className="section-header-row">
               <div>
                 <p className="eyebrow">{homepageCopy.categoriesEyebrow}</p>
@@ -179,17 +188,17 @@ async function HomepageCatalogSections({ homepage, copy, publicCopy, homepageCop
 
 function HomepageCatalogFallback({ homepage, copy, homepageCopy }: Pick<CatalogSectionsProps, "homepage" | "copy" | "homepageCopy">) {
   return (
-    <div className="homepage-catalog-stream">
+    <div className="homepage-catalog-stream" style={{ display: "contents" }}>
       <CatalogStats copy={copy} unavailable />
-      {isVisible(homepage, "search") ? <SearchDiscovery copy={homepageCopy} categories={[]} helperText={homepageCopy.searchHelperText} /> : null}
+      {isVisible(homepage, "search") ? <SearchDiscovery copy={homepageCopy} categories={[]} helperText={homepageCopy.searchHelperText} style={sectionStyle(homepage, "search")} /> : null}
       {isVisible(homepage, "featured") ? (
-        <section className="section-block featured-section" aria-labelledby="featured-fallback-title">
+        <section className="section-block featured-section" aria-labelledby="featured-fallback-title" style={sectionStyle(homepage, "featured")}>
           <div className="section-header-row"><div><p className="eyebrow">{homepageCopy.featuredEyebrow}</p><h2 id="featured-fallback-title">{homepageCopy.featuredTitle}</h2></div></div>
           <EmptyCatalogState message={copy.dataUnavailable} alert />
         </section>
       ) : null}
       {isVisible(homepage, "categories") ? (
-        <section className="section-block categories-section" aria-labelledby="categories-fallback-title">
+        <section className="section-block categories-section" aria-labelledby="categories-fallback-title" style={sectionStyle(homepage, "categories")}>
           <div className="section-header-row"><div><p className="eyebrow">{homepageCopy.categoriesEyebrow}</p><h2 id="categories-fallback-title">{homepageCopy.categoriesTitle}</h2></div></div>
           <EmptyCatalogState message={copy.dataUnavailable} alert />
         </section>
@@ -209,8 +218,9 @@ export default async function HomePage() {
       <div className="a3lam-shell">
         <SiteFrame copy={homepageCopy} footerCopy={publicCopy} active="home" template="index">
 
+        <div className="homepage-section-layout">
         {isVisible(homepage, "hero") ? (
-          <section className="a3lam-hero" aria-labelledby="hero-title">
+          <section className="a3lam-hero" aria-labelledby="hero-title" style={sectionStyle(homepage, "hero")}>
             <div className="hero-content">
               <div className="hero-kicker-row">
                 <p className="eyebrow">{homepageCopy.heroEyebrow}</p>
@@ -245,10 +255,10 @@ export default async function HomePage() {
           <HomepageCatalogSections homepage={homepage} copy={copy} publicCopy={publicCopy} homepageCopy={homepageCopy} />
         </Suspense>
 
-        {isVisible(homepage, "about") && homepage.about.visible ? <HomepageTrust copy={publicCopy} /> : null}
+        {isVisible(homepage, "about") && homepage.about.visible ? <HomepageTrust copy={publicCopy} style={sectionStyle(homepage, "about")} /> : null}
 
         {isVisible(homepage, "profiles") && homepage.profiles.visible ? (
-          <section className="editorial-band editorial-band-profile" id="profiles" aria-labelledby="profiles-title">
+          <section className="editorial-band editorial-band-profile" id="profiles" aria-labelledby="profiles-title" style={sectionStyle(homepage, "profiles")}>
             <div className="editorial-mark" aria-hidden="true">+</div>
             <div><p className="eyebrow">{homepageCopy.homeAudience}</p><h2 id="profiles-title">{homepage.profiles.title}</h2><p>{homepage.profiles.description}</p></div>
             <a className="button button-light" href={homepage.profiles.cta.href}>{homepage.profiles.cta.label}<span aria-hidden="true">↗</span></a>
@@ -256,13 +266,14 @@ export default async function HomePage() {
         ) : null}
 
         {isVisible(homepage, "final_cta") ? (
-          <section className="editorial-band editorial-band-contribute" id="contribute" aria-labelledby="cta-title">
+          <section className="editorial-band editorial-band-contribute" id="contribute" aria-labelledby="cta-title" style={sectionStyle(homepage, "final_cta")}>
             <div className="editorial-mark" aria-hidden="true">“</div>
             <div><p className="eyebrow">{homepageCopy.ctaEyebrow}</p><h2 id="cta-title">{homepageCopy.ctaTitle}</h2><p>{homepageCopy.ctaDescription}</p></div>
             <a className="button button-light" href={homepage.finalCta.button.href}>{homepageCopy.ctaAction}<span aria-hidden="true">↗</span></a>
           </section>
         ) : null}
 
+        </div>
         </SiteFrame>
       </div>
     </main>

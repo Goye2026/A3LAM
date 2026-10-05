@@ -28,9 +28,7 @@ export async function SiteHeader({ copy, active = "home" }: SiteHeaderProps) {
   return (
     <header className="a3lam-header">
       <Link className="a3lam-brand" href="/" aria-label={`${copy.siteName} — ${copy.navHome}`}>
-        <span className="a3lam-brand-mark" aria-hidden="true">
-          أ
-        </span>
+        <span className="a3lam-brand-mark" aria-hidden={identity.logoUrl ? "true" : undefined}>{identity.logoUrl ? <span className="a3lam-brand-image" style={{ backgroundImage: `url(${identity.logoUrl})` }} /> : "أ"}</span>
         <span className="a3lam-brand-copy">
           <span className="a3lam-brand-name">{identity.siteName || copy.siteName}</span>
           <span className="a3lam-brand-eyebrow">{identity.tagline || copy.siteEyebrow}</span>
@@ -45,6 +43,7 @@ export async function SiteHeader({ copy, active = "home" }: SiteHeaderProps) {
               className={`a3lam-nav-link${isActive ? " is-active" : ""}`}
               href={link.href}
               key={link.key}
+              {...(navigation.header.find((item) => item.id === link.key)?.kind === "external" ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               aria-current={isActive ? "page" : undefined}
             >
               {link.label}
