@@ -1,9 +1,9 @@
 import type { CSSProperties } from "react";
 import type { PublicMessages } from "@/lib/i18n/messages";
 
-type HomepageTrustProps = { copy: PublicMessages; style?: CSSProperties };
+type HomepageTrustProps = { copy: PublicMessages; style?: CSSProperties; title?: string; description?: string };
 
-export function HomepageTrust({ copy, style }: HomepageTrustProps) {
+export function HomepageTrust({ copy, style, title, description }: HomepageTrustProps) {
   const principles = [
     { index: "01", title: copy.trustSourcesTitle, description: copy.trustSourcesDescription },
     { index: "02", title: copy.trustArabicTitle, description: copy.trustArabicDescription },
@@ -14,8 +14,8 @@ export function HomepageTrust({ copy, style }: HomepageTrustProps) {
     <section className="trust-section section-block" style={style} id="trust" aria-labelledby="trust-title">
       <div className="trust-intro">
         <p className="eyebrow">{copy.trustEyebrow}</p>
-        <h2 id="trust-title">{copy.aboutTitle}</h2>
-        <p className="section-description">{copy.aboutDescription}</p>
+        <h2 id="trust-title">{title || copy.aboutTitle}</h2>
+        <p className="section-description">{description || copy.aboutDescription}</p>
       </div>
       <div className="trust-principles">
         {principles.map((principle) => (

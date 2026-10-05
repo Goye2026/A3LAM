@@ -255,7 +255,7 @@ export default async function HomePage() {
           <HomepageCatalogSections homepage={homepage} copy={copy} publicCopy={publicCopy} homepageCopy={homepageCopy} />
         </Suspense>
 
-        {isVisible(homepage, "about") && homepage.about.visible ? <HomepageTrust copy={publicCopy} style={sectionStyle(homepage, "about")} /> : null}
+        {isVisible(homepage, "about") && homepage.about.visible ? <HomepageTrust copy={publicCopy} title={homepage.about.title} description={homepage.about.description} style={sectionStyle(homepage, "about")} /> : null}
 
         {isVisible(homepage, "profiles") && homepage.profiles.visible ? (
           <section className="editorial-band editorial-band-profile" id="profiles" aria-labelledby="profiles-title" style={sectionStyle(homepage, "profiles")}>

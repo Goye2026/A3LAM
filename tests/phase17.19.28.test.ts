@@ -20,6 +20,7 @@ describe("Phase 17.19.28 Homepage, Appearance, and Site Experience contracts", (
     expect(homepage).toContain("isVisible(homepage");
     expect(homepage).toContain("selectedCategoryIds");
     expect(homepage).toContain("selectedPersonIds");
+    expect(homepage).toContain("homepage.about.title");
   });
 
   it("exposes persisted appearance controls to the public render tree", () => {
