@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { getDb } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 import { assertCmsEditorialTransition, type CmsEditorialStatus } from "./editorialStatus";
-import { CmsInputError, parseCmsEditorialMutation, parseCmsTagInput } from "./editorialValidation";
+import { assertCmsPublishable, CmsInputError, parseCmsEditorialMutation, parseCmsTagInput } from "./editorialValidation";
 import type { CmsBulkOperationResult, CmsBulkStatusInput, CmsEditorialRecord, CmsEditorialRevisionSnapshot, CmsEntityKind, CmsListOptions, CmsListPage, CmsRevisionDetail, CmsRevisionListItem, CmsTagInput, CmsTagRecord, CmsWorkspaceSummary } from "./editorialTypes";
 import type { CmsRichTextDocument } from "./richText";
 
@@ -309,7 +309,9 @@ export const editorialRepository = {
     const current = await getCmsRecord(db, kind, id);
     if (!current) return null;
     if (current.version !== expectedVersion) throw new CmsConflictError("The editorial record has changed; reload before changing status");
+    if (next === "scheduled") throw new CmsInputError("Scheduled publishing is not available");
     assertCmsEditorialTransition(current.status, next);
+    if (next === "published") assertCmsPublishable(current);
     const now = new Date();
     const publishedAt = next === "published" ? now : next === "draft" || next === "trashed" ? null : current.publishedAt ? new Date(current.publishedAt) : null;
     await db.transaction(async (tx) => {

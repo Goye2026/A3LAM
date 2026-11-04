@@ -67,6 +67,12 @@ export function parseCmsEditorialMutation(value: unknown, kind: "page" | "post")
   };
 }
 
+export function assertCmsPublishable(record: { title: string; slug: string; content: CmsRichTextDocument }) {
+  if (!record.title.trim()) throw new CmsInputError("title is required before publishing");
+  if (!record.slug.trim()) throw new CmsInputError("slug is required before publishing");
+  if (record.content.blocks.length === 0) throw new CmsInputError("content is required before publishing");
+}
+
 export function parseCmsTagInput(value: unknown): CmsTagInput {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new CmsInputError("The submitted tag payload is invalid");
   const item = value as Record<string, unknown>;

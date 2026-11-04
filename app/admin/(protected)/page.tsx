@@ -8,6 +8,7 @@ import { hasEffectiveAdminPermission } from "@/lib/admin/rbac";
 import { getSystemHealthSnapshot } from "@/lib/admin/systemHealth";
 import { AdminMetricCard } from "@/components/a3lam/AdminDesignSystem";
 import { toDashboardMetricView } from "@/lib/admin/dashboardView";
+import { editorialRepository } from "@/lib/cms/editorialRepository";
 
 function formatDate(value: string, locale: "ar" | "en") {
   return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(value));
@@ -27,6 +28,14 @@ function availabilityLabel(value: string, copy: ReturnType<typeof getMessages>) 
   return copy.adminUnavailable;
 }
 
+function cmsStatusLabel(status: string, copy: ReturnType<typeof getMessages>) {
+  if (status === "review") return copy.adminReview;
+  if (status === "published") return copy.adminPublished;
+  if (status === "scheduled") return copy.adminCmsStatusScheduled;
+  if (status === "trashed") return copy.adminCmsStatusTrashed;
+  return copy.adminDraft;
+}
+
 export default async function AdminDashboardPage() {
   const copy = getMessages(defaultLocale);
   const principal = await getAdminPrincipal((await cookies()).get(ADMIN_SESSION_COOKIE)?.value);
@@ -35,13 +44,33 @@ export default async function AdminDashboardPage() {
   let summary: Awaited<ReturnType<typeof adminRepository.getControlCenterSummary>> | null = null;
   let unavailable = false;
   let health: Awaited<ReturnType<typeof getSystemHealthSnapshot>> | null = null;
+  let cmsWorkspace: Awaited<ReturnType<typeof editorialRepository.getWorkspaceSummary>> | null = null;
+  let recentCms: Array<{ id: string; kind: "page" | "post"; title: string; slug: string; status: string; updatedAt: string; publishedAt: string | null }> = [];
+  let cmsUnavailable = false;
   try {
     [dashboard, summary] = await Promise.all([adminRepository.getDashboard(), adminRepository.getControlCenterSummary()]);
     if (await can("system.read")) health = await getSystemHealthSnapshot();
   } catch {
     unavailable = true;
   }
+  if (await can("content.read")) {
+    try {
+      const [workspace, pages, posts] = await Promise.all([
+        editorialRepository.getWorkspaceSummary(),
+        editorialRepository.list("page", { page: 1, pageSize: 5, sort: "updated_desc" }),
+        editorialRepository.list("post", { page: 1, pageSize: 5, sort: "updated_desc" }),
+      ]);
+      cmsWorkspace = workspace;
+      recentCms = [...pages.items.map((item) => ({ ...item, kind: "page" as const })), ...posts.items.map((item) => ({ ...item, kind: "post" as const }))]
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+        .slice(0, 6);
+    } catch {
+      cmsUnavailable = true;
+    }
+  }
   const quickActions = [
+    { href: "/admin/content/pages/new", title: copy.adminCmsCreatePage, detail: copy.adminCmsEditor, permission: "content.create" as const },
+    { href: "/admin/content/posts/new", title: copy.adminCmsCreatePost, detail: copy.adminCmsEditor, permission: "content.create" as const },
     { href: "/admin/users", title: copy.adminUsers, detail: copy.adminReadOnly, permission: "users.read" as const },
     { href: "/admin/administrators", title: copy.adminAdministrators, detail: copy.adminReadOnly, permission: "admins.read" as const },
     { href: "/admin/editors", title: copy.adminEditors, detail: copy.adminReadOnly, permission: "editors.read" as const },
@@ -76,6 +105,8 @@ export default async function AdminDashboardPage() {
     { label: copy.adminAdministrators, value: summary?.adminIdentities ?? null },
     { label: copy.adminEditors, value: summary?.editors ?? null },
     { label: copy.adminSessions, value: summary?.adminSessions ?? null },
+    { label: copy.adminCmsPages, value: cmsWorkspace?.page.total ?? null },
+    { label: copy.adminCmsPosts, value: cmsWorkspace?.post.total ?? null },
   ];
 
   return (
@@ -100,6 +131,11 @@ export default async function AdminDashboardPage() {
         <div className="admin-section-heading"><h2 id="admin-shortcuts-title">{copy.adminQuickActions}</h2></div>
         {visibleQuickActions.length > 0 ? <div className="admin-action-grid">{visibleQuickActions.map((action) => <Link href={action.href} className="admin-action-card" key={action.href}><strong>{action.title}</strong><span>{action.detail}</span></Link>)}</div> : <p className="admin-empty">{copy.adminReadOnly}</p>}
       </section>
+      {await can("content.read") ? <section className="admin-panel admin-cms-overview" aria-labelledby="admin-cms-overview-title">
+        <div className="admin-section-heading"><div><h2 id="admin-cms-overview-title">{copy.adminContent}</h2><p className="route-description">{copy.adminCmsEditor}</p></div><div className="admin-form-actions"><Link className="button button-quiet" href="/admin/content/pages">{copy.adminCmsPages}</Link><Link className="button button-quiet" href="/admin/content/posts">{copy.adminCmsPosts}</Link></div></div>
+        {cmsUnavailable ? <p className="admin-alert" role="alert">{copy.adminCmsRequiresMigration}</p> : <div className="admin-cms-status-grid"><Link href="/admin/content/pages?status=draft"><span>{copy.adminCmsPages} · {copy.adminDraft}</span><strong>{cmsWorkspace?.page.draft ?? "—"}</strong></Link><Link href="/admin/content/pages?status=review"><span>{copy.adminCmsPages} · {copy.adminReview}</span><strong>{cmsWorkspace?.page.review ?? "—"}</strong></Link><Link href="/admin/content/posts?status=draft"><span>{copy.adminCmsPosts} · {copy.adminDraft}</span><strong>{cmsWorkspace?.post.draft ?? "—"}</strong></Link><Link href="/admin/content/posts?status=review"><span>{copy.adminCmsPosts} · {copy.adminReview}</span><strong>{cmsWorkspace?.post.review ?? "—"}</strong></Link></div>}
+      </section> : null}
+      {await can("content.read") && !cmsUnavailable ? <section className="admin-panel" aria-labelledby="admin-recent-cms-title"><div className="admin-section-heading"><h2 id="admin-recent-cms-title">{copy.adminRecentUpdates} · {copy.adminContent}</h2><Link href="/admin/content">{copy.adminContent}</Link></div>{recentCms.length === 0 ? <p className="admin-empty">{copy.adminCmsNoItems}</p> : <div className="admin-recent-list admin-cms-recent-list">{recentCms.map((item) => <Link href={`/admin/content/${item.kind === "page" ? "pages" : "posts"}/${item.id}`} className="admin-recent-row" key={`${item.kind}-${item.id}`}><span><strong>{item.title}</strong><small dir="ltr">/{item.slug}</small></span><span><b className={`admin-status admin-status-${item.status === "published" ? "published" : item.status === "review" ? "review" : "draft"}`}>{cmsStatusLabel(item.status, copy)}</b><small dir="ltr">{formatDate(item.updatedAt, "ar")}</small></span></Link>)}</div>}</section> : null}
       <section className="admin-panel" aria-labelledby="admin-recent-title">
         <div className="admin-section-heading"><h2 id="admin-recent-title">{copy.adminRecentUpdates}</h2><Link href="/admin/people">{copy.adminPeople}</Link></div>
         {!dashboard?.recent.length ? <p className="admin-empty">{copy.adminNoRecent}</p> : <div className="admin-recent-list">{dashboard.recent.map((person) => <Link href={`/admin/people/${person.id}`} className="admin-recent-row" key={person.id}><span><strong>{person.nameArabic}</strong><small>{person.categories.join(" · ") || "—"}</small></span><span><b className={`admin-status admin-status-${person.status}`}>{statusLabel(person.status, copy)}</b><small>{formatDate(person.updatedAt, "ar")}</small></span></Link>)}</div>}

@@ -34,15 +34,15 @@ describe("Phase 17.19.1 CMS architecture", () => {
     expect(resolveLayout("content", activeTheme)).toBe("content");
   });
 
-  it("keeps content types honest: domain entities are schema-backed and generic types are unavailable", () => {
+  it("keeps content types honest: domain entities and CMS types are schema-backed", () => {
     expect(listContentTypes()).toHaveLength(6);
     expect(contentTypeRegistry.person).toMatchObject({ storageTable: "people", availability: "available", domainSpecific: true, editor: "person", readPermission: "people.read" });
     expect(contentTypeRegistry.profile).toMatchObject({ storageTable: "profiles", availability: "available", domainSpecific: true, editor: "profile", readPermission: "profiles.read" });
     expect(contentTypeRegistry.category).toMatchObject({ storageTable: "categories", availability: "available", domainSpecific: true, editor: "category", readPermission: "categories.read" });
     for (const id of ["page", "post"] as const) {
-      expect(contentTypeRegistry[id]).toMatchObject({ availability: "requires_configuration", editor: "unavailable", supportsPublication: true, readPermission: "content.read" });
+      expect(contentTypeRegistry[id]).toMatchObject({ availability: "available", editor: "unavailable", supportsPublication: true, readPermission: "content.read" });
     }
-    expect(contentTypeRegistry.tag).toMatchObject({ availability: "requires_configuration", editor: "unavailable", supportsPublication: false, readPermission: "taxonomy.read" });
+    expect(contentTypeRegistry.tag).toMatchObject({ availability: "available", editor: "unavailable", supportsPublication: false, readPermission: "taxonomy.read" });
   });
 
   it("rejects unsafe menu URLs, duplicate ids, cycles, and excessive nesting", () => {
@@ -65,13 +65,15 @@ describe("Phase 17.19.1 CMS architecture", () => {
     expect(getWidget("arbitrary-component" as never)).toBeNull();
   });
 
-  it("keeps admin navigation declarative, RBAC-filtered, and visibly unavailable where persistence is absent", () => {
+  it("keeps admin navigation declarative and RBAC-filtered for persisted CMS types", () => {
     const navigation = getAdminNavigation(getMessages("ar"));
     const editorPermissions = permissionsForRole("EDITOR");
     const visible = filterAdminNavigation(navigation, (permission) => editorPermissions.has(permission));
     const content = visible.find((group) => group.id === "content");
     expect(content?.items.some((entry) => entry.id === "people")).toBe(true);
-    expect(content?.items.some((entry) => entry.id === "pages" && entry.href === "/admin/content/pages" && entry.availability === "requires_configuration")).toBe(true);
+    expect(content?.items.some((entry) => entry.id === "pages" && entry.href === "/admin/content/pages" && entry.availability === "available")).toBe(true);
+    expect(content?.items.some((entry) => entry.id === "posts" && entry.href === "/admin/content/posts" && entry.availability === "available")).toBe(true);
+    expect(content?.items.some((entry) => entry.id === "tags" && entry.href === "/admin/content/tags" && entry.availability === "available")).toBe(true);
     expect(visible.some((group) => group.id === "users")).toBe(false);
     expect(hasAdminPermission("EDITOR", "people.create")).toBe(true);
     expect(hasAdminPermission("EDITOR", "settings.manage")).toBe(false);

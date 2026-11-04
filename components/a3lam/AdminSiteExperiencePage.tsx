@@ -7,6 +7,9 @@ import { getMessages, type FoundationMessages } from "@/lib/i18n/messages";
 import { siteExperienceAccess } from "@/lib/site-experience/access";
 import type { SiteExperienceResource } from "@/lib/site-experience/config";
 import { siteExperienceRepository } from "@/lib/site-experience/repository";
+import { adminRepository } from "@/lib/data/adminRepository";
+
+export type SiteExperienceDirectoryOptions = { categories: { id: string; name: string; slug: string }[]; people: { id: string; nameArabic: string; slug: string }[] };
 
 export async function AdminSiteExperiencePage({ resource, title }: { resource: SiteExperienceResource; title: string }) {
   const copy = getMessages(defaultLocale);
@@ -25,12 +28,21 @@ export async function AdminSiteExperiencePage({ resource, title }: { resource: S
   if (!canRead) return <div className="admin-route"><p className="admin-alert" role="alert">{copy.adminUnauthorized}</p></div>;
   let item: Awaited<ReturnType<typeof siteExperienceRepository.getAdminResource>> | null = null;
   let unavailable = false;
+  let directoryOptions: SiteExperienceDirectoryOptions = { categories: [], people: [] };
   try {
     item = await siteExperienceRepository.getAdminResource(resource);
   } catch {
     unavailable = true;
   }
-  return <AdminSiteExperienceEditor resource={resource} title={title} copy={copy} initial={item} unavailable={unavailable} canEdit={canEdit} canPublish={canPublish} />;
+  if (!unavailable && (resource === "homepage" || resource === "navigation" || resource === "footer")) {
+    try {
+      const [categories, people] = await Promise.all([adminRepository.listCategoryOptions(), adminRepository.listPeople({ status: "published", pageSize: 100, sort: "name" })]);
+      directoryOptions = { categories: categories.map((category) => ({ id: category.id, name: category.name, slug: category.slug })), people: people.items.map((person) => ({ id: person.id, nameArabic: person.nameArabic, slug: person.slug })) };
+    } catch {
+      directoryOptions = { categories: [], people: [] };
+    }
+  }
+  return <AdminSiteExperienceEditor resource={resource} title={title} copy={copy} initial={item} unavailable={unavailable} canEdit={canEdit} canPublish={canPublish} directoryOptions={directoryOptions} />;
 }
 
 export type AdminSiteExperienceCopy = FoundationMessages;

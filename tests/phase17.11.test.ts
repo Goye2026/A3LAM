@@ -34,7 +34,7 @@ describe("Phase 17.11 homepage discovery regressions", () => {
   it("renders trust and discovery as reusable public components", () => {
     const homepage = readProjectFile("app/page.tsx");
     expect(homepage).toContain("<HomepageDiscovery copy={publicCopy} />");
-    expect(homepage).toContain("<HomepageTrust copy={publicCopy} />");
+    expect(homepage).toMatch(/<HomepageTrust\b[^>]*copy=\{publicCopy\}/);
   });
 
   it("keeps the mobile menu localized and wired for assistive technology", () => {

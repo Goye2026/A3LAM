@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { CategoryCard } from "@/components/a3lam/CategoryCard";
 import { HomepageDiscovery } from "@/components/a3lam/HomepageDiscovery";
+import { HomepageFeaturedSlider } from "@/components/a3lam/HomepageFeaturedSlider";
 import { HomepageTrust } from "@/components/a3lam/HomepageTrust";
 import { PersonCard } from "@/components/a3lam/PersonCard";
 import { SearchDiscovery } from "@/components/a3lam/SearchDiscovery";
@@ -152,9 +153,12 @@ async function HomepageCatalogSections({ homepage, copy, publicCopy, homepageCop
           </div>
           <p className="section-description">{homepageCopy.featuredDescription}</p>
           {displayPeople.length > 0 ? (
-            <div className="people-grid">
-              {displayPeople.map((person) => <PersonCard key={person.id} person={person} copy={publicCopy} />)}
-            </div>
+            <>
+              <HomepageFeaturedSlider people={displayPeople} copy={publicCopy} />
+              <div className="people-grid homepage-featured-grid">
+                {displayPeople.slice(0, 3).map((person) => <PersonCard key={person.id} person={person} copy={publicCopy} />)}
+              </div>
+            </>
           ) : (
             <EmptyCatalogState message={dataUnavailable ? copy.dataUnavailable : copy.featuredEmpty} alert={dataUnavailable} />
           )}

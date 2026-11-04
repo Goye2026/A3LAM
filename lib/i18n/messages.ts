@@ -603,6 +603,14 @@ export type FoundationMessages = {
   adminMediaDetach: string;
   adminMediaArchive: string;
   adminMediaNoAssets: string;
+  adminMediaDetails: string;
+  adminMediaFileName: string;
+  adminMediaMimeType: string;
+  adminMediaFileSize: string;
+  adminMediaDimensions: string;
+  adminMediaCreatedAt: string;
+  adminMediaUsage: string;
+  adminMediaUploadLibrary: string;
   adminMediaNoProvider: string;
   adminMediaRequiresPersonId: string;
   adminMediaPendingMigration: string;
@@ -1580,6 +1588,14 @@ const ar: FoundationMessages = {
   adminMediaDetach: "إزالة الربط",
   adminMediaArchive: "أرشفة الأصل",
   adminMediaNoAssets: "لا توجد أصول وسائط في النطاق الحالي.",
+  adminMediaDetails: "تفاصيل الوسائط",
+  adminMediaFileName: "اسم الملف",
+  adminMediaMimeType: "نوع MIME",
+  adminMediaFileSize: "حجم الملف",
+  adminMediaDimensions: "الأبعاد",
+  adminMediaCreatedAt: "تاريخ الرفع",
+  adminMediaUsage: "الاستخدام الحالي",
+  adminMediaUploadLibrary: "رفع إلى مكتبة الوسائط",
   adminMediaNoProvider: "رفع الوسائط معطل حتى تتم تهيئة مزود التخزين.",
   adminMediaRequiresPersonId: "احفظ الشخصية أولًا قبل رفع الصورة.",
   adminMediaPendingMigration: "تحتاج بنية Media إلى تطبيق migration 0007 في هذه البيئة.",
@@ -2558,6 +2574,14 @@ const en: FoundationMessages = {
   adminMediaDetach: "Detach",
   adminMediaArchive: "Archive asset",
   adminMediaNoAssets: "There are no media assets in the current scope.",
+  adminMediaDetails: "Media details",
+  adminMediaFileName: "File name",
+  adminMediaMimeType: "MIME type",
+  adminMediaFileSize: "File size",
+  adminMediaDimensions: "Dimensions",
+  adminMediaCreatedAt: "Upload date",
+  adminMediaUsage: "Current usage",
+  adminMediaUploadLibrary: "Upload to media library",
   adminMediaNoProvider: "Media upload is disabled until a storage provider is configured.",
   adminMediaRequiresPersonId: "Save the person before uploading a portrait.",
   adminMediaPendingMigration: "The Media schema requires migration 0007 in this environment.",
