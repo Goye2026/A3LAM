@@ -9,7 +9,7 @@ Check the process supervisor or Compose status, application logs without secrets
 | App will not start | Check Node/pnpm versions, `pnpm build`, process logs, and required environment names | Missing required environment or build failure; do not guess credentials |
 | `/api/health` unavailable | Check process status, port binding, reverse proxy upstream, and firewall | Application or proxy availability issue |
 | Database-backed page unavailable | Check PostgreSQL readiness and server-only `DATABASE_URL` configuration | Database unavailable or misconfigured; do not run a migration automatically |
-| Storage upload returns 503 | Check the three external storage variables and provider status | `REQUIRES CONFIGURATION`; no filesystem fallback is expected |
+| Storage upload returns 503 | Check `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` in the server-side environment and provider status | `REQUIRES CONFIGURATION`; no filesystem fallback is expected |
 | Email action unavailable | Check provider configuration and application status projection | `PROVIDER_NOT_CONFIGURED`; do not add a provider during an incident |
 | Admin page redirects to login | Verify the Admin session and owner-controlled access path | Authentication boundary is working; do not bypass it |
 | Admin API returns 401/403 | Verify the session and effective permission | Unauthorized/forbidden; do not rely on hidden buttons or URL obscurity |

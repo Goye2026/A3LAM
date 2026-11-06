@@ -2,29 +2,29 @@
 
 ## Provider configuration
 
-The current provider-neutral adapter reads these variable names server-side only:
+The current Cloudinary adapter reads these variable names server-side only:
 
 | Variable | Purpose |
 |---|---|
-| `A3LAM_STORAGE_UPLOAD_URL` | private upload/delete/HEAD endpoint |
-| `A3LAM_STORAGE_PUBLIC_BASE_URL` | public delivery base URL |
-| `A3LAM_STORAGE_UPLOAD_TOKEN` | server-side bearer credential |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud identifier |
+| `CLOUDINARY_API_KEY` | Cloudinary server-side API key |
+| `CLOUDINARY_API_SECRET` | Cloudinary server-side API secret; never expose it |
 
-No values belong in Git, client bundles, logs, tickets, or public metadata. The provider is `configured` only when all three values exist, parse as HTTP/HTTPS URLs where applicable, and pass configuration validation.
+No values belong in Git, client bundles, logs, tickets, or public metadata. The provider is `configured` only when all three Cloudinary values exist and the cloud name passes configuration validation.
 
 ## State semantics
 
-`configured` means the configuration is syntactically present. It does not claim that a live upload has succeeded. Network rejection is represented as an operation error. `not_configured` and `invalid_configuration` disable upload and public delivery in the UI; they never produce a fake URL or media record.
+`configured` means the Cloudinary configuration is syntactically present. It does not claim that a live upload has succeeded. Network rejection is represented as an operation error. `not_configured` and `invalid_configuration` disable upload and public delivery in the UI; they never produce a fake URL or media record.
 
 ## Editorial workflow
 
-A portrait upload is initiated from an authenticated Person editor with `media.manage`. The server validates filename, extension, MIME, magic bytes, size, and image dimensions, builds a server-controlled storage key, uploads the object, and only then writes `media_assets` plus `person_media` in one database transaction. If the database transaction fails after upload, the unreferenced object is cleaned up on a best-effort basis and the operation is not reported as successful.
+A portrait upload is initiated from an authenticated Person editor with `media.manage`. The server validates filename, extension, MIME, magic bytes, size, and image dimensions, builds a server-controlled Cloudinary `public_id`, uploads the bytes through the server-side Cloudinary SDK, and only then writes `media_assets` plus `person_media` in one database transaction. If the database transaction fails after upload, the unreferenced Cloudinary asset is cleaned up on a best-effort basis and the operation is not reported as successful.
 
 Metadata fields include alt text, source URL, attribution, and license. Public visibility requires both a valid source URL and license. Person removal is a detach operation; it does not delete a shared physical object. Library archive is allowed only when no attachment uses the asset.
 
 ## Observability and audit
 
-Media mutations write `audit_logs` rows for asset creation/update/archive and attachment/detach actions. Read-only list and preview operations do not create audit records. Public responses expose only safe public URLs and visible content; storage keys, provider credentials, audit fields, and private URLs remain server-side.
+Media mutations write `audit_logs` rows for asset creation/update/archive and attachment/detach actions. Read-only list and preview operations do not create audit records. Public responses expose only safe public URLs and visible content; Cloudinary credentials, audit fields, and private URLs remain server-side. Archiving an unlinked asset calls Cloudinary `destroy` using its `public_id` before the database status is changed.
 
 ## Backups and portability
 

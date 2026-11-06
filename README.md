@@ -45,9 +45,9 @@ cp .env.example .env.local
 | `A3LAM_ALLOW_SYNTHETIC_SEED` | لا | يجب تفعيله صراحةً فقط عند تشغيل seed التطويري، ولا يجوز تفعيله في production. |
 | `A3LAM_ADMIN_ACCESS_TOKEN` | نعم لتفعيل CMS | سر server-only بطول 32 محرفًا على الأقل لتسجيل دخول المحررين؛ لا تضعه في Git أو client code. |
 | `A3LAM_ADMIN_SESSION_TTL_SECONDS` | لا | مدة cookie جلسة Admin الموقعة؛ الافتراضي 8 ساعات والحد الأقصى 7 أيام. |
-| `A3LAM_STORAGE_UPLOAD_URL` | لا | endpoint server-only لرفع HTTP PUT؛ إذا غاب يبقى رفع الملفات معطلًا برسالة 503. |
-| `A3LAM_STORAGE_PUBLIC_BASE_URL` | لا | origin العام لروابط الملفات التي يعيدها provider الخارجي. |
-| `A3LAM_STORAGE_UPLOAD_TOKEN` | لا | token server-only لـ provider التخزين؛ لا يُرسل إلى العميل ولا يُحفظ في Git. |
+| `CLOUDINARY_CLOUD_NAME` | لا | معرف Cloudinary server-only. |
+| `CLOUDINARY_API_KEY` | لا | مفتاح Cloudinary server-only. |
+| `CLOUDINARY_API_SECRET` | لا | سر Cloudinary؛ لا يُرسل إلى العميل ولا يُحفظ في Git أو logs. |
 
 في التطوير يمكن استخدام:
 

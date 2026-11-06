@@ -155,6 +155,13 @@ export async function archiveMediaAsset(id: string, actorId: string | null) {
   } catch (error) { return schemaError(error); }
 }
 
+export async function countMediaUsages(id: string) {
+  try {
+    const rows = await getDb().select({ count: sql<string>`count(*)` }).from(schema.personMedia).where(eq(schema.personMedia.mediaAssetId, id));
+    return Number(rows[0]?.count ?? 0);
+  } catch (error) { return schemaError(error); }
+}
+
 export async function getPersonMedia(personId: string, publicOnly: boolean) {
   try {
     const conditions = [eq(schema.personMedia.personId, personId), eq(schema.personMedia.usageType, "portrait" as const), eq(schema.personMedia.isPrimary, true)];

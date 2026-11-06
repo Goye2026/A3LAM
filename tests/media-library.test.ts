@@ -31,6 +31,7 @@ describe("Phase 17.20.05 Media Library contracts", () => {
   it("supports a generic image upload through the existing provider and media repository", () => {
     const route = read("app/api/admin/media/route.ts");
     const client = read("components/a3lam/MediaLibraryClient.tsx");
+    const provider = read("lib/storage/provider.ts");
     expect(route).toContain("createMediaAsset");
     expect(route).toContain("editorial/media/");
     expect(route).toContain('validateUpload(file, "portrait")');
@@ -42,6 +43,18 @@ describe("Phase 17.20.05 Media Library contracts", () => {
     expect(client).toContain("uploadSelectedFile");
     expect(client).toContain("5 * 1024 * 1024");
     expect(client).toContain('accept="image/jpeg,image/png,image/webp"');
+    expect(provider).toContain("CLOUDINARY_CLOUD_NAME");
+    expect(provider).toContain("CLOUDINARY_API_KEY");
+    expect(provider).toContain("CLOUDINARY_API_SECRET");
+    expect(provider).toContain("upload_stream");
+    expect(provider).toContain("secure_url");
+  });
+
+  it("deletes unlinked media through the provider before archiving the database record", () => {
+    const route = read("app/api/admin/media/[id]/route.ts");
+    expect(route).toContain("deleteObject(current.storageKey)");
+    expect(route).toContain("countMediaUsages(id)");
+    expect(route).toContain("Cloudinary media deletion failed");
   });
 
   it("does not introduce destructive deletion or a new media schema", () => {
