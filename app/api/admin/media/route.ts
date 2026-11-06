@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { adminErrorResponse, requirePermissionPrincipal } from "@/lib/admin/http";
 import { listMediaAssets, createAndAttachMediaAsset, createMediaAsset, MediaConflictError, MediaSchemaUnavailableError } from "@/lib/media/repository";
 import { parseMediaMetadataInput } from "@/lib/media/validation";
-import { getStorageProviderState, putObject, deleteObject, StorageOperationError, StorageUnavailableError } from "@/lib/storage/provider";
+import { getStorageConfigurationIssue, getStorageProviderState, putObject, deleteObject, StorageOperationError, StorageUnavailableError } from "@/lib/storage/provider";
 import { InvalidUploadError, validateUpload } from "@/lib/storage/validation";
 import { isSameOriginMutation } from "@/lib/user/requestSecurity";
 import { safeErrors } from "@/lib/errors/taxonomy";
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   const gate = await requirePermissionPrincipal(request, "media.manage");
   if (gate.response) return gate.response;
   if (!isSameOriginMutation(request)) return NextResponse.json({ error: safeErrors.INVALID_INPUT.code, message: safeErrors.INVALID_INPUT.publicMessage }, { status: safeErrors.INVALID_INPUT.status });
-  if (getStorageProviderState() !== "configured") return NextResponse.json({ error: safeErrors.DEPENDENCY_UNAVAILABLE.code, message: "رفع الوسائط يتطلب إعداد مزود التخزين الخارجي." }, { status: safeErrors.DEPENDENCY_UNAVAILABLE.status });
+  if (getStorageProviderState() !== "configured") return NextResponse.json({ error: safeErrors.DEPENDENCY_UNAVAILABLE.code, message: getStorageConfigurationIssue() ?? "رفع الوسائط يتطلب إعداد Cloudinary server-side." }, { status: safeErrors.DEPENDENCY_UNAVAILABLE.status });
 
   let uploadedKey: string | null = null;
   try {
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, asset }, { status: 201 });
   } catch (error) {
     if (uploadedKey) await deleteObject(uploadedKey).catch(() => undefined);
-    if (error instanceof StorageUnavailableError || error instanceof StorageOperationError) return NextResponse.json({ error: safeErrors.DEPENDENCY_UNAVAILABLE.code, message: "تعذر الوصول إلى مزود التخزين الخارجي." }, { status: safeErrors.DEPENDENCY_UNAVAILABLE.status });
+    if (error instanceof StorageUnavailableError || error instanceof StorageOperationError) return NextResponse.json({ error: safeErrors.DEPENDENCY_UNAVAILABLE.code, message: error instanceof StorageOperationError ? error.publicMessage : (getStorageConfigurationIssue() ?? "تعذر الوصول إلى Cloudinary.") }, { status: safeErrors.DEPENDENCY_UNAVAILABLE.status });
     if (error instanceof MediaSchemaUnavailableError) return NextResponse.json({ error: safeErrors.DEPENDENCY_UNAVAILABLE.code, message: "تحتاج بنية Media إلى تطبيق migration 0007 في هذه البيئة." }, { status: safeErrors.DEPENDENCY_UNAVAILABLE.status });
     if (error instanceof InvalidUploadError || error instanceof MediaConflictError) return adminErrorResponse(error);
     return adminErrorResponse(error);
