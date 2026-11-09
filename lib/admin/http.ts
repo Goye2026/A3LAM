@@ -48,7 +48,10 @@ export async function requirePermissionPrincipal(request: Request, permission: A
 }
 
 export function adminErrorResponse(error: unknown) {
-  if (error instanceof Error && (error.name === "AdminInputError" || error.name === "AdminValidationError" || error instanceof CmsInputError || error instanceof CmsRichTextInputError || error.name === "AiDocumentValidationError" || error.name === "AiFactValidationError" || error.name === "AiGenerationValidationError" || error instanceof MediaInputError)) {
+  if (error instanceof MediaInputError) {
+    return NextResponse.json({ error: safeErrors.INVALID_INPUT.code, message: error.message }, { status: safeErrors.INVALID_INPUT.status });
+  }
+  if (error instanceof Error && (error.name === "AdminInputError" || error.name === "AdminValidationError" || error instanceof CmsInputError || error instanceof CmsRichTextInputError || error.name === "AiDocumentValidationError" || error.name === "AiFactValidationError" || error.name === "AiGenerationValidationError")) {
     return NextResponse.json({ error: safeErrors.INVALID_INPUT.code, message: safeErrors.INVALID_INPUT.publicMessage }, { status: safeErrors.INVALID_INPUT.status });
   }
   if (error instanceof Error && ["AdminConflictError", "CmsConflictError", "CmsEditorialConflictError", "AiDocumentConflictError", "MigrationRegistryInconsistentError", "MigrationAlreadyAppliedError", "MigrationPrerequisiteError", "MigrationStateChangedError"].includes(error.name)) {

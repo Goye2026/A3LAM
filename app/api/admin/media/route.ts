@@ -51,7 +51,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, asset }, { status: 201 });
   } catch (error) {
     if (uploadedKey) await deleteObject(uploadedKey).catch(() => undefined);
-    if (error instanceof StorageUnavailableError || error instanceof StorageOperationError) return NextResponse.json({ error: safeErrors.DEPENDENCY_UNAVAILABLE.code, message: error instanceof StorageOperationError ? error.publicMessage : (getStorageConfigurationIssue() ?? "تعذر الوصول إلى Cloudinary.") }, { status: safeErrors.DEPENDENCY_UNAVAILABLE.status });
+    if (error instanceof StorageOperationError) {
+      console.warn("Cloudinary media upload failed", error.diagnostic);
+      return NextResponse.json({ error: safeErrors.DEPENDENCY_UNAVAILABLE.code, message: error.publicMessage }, { status: safeErrors.DEPENDENCY_UNAVAILABLE.status });
+    }
+    if (error instanceof StorageUnavailableError) return NextResponse.json({ error: safeErrors.DEPENDENCY_UNAVAILABLE.code, message: getStorageConfigurationIssue() ?? "تعذر الوصول إلى Cloudinary." }, { status: safeErrors.DEPENDENCY_UNAVAILABLE.status });
     if (error instanceof MediaSchemaUnavailableError) return NextResponse.json({ error: safeErrors.DEPENDENCY_UNAVAILABLE.code, message: "تحتاج بنية Media إلى تطبيق migration 0007 في هذه البيئة." }, { status: safeErrors.DEPENDENCY_UNAVAILABLE.status });
     if (error instanceof InvalidUploadError || error instanceof MediaConflictError) return adminErrorResponse(error);
     return adminErrorResponse(error);

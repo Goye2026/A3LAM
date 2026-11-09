@@ -9,11 +9,13 @@ export class StorageUnavailableError extends Error {
 
 export class StorageOperationError extends Error {
   readonly publicMessage: string;
+  readonly diagnostic: CloudinaryDiagnostic;
 
-  constructor(publicMessage = "تعذر تنفيذ عملية Cloudinary.") {
+  constructor(publicMessage = "تعذر تنفيذ عملية Cloudinary.", diagnostic: CloudinaryDiagnostic = {}) {
     super(publicMessage);
     this.name = "StorageOperationError";
     this.publicMessage = publicMessage;
+    this.diagnostic = diagnostic;
   }
 }
 
@@ -22,7 +24,24 @@ export type StorageProviderState = "configured" | "not_configured" | "invalid_co
 export type StorageStatus = "ready" | "requires_configuration";
 
 type CloudinaryConfig = { cloudName: string; apiKey: string; apiSecret: string };
-type CloudinaryError = { http_code?: number; message?: string; error?: { http_code?: number; message?: string } };
+type CloudinaryError = {
+  http_code?: number;
+  name?: string;
+  code?: string | number;
+  message?: string;
+  error?: { http_code?: number; name?: string; code?: string | number; message?: string };
+  response?: { statusCode?: number; headers?: Record<string, unknown> };
+};
+export type CloudinaryDiagnostic = {
+  httpStatus?: number;
+  code?: string;
+  name?: string;
+  classification?: "authentication" | "authorization" | "bad_request" | "rate_limit" | "not_found" | "server" | "network";
+};
+
+function safeDiagnosticValue(value: unknown) {
+  return typeof value === "string" || typeof value === "number" ? String(value).replace(/[\u0000-\u001f\u007f]/g, "").slice(0, 80) : undefined;
+}
 
 function readConfig(): CloudinaryConfig {
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
@@ -62,19 +81,22 @@ function publicIdFor(key: string) {
   return key.replace(/^\/+/, "").replace(/\.[a-z0-9]{2,5}$/i, "");
 }
 
-function cloudinaryErrorMessage(error: unknown, operation: "upload" | "delete" | "read") {
+export function classifyCloudinaryError(error: unknown, operation: "upload" | "delete" | "read"): { publicMessage: string; diagnostic: CloudinaryDiagnostic } {
   const candidate = (typeof error === "object" && error !== null ? error : {}) as CloudinaryError;
   const nested = candidate.error ?? {};
-  const status = candidate.http_code ?? nested.http_code;
+  const status = candidate.http_code ?? nested.http_code ?? candidate.response?.statusCode;
+  const code = safeDiagnosticValue(candidate.code ?? nested.code);
+  const name = safeDiagnosticValue(candidate.name ?? nested.name);
   const rawMessage = candidate.message ?? nested.message ?? "";
   const normalized = rawMessage.toLowerCase();
-  if (status === 401 || status === 403 || normalized.includes("unauthorized") || normalized.includes("invalid api key") || normalized.includes("invalid signature")) {
-    return "رفض Cloudinary المصادقة؛ تحقق من CLOUDINARY_API_KEY وCLOUDINARY_API_SECRET في Vercel Production.";
-  }
-  if (status === 400) return `رفض Cloudinary عملية ${operation === "upload" ? "الرفع" : operation === "delete" ? "الحذف" : "القراءة"}؛ تحقق من نوع الملف وإعدادات الحساب.`;
-  if (status === 404 && operation === "read") return "الأصل غير موجود في Cloudinary.";
-  if (status && status >= 500) return "تعذر الوصول إلى Cloudinary مؤقتًا؛ أعد المحاولة لاحقًا.";
-  return "تعذر الاتصال بـCloudinary من بيئة Production؛ تحقق من إعدادات الشبكة والاعتماد server-side.";
+  const action = operation === "upload" ? "الرفع" : operation === "delete" ? "الحذف" : "القراءة";
+  if (status === 401 || normalized.includes("unauthorized") || normalized.includes("invalid api key") || normalized.includes("invalid signature")) return { publicMessage: "رفض Cloudinary المصادقة؛ تحقق من بيانات اعتماد بيئة Production.", diagnostic: { httpStatus: status, code, name, classification: "authentication" } };
+  if (status === 403) return { publicMessage: `رفض Cloudinary عملية ${action} بسبب صلاحيات المفتاح أو قيود بيئة المنتج.`, diagnostic: { httpStatus: status, code, name, classification: "authorization" } };
+  if (status === 400) return { publicMessage: `رفض Cloudinary عملية ${action}؛ تحقق من نوع الملف وإعدادات الحساب.`, diagnostic: { httpStatus: status, code, name, classification: "bad_request" } };
+  if (status === 404 && operation === "read") return { publicMessage: "الأصل غير موجود في Cloudinary.", diagnostic: { httpStatus: status, code, name, classification: "not_found" } };
+  if (status === 429) return { publicMessage: "رفض Cloudinary الطلب مؤقتًا بسبب حد المعدل؛ أعد المحاولة لاحقًا.", diagnostic: { httpStatus: status, code, name, classification: "rate_limit" } };
+  if (status && status >= 500) return { publicMessage: "تعذر الوصول إلى Cloudinary مؤقتًا؛ أعد المحاولة لاحقًا.", diagnostic: { httpStatus: status, code, name, classification: "server" } };
+  return { publicMessage: "تعذر الاتصال بـCloudinary من بيئة Production؛ تحقق من إعدادات الشبكة والاعتماد server-side.", diagnostic: { httpStatus: status, code, name, classification: "network" } };
 }
 
 function uploadStream(bytes: Uint8Array, options: { public_id: string; resource_type: "image" }): Promise<UploadApiResponse> {
@@ -102,7 +124,8 @@ export async function putObject(key: string, bytes: Uint8Array, mimeType: string
     return { key: result.public_id, url: result.secure_url };
   } catch (error) {
     if (error instanceof StorageOperationError) throw error;
-    throw new StorageOperationError(cloudinaryErrorMessage(error, "upload"));
+    const classified = classifyCloudinaryError(error, "upload");
+    throw new StorageOperationError(classified.publicMessage, classified.diagnostic);
   }
 }
 
@@ -113,7 +136,8 @@ export async function deleteObject(key: string): Promise<void> {
     if (result.result !== "ok" && result.result !== "not found") throw new StorageOperationError("رفض Cloudinary حذف الأصل.");
   } catch (error) {
     if (error instanceof StorageOperationError) throw error;
-    throw new StorageOperationError(cloudinaryErrorMessage(error, "delete"));
+    const classified = classifyCloudinaryError(error, "delete");
+    throw new StorageOperationError(classified.publicMessage, classified.diagnostic);
   }
 }
 
@@ -125,6 +149,7 @@ export async function objectExists(key: string): Promise<boolean> {
   } catch (error) {
     const status = typeof error === "object" && error !== null && "http_code" in error ? (error as { http_code?: unknown }).http_code : undefined;
     if (status === 404) return false;
-    throw new StorageOperationError(cloudinaryErrorMessage(error, "read"));
+    const classified = classifyCloudinaryError(error, "read");
+    throw new StorageOperationError(classified.publicMessage, classified.diagnostic);
   }
 }
