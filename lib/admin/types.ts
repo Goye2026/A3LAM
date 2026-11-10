@@ -270,10 +270,10 @@ export type AdminAuditLogItem = {
 export type AdminCategorySummary = Category & { peopleCount: number; profileCount: number };
 
 export type AdminControlCenterSummary = {
-  people: number;
-  categories: number;
-  users: number;
-  activeUsers: number;
+  people: number | null;
+  categories: number | null;
+  users: number | null;
+  activeUsers: number | null;
   profiles: { total: number; pendingReview: number; published: number; draft: number };
   adminIdentities: number | null;
   editors: number | null;

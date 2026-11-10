@@ -263,28 +263,30 @@ async function listCategoriesForPeople(db: Database, personIds: string[]) {
 }
 
 export const adminRepository = {
-  async getControlCenterSummary(): Promise<AdminControlCenterSummary> {
+  async getControlCenterSummary(options: { permissions?: ReadonlySet<AdminPermissionCode> } = {}): Promise<AdminControlCenterSummary> {
     const db = getDb();
+    const permissions = options.permissions;
+    const allowed = (permission: AdminPermissionCode) => !permissions || permissions.has(permission);
     const [peopleRows, categoryRows, userRows, activeUserRows, profileRows, recentAuditRows] = await Promise.all([
-      db.select({ count: sql<string>`count(*)` }).from(schema.people),
-      db.select({ count: sql<string>`count(*)` }).from(schema.categories),
-      db.select({ count: sql<string>`count(*)` }).from(schema.userAccounts),
-      db.select({ count: sql<string>`count(*)` }).from(schema.userAccounts).where(isNull(schema.userAccounts.disabledAt)),
-      db.select({ status: schema.profiles.status, count: sql<string>`count(*)` }).from(schema.profiles).groupBy(schema.profiles.status),
-      db.select({ id: schema.auditLogs.id, actorType: schema.auditLogs.actorType, actorId: schema.auditLogs.actorId, entityType: schema.auditLogs.entityType, entityId: schema.auditLogs.entityId, field: schema.auditLogs.field, action: schema.auditLogs.action, createdAt: schema.auditLogs.createdAt }).from(schema.auditLogs).orderBy(desc(schema.auditLogs.createdAt)).limit(5),
+      allowed("people.read") ? db.select({ count: sql<string>`count(*)` }).from(schema.people) : Promise.resolve([]),
+      allowed("categories.read") ? db.select({ count: sql<string>`count(*)` }).from(schema.categories) : Promise.resolve([]),
+      allowed("users.read") ? db.select({ count: sql<string>`count(*)` }).from(schema.userAccounts) : Promise.resolve([]),
+      allowed("users.read") ? db.select({ count: sql<string>`count(*)` }).from(schema.userAccounts).where(isNull(schema.userAccounts.disabledAt)) : Promise.resolve([]),
+      allowed("profiles.read") ? db.select({ status: schema.profiles.status, count: sql<string>`count(*)` }).from(schema.profiles).groupBy(schema.profiles.status) : Promise.resolve([]),
+      allowed("audit.read") ? db.select({ id: schema.auditLogs.id, actorType: schema.auditLogs.actorType, actorId: schema.auditLogs.actorId, entityType: schema.auditLogs.entityType, entityId: schema.auditLogs.entityId, field: schema.auditLogs.field, action: schema.auditLogs.action, createdAt: schema.auditLogs.createdAt }).from(schema.auditLogs).orderBy(desc(schema.auditLogs.createdAt)).limit(5) : Promise.resolve([]),
     ]);
     let adminIdentities: number | null = null;
     let editors: number | null = null;
     let adminSessions: number | null = null;
     try {
       const [adminRows, editorRows, sessionRows] = await Promise.all([
-        db.select({ count: sql<string>`count(*)` }).from(schema.adminIdentities),
-        db.select({ count: sql<string>`count(*)` }).from(schema.adminRoleAssignments).where(eq(schema.adminRoleAssignments.roleCode, "EDITOR")),
-        db.select({ count: sql<string>`count(*)` }).from(schema.adminSessions).where(and(isNull(schema.adminSessions.revokedAt), gt(schema.adminSessions.expiresAt, new Date()))),
+        allowed("admins.read") ? db.select({ count: sql<string>`count(*)` }).from(schema.adminIdentities) : Promise.resolve([]),
+        allowed("editors.read") ? db.select({ count: sql<string>`count(*)` }).from(schema.adminRoleAssignments).where(eq(schema.adminRoleAssignments.roleCode, "EDITOR")) : Promise.resolve([]),
+        allowed("sessions.read") ? db.select({ count: sql<string>`count(*)` }).from(schema.adminSessions).where(and(isNull(schema.adminSessions.revokedAt), gt(schema.adminSessions.expiresAt, new Date()))) : Promise.resolve([]),
       ]);
-      adminIdentities = Number(adminRows[0]?.count ?? 0);
-      editors = Number(editorRows[0]?.count ?? 0);
-      adminSessions = Number(sessionRows[0]?.count ?? 0);
+      adminIdentities = allowed("admins.read") ? Number(adminRows[0]?.count ?? 0) : null;
+      editors = allowed("editors.read") ? Number(editorRows[0]?.count ?? 0) : null;
+      adminSessions = allowed("sessions.read") ? Number(sessionRows[0]?.count ?? 0) : null;
     } catch {
       // Phase 17.0 remains usable before the Phase 17.1 schema migration is applied.
     }
@@ -297,15 +299,15 @@ export const adminRepository = {
       if (row.status === "draft") profiles.draft = count;
     }
     return {
-      people: Number(peopleRows[0]?.count ?? 0),
-      categories: Number(categoryRows[0]?.count ?? 0),
-      users: Number(userRows[0]?.count ?? 0),
-      activeUsers: Number(activeUserRows[0]?.count ?? 0),
+      people: allowed("people.read") ? Number(peopleRows[0]?.count ?? 0) : null,
+      categories: allowed("categories.read") ? Number(categoryRows[0]?.count ?? 0) : null,
+      users: allowed("users.read") ? Number(userRows[0]?.count ?? 0) : null,
+      activeUsers: allowed("users.read") ? Number(activeUserRows[0]?.count ?? 0) : null,
       profiles,
       adminIdentities,
       editors,
       adminSessions,
-      recentAudit: recentAuditRows.map((row) => ({ ...row, createdAt: asIsoTimestamp(row.createdAt) })),
+      recentAudit: allowed("audit.read") ? recentAuditRows.map((row) => ({ ...row, createdAt: asIsoTimestamp(row.createdAt) })) : [],
     };
   },
 

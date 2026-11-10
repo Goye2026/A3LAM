@@ -47,8 +47,28 @@ export default async function AdminDashboardPage() {
   let cmsWorkspace: Awaited<ReturnType<typeof editorialRepository.getWorkspaceSummary>> | null = null;
   let recentCms: Array<{ id: string; kind: "page" | "post"; title: string; slug: string; status: string; updatedAt: string; publishedAt: string | null }> = [];
   let cmsUnavailable = false;
+  const canReadPeople = await can("people.read");
+  const canReadCategories = await can("categories.read");
+  const canReadUsers = await can("users.read");
+  const canReadProfiles = await can("profiles.read");
+  const canReadAdmins = await can("admins.read");
+  const canReadEditors = await can("editors.read");
+  const canReadSessions = await can("sessions.read");
+  const canReadAudit = await can("audit.read");
   try {
-    [dashboard, summary] = await Promise.all([adminRepository.getDashboard(), adminRepository.getControlCenterSummary()]);
+    [dashboard, summary] = await Promise.all([
+      canReadPeople ? adminRepository.getDashboard() : Promise.resolve(null),
+      adminRepository.getControlCenterSummary({ permissions: new Set([
+        ...(canReadPeople ? ["people.read" as const] : []),
+        ...(canReadCategories ? ["categories.read" as const] : []),
+        ...(canReadUsers ? ["users.read" as const] : []),
+        ...(canReadProfiles ? ["profiles.read" as const] : []),
+        ...(canReadAdmins ? ["admins.read" as const] : []),
+        ...(canReadEditors ? ["editors.read" as const] : []),
+        ...(canReadSessions ? ["sessions.read" as const] : []),
+        ...(canReadAudit ? ["audit.read" as const] : []),
+      ]) }),
+    ]);
     if (await can("system.read")) health = await getSystemHealthSnapshot();
   } catch {
     unavailable = true;
@@ -92,21 +112,29 @@ export default async function AdminDashboardPage() {
     ["archived", copy.adminArchived],
   ] as const;
   const stats = [
-    { label: copy.adminPeopleCount, value: summary?.people ?? null, featured: true },
-    { label: `${copy.adminPeople} · ${copy.adminPublished}`, value: dashboard?.counts.published ?? null },
-    { label: `${copy.adminPeople} · ${copy.adminReview}`, value: dashboard?.counts.review ?? null },
-    { label: copy.adminCategories, value: summary?.categories ?? null },
-    { label: copy.adminUsers, value: summary?.users ?? null },
-    { label: copy.adminUserActive, value: summary?.activeUsers ?? null },
-    { label: copy.adminUserDisabled, value: summary ? summary.users - summary.activeUsers : null },
-    { label: copy.adminProfiles, value: summary?.profiles.total ?? null },
-    { label: `${copy.adminProfiles} · ${copy.adminPublished}`, value: summary?.profiles.published ?? null },
-    { label: `${copy.adminProfiles} · ${copy.adminReview}`, value: summary?.profiles.pendingReview ?? null },
-    { label: copy.adminAdministrators, value: summary?.adminIdentities ?? null },
-    { label: copy.adminEditors, value: summary?.editors ?? null },
-    { label: copy.adminSessions, value: summary?.adminSessions ?? null },
-    { label: copy.adminCmsPages, value: cmsWorkspace?.page.total ?? null },
-    { label: copy.adminCmsPosts, value: cmsWorkspace?.post.total ?? null },
+    ...(canReadPeople ? [
+      { label: copy.adminPeopleCount, value: summary?.people ?? null, featured: true },
+      { label: `${copy.adminPeople} · ${copy.adminPublished}`, value: dashboard?.counts.published ?? null },
+      { label: `${copy.adminPeople} · ${copy.adminReview}`, value: dashboard?.counts.review ?? null },
+    ] : []),
+    ...(canReadCategories ? [{ label: copy.adminCategories, value: summary?.categories ?? null }] : []),
+    ...(canReadUsers ? [
+      { label: copy.adminUsers, value: summary?.users ?? null },
+      { label: copy.adminUserActive, value: summary?.activeUsers ?? null },
+      { label: copy.adminUserDisabled, value: summary?.users !== null && summary?.users !== undefined && summary?.activeUsers !== null && summary?.activeUsers !== undefined ? summary.users - summary.activeUsers : null },
+    ] : []),
+    ...(canReadProfiles ? [
+      { label: copy.adminProfiles, value: summary?.profiles.total ?? null },
+      { label: `${copy.adminProfiles} · ${copy.adminPublished}`, value: summary?.profiles.published ?? null },
+      { label: `${copy.adminProfiles} · ${copy.adminReview}`, value: summary?.profiles.pendingReview ?? null },
+    ] : []),
+    ...(canReadAdmins ? [{ label: copy.adminAdministrators, value: summary?.adminIdentities ?? null }] : []),
+    ...(canReadEditors ? [{ label: copy.adminEditors, value: summary?.editors ?? null }] : []),
+    ...(canReadSessions ? [{ label: copy.adminSessions, value: summary?.adminSessions ?? null }] : []),
+    ...(await can("content.read") ? [
+      { label: copy.adminCmsPages, value: cmsWorkspace?.page.total ?? null },
+      { label: copy.adminCmsPosts, value: cmsWorkspace?.post.total ?? null },
+    ] : []),
   ];
 
   return (
@@ -123,10 +151,10 @@ export default async function AdminDashboardPage() {
       <section className="admin-stat-grid admin-control-stat-grid" aria-label={copy.adminControlCenter}>
         {stats.map((stat) => { const view = toDashboardMetricView(stat); return <AdminMetricCard key={view.label} label={view.label} value={view.displayValue} featured={view.featured} />; })}
       </section>
-      <section className="admin-panel" aria-labelledby="admin-status-title">
+      {canReadPeople ? <section className="admin-panel" aria-labelledby="admin-status-title">
         <div className="admin-section-heading"><h2 id="admin-status-title">{copy.adminPeople}</h2><Link href="/admin/people">{copy.adminPeople}</Link></div>
         <div className="admin-status-summary">{statuses.map(([key, label]) => <Link href={`/admin/people?status=${key}`} key={key}><span>{label}</span><strong>{dashboard?.counts[key] ?? "—"}</strong></Link>)}</div>
-      </section>
+      </section> : null}
       <section className="admin-shortcuts" aria-labelledby="admin-shortcuts-title">
         <div className="admin-section-heading"><h2 id="admin-shortcuts-title">{copy.adminQuickActions}</h2></div>
         {visibleQuickActions.length > 0 ? <div className="admin-action-grid">{visibleQuickActions.map((action) => <Link href={action.href} className="admin-action-card" key={action.href}><strong>{action.title}</strong><span>{action.detail}</span></Link>)}</div> : <p className="admin-empty">{copy.adminReadOnly}</p>}
@@ -136,14 +164,14 @@ export default async function AdminDashboardPage() {
         {cmsUnavailable ? <p className="admin-alert" role="alert">{copy.adminCmsRequiresMigration}</p> : <div className="admin-cms-status-grid"><Link href="/admin/content/pages?status=draft"><span>{copy.adminCmsPages} · {copy.adminDraft}</span><strong>{cmsWorkspace?.page.draft ?? "—"}</strong></Link><Link href="/admin/content/pages?status=review"><span>{copy.adminCmsPages} · {copy.adminReview}</span><strong>{cmsWorkspace?.page.review ?? "—"}</strong></Link><Link href="/admin/content/posts?status=draft"><span>{copy.adminCmsPosts} · {copy.adminDraft}</span><strong>{cmsWorkspace?.post.draft ?? "—"}</strong></Link><Link href="/admin/content/posts?status=review"><span>{copy.adminCmsPosts} · {copy.adminReview}</span><strong>{cmsWorkspace?.post.review ?? "—"}</strong></Link></div>}
       </section> : null}
       {await can("content.read") && !cmsUnavailable ? <section className="admin-panel" aria-labelledby="admin-recent-cms-title"><div className="admin-section-heading"><h2 id="admin-recent-cms-title">{copy.adminRecentUpdates} · {copy.adminContent}</h2><Link href="/admin/content">{copy.adminContent}</Link></div>{recentCms.length === 0 ? <p className="admin-empty">{copy.adminCmsNoItems}</p> : <div className="admin-recent-list admin-cms-recent-list">{recentCms.map((item) => <Link href={`/admin/content/${item.kind === "page" ? "pages" : "posts"}/${item.id}`} className="admin-recent-row" key={`${item.kind}-${item.id}`}><span><strong>{item.title}</strong><small dir="ltr">/{item.slug}</small></span><span><b className={`admin-status admin-status-${item.status === "published" ? "published" : item.status === "review" ? "review" : "draft"}`}>{cmsStatusLabel(item.status, copy)}</b><small dir="ltr">{formatDate(item.updatedAt, "ar")}</small></span></Link>)}</div>}</section> : null}
-      <section className="admin-panel" aria-labelledby="admin-recent-title">
+      {canReadPeople ? <section className="admin-panel" aria-labelledby="admin-recent-title">
         <div className="admin-section-heading"><h2 id="admin-recent-title">{copy.adminRecentUpdates}</h2><Link href="/admin/people">{copy.adminPeople}</Link></div>
         {!dashboard?.recent.length ? <p className="admin-empty">{copy.adminNoRecent}</p> : <div className="admin-recent-list">{dashboard.recent.map((person) => <Link href={`/admin/people/${person.id}`} className="admin-recent-row" key={person.id}><span><strong>{person.nameArabic}</strong><small>{person.categories.join(" · ") || "—"}</small></span><span><b className={`admin-status admin-status-${person.status}`}>{statusLabel(person.status, copy)}</b><small>{formatDate(person.updatedAt, "ar")}</small></span></Link>)}</div>}
-      </section>
-      <section className="admin-panel" aria-labelledby="admin-recent-audit-title">
+      </section> : null}
+      {canReadAudit ? <section className="admin-panel" aria-labelledby="admin-recent-audit-title">
         <div className="admin-section-heading"><h2 id="admin-recent-audit-title">{copy.adminRecentActivity}</h2><Link href="/admin/audit">{copy.adminAudit}</Link></div>
         {!summary?.recentAudit.length ? <p className="admin-empty">{copy.adminNoAudit}</p> : <div className="admin-audit-list">{summary.recentAudit.map((log) => <article className="admin-audit-row" key={log.id}><div><strong>{log.action}</strong><small>{log.entityType} · {log.entityId}</small></div><small>{formatDate(log.createdAt, "ar")}</small></article>)}</div>}
-      </section>
+      </section> : null}
       {health ? <section className="admin-panel" aria-labelledby="admin-health-title"><div className="admin-section-heading"><h2 id="admin-health-title">{copy.adminSystemHealth}</h2><Link href="/admin/system">{copy.adminSystem}</Link></div><div className="admin-status-summary"><span><b>{copy.adminDatabaseStatus}</b><strong>{availabilityLabel(health.database, copy)}</strong></span><span><b>{copy.adminMigrationStatus}</b><strong>{availabilityLabel(health.migrations.status, copy)}</strong></span><span><b>{copy.adminAuthStatus}</b><strong>{availabilityLabel(health.auth, copy)}</strong></span><span><b>{copy.adminSiteExperienceStatus}</b><strong>{availabilityLabel(health.siteExperience.status, copy)}</strong></span><span><b>{copy.adminMediaProvider}</b><strong>{availabilityLabel(health.storage, copy)}</strong></span><span><b>{copy.adminContactEmail}</b><strong>{availabilityLabel(health.email, copy)}</strong></span></div></section> : null}
     </div>
   );

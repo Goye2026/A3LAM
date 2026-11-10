@@ -26,6 +26,16 @@ describe("Phase 17.20.04 Admin dashboard contracts", () => {
     expect(dashboard).toContain("adminCmsRequiresMigration");
   });
 
+  it("does not load or render people and audit summaries without matching permissions", () => {
+    const dashboard = source("app/admin/(protected)/page.tsx");
+    const repository = source("lib/data/adminRepository.ts");
+    expect(dashboard).toContain('canReadPeople ? adminRepository.getDashboard() : Promise.resolve(null)');
+    expect(dashboard).toContain('canReadAudit ? <section className="admin-panel"');
+    expect(repository).toContain('allowed("people.read") ? db.select');
+    expect(repository).toContain('allowed("audit.read") ? db.select');
+    expect(repository).toContain('recentAudit: allowed("audit.read")');
+  });
+
   it("shows actual update and publication dates in the bounded CMS table", () => {
     const list = source("components/a3lam/CmsEditorialList.tsx");
     expect(list).toContain("function formatDate(value: string | null)");
