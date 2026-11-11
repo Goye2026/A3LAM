@@ -17,6 +17,16 @@ describe("Phase 17.20.06 site experience builders", () => {
     expect(page).toContain('status: "published"');
   });
 
+  it("exposes all persisted homepage copy, visibility, CTA, and media controls", () => {
+    const editor = read("components/a3lam/AdminSiteExperienceEditor.tsx");
+    expect(editor).toContain("CmsMediaPicker");
+    expect(editor).toContain("sectionDescription");
+    expect(editor).toContain("value.profiles.visible");
+    expect(editor).toContain("value.about.visible");
+    expect(editor).toContain("value.finalCta.title");
+    expect(editor).toContain("personQuery");
+  });
+
   it("supports internal records, external links, visibility, and persisted navigation ordering", () => {
     const editor = read("components/a3lam/AdminSiteExperienceEditor.tsx");
     const header = read("components/a3lam/SiteHeader.tsx");
@@ -45,5 +55,15 @@ describe("Phase 17.20.06 site experience builders", () => {
     expect(route).toContain("siteExperienceRepository.saveDraft");
     expect(route).toContain('isSameOriginMutation(request)');
     expect(repository).toContain("siteExperienceConfigs");
+  });
+
+  it("renders published homepage settings through the existing public homepage", () => {
+    const homepage = read("app/page.tsx");
+    expect(homepage).toContain('getPublishedResource("homepage")');
+    expect(homepage).toContain("homepage.hero.imageUrl");
+    expect(homepage).toContain("homepage.featured.selectedPersonIds");
+    expect(homepage).toContain("sectionStyle(homepage");
+    expect(homepage).toContain("homepage.profiles.visible");
+    expect(homepage).toContain("homepage.about.visible");
   });
 });
