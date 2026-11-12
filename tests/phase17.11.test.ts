@@ -16,6 +16,14 @@ describe("Phase 17.11 homepage discovery regressions", () => {
     expect(homepage).toContain("async function HomepageCatalogSections");
   });
 
+  it("keeps Suspense loading distinct from a real catalog failure", () => {
+    const homepage = readProjectFile("app/page.tsx");
+    const fallback = homepage.slice(homepage.indexOf("function HomepageCatalogFallback"), homepage.indexOf("export default async function HomePage"));
+    expect(fallback).toContain("loading />");
+    expect(fallback).toContain("copy.searchLoading");
+    expect(fallback).not.toContain("copy.dataUnavailable");
+  });
+
   it("does not map ordinal presentation labels as category counts", () => {
     const catalog = readProjectFile("lib/a3lam/catalog.ts");
     expect(catalog).toContain("indexLabel: String(index + 1).padStart(2, \"0\")");

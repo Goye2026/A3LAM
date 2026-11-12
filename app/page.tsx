@@ -91,10 +91,10 @@ function EmptyCatalogState({ message, alert = false }: { message: string; alert?
   );
 }
 
-function CatalogStats({ copy, peopleCount = null, categoriesCount = null, unavailable = false }: { copy: PublicMessages; peopleCount?: number | null; categoriesCount?: number | null; unavailable?: boolean }) {
+function CatalogStats({ copy, peopleCount = null, categoriesCount = null, unavailable = false, loading = false }: { copy: PublicMessages; peopleCount?: number | null; categoriesCount?: number | null; unavailable?: boolean; loading?: boolean }) {
   const stats = [
-    { value: unavailable || peopleCount === null ? "—" : String(peopleCount).padStart(2, "0"), label: copy.statsPeople },
-    { value: unavailable || categoriesCount === null ? "—" : String(categoriesCount).padStart(2, "0"), label: copy.statsCategories },
+    { value: loading ? "…" : unavailable || peopleCount === null ? "—" : String(peopleCount).padStart(2, "0"), label: copy.statsPeople },
+    { value: loading ? "…" : unavailable || categoriesCount === null ? "—" : String(categoriesCount).padStart(2, "0"), label: copy.statsCategories },
     { value: "—", label: copy.statsCountries },
   ];
 
@@ -108,7 +108,7 @@ function CatalogStats({ copy, peopleCount = null, categoriesCount = null, unavai
       ))}
       <div className="stat-source">
         <span className="stat-source-line" aria-hidden="true" />
-        <span>{unavailable ? copy.dataUnavailable : copy.publishedDataNote}</span>
+        <span>{loading ? copy.searchLoading : unavailable ? copy.dataUnavailable : copy.publishedDataNote}</span>
       </div>
     </section>
   );
@@ -193,18 +193,18 @@ async function HomepageCatalogSections({ homepage, copy, publicCopy, homepageCop
 function HomepageCatalogFallback({ homepage, copy, homepageCopy }: Pick<CatalogSectionsProps, "homepage" | "copy" | "homepageCopy">) {
   return (
     <div className="homepage-catalog-stream" style={{ display: "contents" }}>
-      <CatalogStats copy={copy} unavailable />
+      <CatalogStats copy={copy} loading />
       {isVisible(homepage, "search") ? <SearchDiscovery copy={homepageCopy} categories={[]} helperText={homepageCopy.searchHelperText} style={sectionStyle(homepage, "search")} /> : null}
       {isVisible(homepage, "featured") ? (
         <section className="section-block featured-section" aria-labelledby="featured-fallback-title" style={sectionStyle(homepage, "featured")}>
           <div className="section-header-row"><div><p className="eyebrow">{homepageCopy.featuredEyebrow}</p><h2 id="featured-fallback-title">{homepageCopy.featuredTitle}</h2></div></div>
-          <EmptyCatalogState message={copy.dataUnavailable} alert />
+          <EmptyCatalogState message={copy.searchLoading} />
         </section>
       ) : null}
       {isVisible(homepage, "categories") ? (
         <section className="section-block categories-section" aria-labelledby="categories-fallback-title" style={sectionStyle(homepage, "categories")}>
           <div className="section-header-row"><div><p className="eyebrow">{homepageCopy.categoriesEyebrow}</p><h2 id="categories-fallback-title">{homepageCopy.categoriesTitle}</h2></div></div>
-          <EmptyCatalogState message={copy.dataUnavailable} alert />
+          <EmptyCatalogState message={copy.searchLoading} />
         </section>
       ) : null}
     </div>
