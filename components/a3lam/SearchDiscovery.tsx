@@ -2,6 +2,7 @@
 
 import type { CSSProperties, FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Category } from "@/lib/domain/a3lam";
 import type { PublicMessages } from "@/lib/i18n/messages";
@@ -37,6 +38,7 @@ type SearchState = "idle" | "loading" | "success" | "error" | "empty";
 type SubmittedFilters = { query: string; categorySlug: string; city: string; country: string };
 
 export function SearchDiscovery({ copy, categories, initialQuery = "", initialCategorySlug = "", initialCity = "", initialCountry = "", helperText, style }: SearchDiscoveryProps) {
+  const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
   const [categorySlug, setCategorySlug] = useState(initialCategorySlug);
   const [city, setCity] = useState(initialCity);
@@ -73,6 +75,7 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
     setQuery(""); setCategorySlug(""); setCity(""); setCountry("");
     setSubmittedFilters({ query: "", categorySlug: "", city: "", country: "" });
     setResults([]); setSearchState("idle");
+    router.replace("/search", { scroll: false });
   }
 
   function handleRetry() {
@@ -83,6 +86,12 @@ export function SearchDiscovery({ copy, categories, initialQuery = "", initialCa
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextFilters = { query, categorySlug, city, country };
+    const params = new URLSearchParams();
+    if (query.trim()) params.set("q", query.trim());
+    if (categorySlug) params.set("category", categorySlug);
+    if (city.trim()) params.set("city", city.trim());
+    if (country.trim()) params.set("country", country.trim());
+    router.replace(params.toString() ? `/search?${params.toString()}` : "/search", { scroll: false });
     const hasFilters = query.trim() || categorySlug || city.trim() || country.trim();
     if (!hasFilters) {
       setResults([]);
